@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,7 +9,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Orleans;
+using Orleans.Configuration;
+using Orleans.Runtime;
 using Swashbuckle.AspNetCore.Swagger;
+using _101mngr.Contracts;
 using _101mngr.WebApp.Configuration;
 using _101mngr.WebApp.Controllers;
 using _101mngr.WebApp.Data;
@@ -34,6 +40,7 @@ namespace _101mngr.WebApp
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(JwtBearerDefaults.AuthenticationScheme, ConfigureAuthentication);
+            services.AddSingleton<IClusterClient>(CreateClusterClient);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSwaggerGen(c =>
@@ -50,6 +57,48 @@ namespace _101mngr.WebApp
 
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<MatchController.MatchRepository>();
+        }
+        private IClusterClient CreateClusterClient(IServiceProvider serviceProvider) =>
+            StartClientWithRetries().GetAwaiter().GetResult();
+
+        private async Task<IClusterClient> StartClientWithRetries(int initializeAttemptsBeforeFailing = 5)
+        {
+            int attempt = 0;
+            IClusterClient client;
+            while (true)
+            {
+                try
+                {
+                    client = new ClientBuilder()
+                        .Configure<ClusterOptions>(options =>
+                        {
+                            options.ClusterId = "wallet";
+                            options.ServiceId = "wallet";
+                        })
+                        .UseLocalhostClustering()
+                        .ConfigureLogging(builder => builder.AddConsole())
+                        .ConfigureApplicationParts(parts =>
+                            parts.AddApplicationPart(typeof(IPlayerGrain).Assembly).WithReferences())
+                        .Build();
+                    await client.Connect();
+                    Console.WriteLine("Client successfully connect to silo host");
+                    break;
+                }
+                catch (SiloUnavailableException)
+                {
+                    attempt++;
+                    Console.WriteLine(
+                        $"Attempt {attempt} of {initializeAttemptsBeforeFailing} failed to initialize the Orleans client.");
+                    if (attempt > initializeAttemptsBeforeFailing)
+                    {
+                        throw;
+                    }
+
+                    await Task.Delay(TimeSpan.FromSeconds(4));
+                }
+            }
+
+            return client;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

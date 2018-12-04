@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Orleans;
 using _101mngr.AuthorizationServer.Models;
+using _101mngr.Contracts;
 using _101mngr.WebApp.Models.Requests;
 using _101mngr.WebApp.Services;
 
@@ -17,10 +19,21 @@ namespace _101mngr.WebApp.Controllers
     public class AccountController : Controller
     {
         private readonly AuthorizationService _authorizationService;
+        private readonly IClusterClient _clusterClient;
 
-        public AccountController(AuthorizationService authorizationService)
+        public AccountController(AuthorizationService authorizationService, IClusterClient clusterClient)
         {
             _authorizationService = authorizationService;
+            _clusterClient = clusterClient;
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{accountId}")]
+        public async Task<IActionResult> GetId(long accountId)
+        {
+            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
+            var result = await playerGrain.GetPlayer();
+            return Ok(result);
         }
 
         /// <summary>
