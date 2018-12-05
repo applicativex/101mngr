@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Orleans;
 using _101mngr.AuthorizationServer.Models;
 using _101mngr.Contracts;
+using _101mngr.Contracts.Models;
 using _101mngr.WebApp.Models.Requests;
 using _101mngr.WebApp.Services;
 
@@ -51,6 +52,13 @@ namespace _101mngr.WebApp.Controllers
 
             var accountId = await _authorizationService.Register(
                 inputModel.UserName, inputModel.Email, inputModel.Password, inputModel.CountryCode);
+            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
+            await playerGrain.Create(new CreatePlayerDto
+            {
+                UserName = inputModel.UserName,
+                CountryCode = inputModel.CountryCode,
+                Email = inputModel.Email
+            });
             return Ok(accountId);
 
             bool IsCountryCodeValid(string countryCode) => CultureInfo

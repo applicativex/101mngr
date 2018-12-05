@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Orleans;
+using _101mngr.Contracts;
 using _101mngr.WebApp.Data;
-using _101mngr.WebApp.Services;
+using PlayerType = _101mngr.WebApp.Services.PlayerType;
 
 namespace _101mngr.WebApp.Controllers
 {
@@ -13,33 +15,20 @@ namespace _101mngr.WebApp.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly MatchRepository _matchRepository;
+        private readonly IClusterClient _clusterClient;
 
-        public MatchController(ApplicationDbContext context, MatchRepository matchRepository)
+        public MatchController(ApplicationDbContext context, MatchRepository matchRepository, IClusterClient clusterClient)
         {
             _context = context;
             _matchRepository = matchRepository;
+            _clusterClient = clusterClient;
         }
 
         [HttpPost("new")]
         public async Task<IActionResult> NewMatch([FromBody] NewMatchRequest request)
         {
-            var matchId = $"{request.PlayerId}:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-            var match = new MatchGrain
-            {
-                MatchId = matchId,
-                PlayerId = request.PlayerId,
-                Players = new List<MatchPlayer>
-                {
-                    new MatchPlayer
-                    {
-                        Id = request.PlayerId,
-                        UserName = request.UserName,
-                        PlayerType = request.PlayerType,
-                        Level = request.Level
-                    }
-                }
-            };
-            await _matchRepository.Save(match);
+            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(request.PlayerId);
+            var matchId = await playerGrain.NewMatch();
             return Ok(matchId);
         }
 
@@ -79,6 +68,14 @@ namespace _101mngr.WebApp.Controllers
                 Team1 = match.Team1.ToArray(),
                 Team2 = match.Team2.ToArray(),
             });
+        }
+
+        [HttpPut("{matchId}/join/{playerId}")]
+        public async Task<IActionResult> JoinMatch(string matchId, long playerId)
+        {
+            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(playerId);
+            await playerGrain.JoinMatch(matchId);
+            return Ok();
         }
 
         [HttpPut("{matchId}/captain-pick")]
