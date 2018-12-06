@@ -24,11 +24,27 @@ namespace _101mngr.WebApp.Controllers
             _clusterClient = clusterClient;
         }
 
+        [HttpGet("")]
+        public async Task<IActionResult> GetMatches()
+        {
+            var matchListGrain = _clusterClient.GetGrain<IMatchListGrain>(0);
+            var matches = await matchListGrain.GetMatches();
+            return Ok(matches);
+        }
+
+        [HttpGet("{matchId}")]
+        public async Task<IActionResult> GetMatches(string matchId)
+        {
+            var matchGrain = _clusterClient.GetGrain<IMatchGrain>(matchId);
+            var matchInfo = await matchGrain.GetMatchInfo();
+            return Ok(matchInfo);
+        }
+
         [HttpPost("new")]
         public async Task<IActionResult> NewMatch([FromBody] NewMatchRequest request)
         {
             var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(request.PlayerId);
-            var matchId = await playerGrain.NewMatch();
+            var matchId = await playerGrain.NewMatch(request.MatchName);
             return Ok(matchId);
         }
 
@@ -133,15 +149,6 @@ namespace _101mngr.WebApp.Controllers
             match.Start().ContinueWith(async t => { await _matchRepository.Save(match); });
 
             return Ok();
-        }
-
-        [HttpGet("{matchId}")]
-        [ProducesResponseType(typeof(MatchResponse), 200)]
-        public async Task<IActionResult> GetMatch(string matchId)
-        {
-            var match = await _matchRepository.Get(matchId);
-
-            return Ok(match);
         }
 
         public class MatchResponse
@@ -261,6 +268,8 @@ namespace _101mngr.WebApp.Controllers
         public class NewMatchRequest
         {
             public long PlayerId { get; set; }
+
+            public string MatchName { get; set; }   
 
             public PlayerType PlayerType { get; set; }
 

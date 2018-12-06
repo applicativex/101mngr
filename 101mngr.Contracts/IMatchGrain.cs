@@ -6,18 +6,14 @@ namespace _101mngr.Contracts
 {
     public interface IMatchGrain : IGrainWithStringKey
     {
-        Task NewMatch(PlayerDataDto player);
+        Task<MatchInfoDto> GetMatchInfo();
 
-        Task JoinMatch(PlayerDataDto player);
+        Task NewMatch(long playerId, string playerName, string matchName);
 
-        // Task LeaveMatch(long playerId);
-            
-        Task PickCaptains();
+        Task JoinMatch(long playerId, string playerName);
 
-        Task PickPlayer(int team, long playerId);
+        Task LeaveMatch(long playerId);
 
-        Task<PlayerDataDto[]> GetPlayers();
-
-        Task StartMatch();
+        Task PlayMatch();  
     }
 }

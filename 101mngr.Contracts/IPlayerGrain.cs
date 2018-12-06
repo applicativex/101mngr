@@ -12,7 +12,7 @@ namespace _101mngr.Contracts
 
         Task<PlayerDto> GetPlayerInfo();
 
-        Task<string> NewMatch();
+        Task<string> NewMatch(string matchName);
 
         Task JoinMatch(string matchId);
 

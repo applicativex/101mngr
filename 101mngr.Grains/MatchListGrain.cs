@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Orleans;
 using _101mngr.Contracts;
@@ -6,7 +8,7 @@ using _101mngr.Contracts.Models;
 
 namespace _101mngr.Grains
 {
-    public class MatchRegistryGrain : Grain, IMatchRegistryGrain
+    public class MatchListGrain : Grain, IMatchListGrain
     {
         private List<MatchDto> _matchList;
 
@@ -18,12 +20,17 @@ namespace _101mngr.Grains
 
         public Task<List<MatchDto>> GetMatches()
         {
-            return Task.FromResult(_matchList);
+            return Task.FromResult(_matchList.OrderByDescending(x => x.CreatedAt).ToList());
         }
 
-        public Task Register(MatchDto dto)
+        public Task Add(string id, string name)
         {
-            _matchList.Add(new MatchDto());
+            _matchList.Add(new MatchDto
+            {
+                Id = id,
+                Name = name,
+                CreatedAt = DateTime.UtcNow
+            });
             return Task.CompletedTask;
         }
 

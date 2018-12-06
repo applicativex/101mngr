@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Orleans;
 using _101mngr.Contracts;
+using _101mngr.Contracts.Enums;
 using _101mngr.Contracts.Models;
 
 namespace _101mngr.Grains
@@ -14,31 +15,40 @@ namespace _101mngr.Grains
 
         public override Task OnActivateAsync()
         {
-            State = new MatchState {Id = MatchId};
+            State = new MatchState {Id = MatchId,Players = new List<PlayerDataDto>()};
             return base.OnActivateAsync();
         }
-        
-        public async Task NewMatch(PlayerDataDto player)
+
+        public Task<MatchInfoDto> GetMatchInfo()
         {
-            State.Players.Add(new PlayerDataDto
+            return Task.FromResult(new MatchInfoDto
             {
-                Id = player.Id,
-                Level = player.Level,
-                PlayerType = player.PlayerType,
-                UserName = player.UserName
+                Id = MatchId, Name = State.Name, CreatedAt = DateTime.UtcNow, Players = State.Players.ToArray()
             });
-            var matchRegistryGrain = GrainFactory.GetGrain<IMatchRegistryGrain>(0);
-            await matchRegistryGrain.Register(new MatchDto {Id = MatchId});
         }
 
-        public Task JoinMatch(PlayerDataDto player)
+        public async Task NewMatch(long playerId, string playerName, string matchName)
         {
             State.Players.Add(new PlayerDataDto
             {
-                Id = player.Id,
-                Level = player.Level,
-                PlayerType = player.PlayerType,
-                UserName = player.UserName
+                Id = playerId,
+                Level = 10,
+                PlayerType = PlayerType.Midfielder,
+                UserName = playerName
+            });
+            State.Name = matchName;
+            var matchRegistryGrain = GrainFactory.GetGrain<IMatchListGrain>(0);
+            await matchRegistryGrain.Add(MatchId, State.Name);
+        }
+
+        public Task JoinMatch(long playerId, string playerName)
+        {
+            State.Players.Add(new PlayerDataDto
+            {
+                Id = playerId,
+                Level = 10,
+                PlayerType = PlayerType.Midfielder,
+                UserName = playerName
             });
             return Task.CompletedTask;
         }
@@ -48,48 +58,20 @@ namespace _101mngr.Grains
             State.Players.RemoveAll(x => x.Id == playerId);
             return Task.CompletedTask;
         }
-
-        public Task PickCaptains()
+        
+        public async Task PlayMatch()
         {
-            var (team1, team2) = GetRandomCaptainIds();
-
-            State.Players[team1].IsCaptain = true;
-            State.Players[team2].IsCaptain = true;
-
-            return Task.CompletedTask;
-
-            (int, int) GetRandomCaptainIds()
-            {
-                var random = new Random();
-                int captainTeam2Index;
-                var captainTeam1Index = random.Next(State.Players.Count - 1);
-                do
-                {
-                    captainTeam2Index = random.Next(State.Players.Count - 1);
-                } while (captainTeam1Index != captainTeam2Index);
-
-                return (captainTeam1Index, captainTeam2Index);
-            }
-        }
-
-        public Task<PlayerDataDto[]> GetPlayers()
-        {
-            return Task.FromResult(State.Players.ToArray());
-        }
-
-        public Task StartMatch()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task PickPlayer(int team, long playerId)
-        {
-            throw new NotImplementedException();
+            var matchRegistryGrain = GrainFactory.GetGrain<IMatchListGrain>(0);
+            await matchRegistryGrain.Remove(MatchId);
         }
 
         private class MatchState
         {
             public string Id { get; set; }
+
+            public string Name { get; set; }
+
+            public DateTime CreatedAt { get; set; } 
 
             public List<PlayerDataDto> Players { get; set; }
 

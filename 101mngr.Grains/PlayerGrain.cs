@@ -36,31 +36,24 @@ namespace _101mngr.Grains
             throw new NotImplementedException();
         }
 
-        public async Task<string> NewMatch()
+        public async Task<string> NewMatch(string matchName)
         {
             var matchId = $"{PlayerId}:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
             var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
-            await matchGrain.NewMatch(new PlayerDataDto
-            {
-                Id = PlayerId, UserName = State.UserName,
-                PlayerType = PlayerType.Midfielder,
-                Level = 10
-            });
+            await matchGrain.NewMatch(PlayerId, State?.UserName, matchName);
             return matchId;
         }
 
         public async Task JoinMatch(string matchId)
         {
             var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
-            await matchGrain.JoinMatch(new PlayerDataDto
-            {
-                Id = PlayerId, UserName = State.UserName, PlayerType = PlayerType.Midfielder, Level = 10
-            });
+            await matchGrain.JoinMatch(PlayerId, State?.UserName);
         }
 
-        public Task LeaveMatch(string matchId)
+        public async Task LeaveMatch(string matchId)
         {
-            throw new NotImplementedException();
+            var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
+            await matchGrain.LeaveMatch(PlayerId);
         }
 
         protected class PlayerState
