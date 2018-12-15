@@ -29,7 +29,18 @@ namespace _101mngr.WebApp.Controllers
         {
             var matchListGrain = _clusterClient.GetGrain<IMatchListGrain>(0);
             var matches = await matchListGrain.GetMatches();
-            return Ok(matches);
+            return Ok(matches.Concat(Enumerable.Range(1, 5).Select((x, i) => new Contracts.Models.MatchDto
+            {
+                Id = "",
+                Name = $"Match {i + 1}",
+                CreatedAt = DateTime.UtcNow,
+            })));
+        }
+
+        [HttpGet("test")]
+        public async Task<IActionResult> Get()
+        {
+            return Ok(new { Value = "abc" });
         }
 
         [HttpGet("{matchId}")]
@@ -45,7 +56,7 @@ namespace _101mngr.WebApp.Controllers
         {
             var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(request.PlayerId);
             var matchId = await playerGrain.NewMatch(request.MatchName);
-            return Ok(matchId);
+            return Ok(new { Id = matchId });
         }
 
         [HttpPut("{matchId}/invite")]

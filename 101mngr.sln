@@ -1,17 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28407.52
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "101mngr.AuthorizationServer", "101mngr.AuthorizationServer\101mngr.AuthorizationServer.csproj", "{9B9CBF43-D0BE-4AEB-A3C4-9128C3654586}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "101mngr.WebApp", "101mngr.WebApp\101mngr.WebApp.csproj", "{464837BF-92CC-414A-A990-CEC4B414853B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "101mngr.Host", "101mngr.Host\101mngr.Host.csproj", "{9740AF93-5C3C-4BA2-A224-C4D2DA5C49A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "101mngr.Host", "101mngr.Host\101mngr.Host.csproj", "{9740AF93-5C3C-4BA2-A224-C4D2DA5C49A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "101mngr.Grains", "101mngr.Grains\101mngr.Grains.csproj", "{12333375-3C43-4755-A7E8-B7457B8D0BB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "101mngr.Grains", "101mngr.Grains\101mngr.Grains.csproj", "{12333375-3C43-4755-A7E8-B7457B8D0BB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "101mngr.Contracts", "101mngr.Contracts\101mngr.Contracts.csproj", "{AE4A7881-1CE2-4852-8A39-4FCAA58E729C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "101mngr.Contracts", "101mngr.Contracts\101mngr.Contracts.csproj", "{AE4A7881-1CE2-4852-8A39-4FCAA58E729C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
