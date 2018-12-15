@@ -7,9 +7,11 @@ using Orleans;
 using _101mngr.Contracts;
 using _101mngr.WebApp.Data;
 using PlayerType = _101mngr.WebApp.Services.PlayerType;
+using Microsoft.AspNetCore.Authorization;
 
 namespace _101mngr.WebApp.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     public class MatchController : Controller    
     {
@@ -24,6 +26,7 @@ namespace _101mngr.WebApp.Controllers
             _clusterClient = clusterClient;
         }
 
+        [AllowAnonymous]
         [HttpGet("")]
         public async Task<IActionResult> GetMatches()
         {
@@ -43,6 +46,7 @@ namespace _101mngr.WebApp.Controllers
             return Ok(new { Value = "abc" });
         }
 
+        [AllowAnonymous]
         [HttpGet("{matchId}")]
         public async Task<IActionResult> GetMatches(string matchId)
         {
@@ -54,7 +58,8 @@ namespace _101mngr.WebApp.Controllers
         [HttpPost("new")]
         public async Task<IActionResult> NewMatch([FromBody] NewMatchRequest request)
         {
-            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(request.PlayerId);
+            var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
+            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
             var matchId = await playerGrain.NewMatch(request.MatchName);
             return Ok(new { Id = matchId });
         }

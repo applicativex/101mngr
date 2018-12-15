@@ -59,7 +59,7 @@ namespace _101mngr.WebApp.Controllers
                 CountryCode = inputModel.CountryCode,
                 Email = inputModel.Email
             });
-            return Ok(accountId);
+            return Ok(new { Id = accountId });
 
             bool IsCountryCodeValid(string countryCode) => CultureInfo
                 .GetCultures(CultureTypes.SpecificCultures)
@@ -73,7 +73,7 @@ namespace _101mngr.WebApp.Controllers
         public async Task<IActionResult> Login([FromBody] LoginInputModel model)
         {
             var token = await _authorizationService.Login(model.Email, model.Password);
-            return Ok($"Bearer {token}");
+            return Ok(new { Token = $"Bearer {token}" });
         }
 
         [HttpGet("profile")]

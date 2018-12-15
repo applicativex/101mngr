@@ -36,31 +36,59 @@ export class Login extends React.Component {
             Alert.alert('Please enter a passwrd');
         }
         else{
-            AsyncStorage.getItem('userLoggedIn', (err,result)=>{
 
-                if(result !=='none'){
-                    Alert.alert('Someone already logged on');
-                    this.props.navigation.navigate('HomeRT');
-                }
-                else {
-                    AsyncStorage.getItem(this.state.username,(err,result)=>{
-                        if(result!==null){
-                            if(result!==this.state.passwrd){
-                                Alert.alert('Password incorrect');
-                            }
-                            else{
-                                AsyncStorage.setItem('userLoggedIn', this.state.username, (err,result)=>{
-                                    Alert.alert(`${this.state.username} logged in`);
-                                    this.props.navigation.navigate('HomeRT');
-                                })
-                            }
-                        }
-                        else {
-                            Alert.alert(`No account for ${this.state.username}`);
-                        }
-                    })
-                }
-            })
+            return fetch('http://192.168.0.101:80/api/account/login', {
+                                        method: 'POST',
+                                        headers: {
+                                            Accept: 'application/json',
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            email: this.state.username,
+                                            password: this.state.passwrd
+                                        }),
+                                    })
+                                    .then((response) => response.json())
+                                    .then((responseJson) => {
+                                        console.log('lll '+responseJson.token);
+                                        AsyncStorage.setItem('token', responseJson.token, (err,result)=>{
+                                            Alert.alert(`${this.state.username} logged in`);
+                                            this.props.navigation.navigate('HomeRT');
+                                        })
+                                        console.log(responseJson.token);  
+                                        this.props.navigation.navigate('HomeRT');
+                                    })
+                                    .catch((error) =>{
+                                        console.error(error);
+                                    });
+
+            // AsyncStorage.getItem('userLoggedIn', (err,result)=>{
+
+            //     if(result !=='none'){
+            //         Alert.alert('Someone already logged on');
+            //         this.props.navigation.navigate('HomeRT');
+            //     }
+            //     else {
+            //         AsyncStorage.getItem(this.state.username,(err,result)=>{
+            //             if(result!==null){
+            //                 if(result!==this.state.passwrd){
+            //                     Alert.alert('Password incorrect');
+            //                 }
+            //                 else{
+                                
+
+            //                     AsyncStorage.setItem('userLoggedIn', this.state.username, (err,result)=>{
+            //                         Alert.alert(`${this.state.username} logged in`);
+            //                         this.props.navigation.navigate('HomeRT');
+            //                     })
+            //                 }
+            //             }
+            //             else {
+            //                 Alert.alert(`No account for ${this.state.username}`);
+            //             }
+            //         })
+            //     }
+            // })
         }
     }
 

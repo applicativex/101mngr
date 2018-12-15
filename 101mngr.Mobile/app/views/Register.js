@@ -20,7 +20,8 @@ export class Register extends React.Component {
         this.state = {
             username: '',
             passwrd: '',
-            passwrdConfirm: ''
+            passwrdConfirm: '',
+            email: ''
         }
     }
 
@@ -35,17 +36,40 @@ export class Register extends React.Component {
         } else if(this.state.passwrd !== this.state.passwrdConfirm){
             Alert.alert('Passwords do not match');
         }else {
-            AsyncStorage.getItem(this.state.username, (err,result)=>{
-                if (result!==null){
-                    Alert.alert(`${this.state.username} account exists`)
-                }
-                else{
-                    AsyncStorage.setItem(this.state.username, this.state.passwrd, (err,result=>{
-                        Alert.alert(`${this.state.username} account created`);
-                        this.props.navigation.navigate('HomeRT');
-                    }))
-                }
+        
+            return fetch('http://192.168.0.101:80/api/account/register', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: this.state.email,
+                    userName: this.state.username,
+                    password: this.state.passwrd,
+                    countryCode: "UA"
+                }),
+            })
+            .then((response) => response.json())
+            .then((responseJson) => {
+    
+              console.log(responseJson.id);  
+              this.props.navigation.navigate('HomeRT');
+            })
+            .catch((error) =>{
+              console.error(error);
             });
+            // AsyncStorage.getItem(this.state.username, (err,result)=>{
+            //     if (result!==null){
+            //         Alert.alert(`${this.state.username} account exists`)
+            //     }
+            //     else{
+            //         AsyncStorage.setItem(this.state.username, this.state.passwrd, (err,result=>{
+            //             Alert.alert(`${this.state.username} account created`);
+            //             this.props.navigation.navigate('HomeRT');
+            //         }))
+            //     }
+            // });
         }
     }
 
@@ -60,6 +84,13 @@ export class Register extends React.Component {
                     value={this.state.username}
                 />
                 <Text style={styles.label}>Enter Username</Text>
+
+                <TextInput
+                    style={styles.inputs}
+                    onChangeText={(text) => this.setState({email: text})}
+                    value={this.state.email}
+                />
+                <Text style={styles.label}>Enter Email</Text>
 
                 <TextInput
                     style={styles.inputs}
@@ -94,7 +125,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        paddingBottom: '45%',
+        paddingBottom: '35%',
         paddingTop: '10%'
     },
     heading: {

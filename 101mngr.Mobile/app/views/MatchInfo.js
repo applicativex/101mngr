@@ -11,7 +11,8 @@ export class MatchInfo extends React.Component {
         this.state = {
             id: 0,
             name: "",
-            createdAt: null
+            createdAt: null,
+            playerList: []
         };
     }
 
@@ -25,7 +26,8 @@ export class MatchInfo extends React.Component {
             this.setState({
               id: responseJson.id,
               name: responseJson.name,
-              createdAt: responseJson.createdAt
+              createdAt: responseJson.createdAt,
+              playerList: responseJson.players
             }, function(){
     
             });
@@ -44,6 +46,13 @@ export class MatchInfo extends React.Component {
                 <Text style={styles.heading}>Id: {this.state.id}</Text>
                 <Text style={styles.heading}>Name: {this.state.name}</Text>
                 <Text style={styles.heading}>Created At: {this.state.createdAt}</Text>
+                <Text style={styles.heading}>Players:</Text>
+                
+                <FlatList style={{flex:1, margin: 10}}
+                                    data={this.state.playerList}
+                                    renderItem={({item})=>
+                                    <Text>Player: {item.userName}</Text>
+                                    } />
             </View>
         );
     }

@@ -35,20 +35,6 @@ export class NewMatch extends React.Component {
           });
     }
 
-    newMatch(){
-        fetch('http://192.168.0.101:80/api/match', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                firstParam: 'yourValue',
-                secondParam: 'yourOtherValue',
-            }),
-        });
-    }
-
     invitePlayers = () =>{
         this.setState({
             isInvited: true,
@@ -120,7 +106,7 @@ export class PlayerList extends React.Component {
                 <TouchableHighlight onPress={this.onPress} underlayColor='#31e981'>
                     <Text style={styles.buttons}>Pick Players</Text>
                 </TouchableHighlight>
-                <FlatList style={{flex:1, margin: 10}}
+                <FlatList style={{flex:1, margin: 10}}                            
                             data={this.props.playersList}
                             renderItem={({item})=>
                                 <Text>{item.userName}</Text>

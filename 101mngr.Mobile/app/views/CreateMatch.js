@@ -28,38 +28,47 @@ export class CreateMatch extends React.Component {
     }
 
     createMatch = () => {
-        
-        fetch('http://192.168.0.101:80/api/match/new', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                playerId: 1,
-                matchName: this.state.name,
-            }),
-        })
-        .then((response) => response.json())
-        .then((responseJson) => {
+        return AsyncStorage.getItem('token', (err, result) => {
+            if (result !== null) {
+                return fetch('http://192.168.0.101:80/api/match/new', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        Authorization: result
+                    },
+                    body: JSON.stringify({
+                        playerId: 1,
+                        matchName: this.state.name,
+                    }),
+                })
+                    .then((response) => {
+                        console.log(response);
+                        return response.json();
+                    })
+                    .then((responseJson) => {
 
-          console.log(responseJson.id);  
-          this.props.navigation.navigate('MatchInfoRT', {matchId: responseJson.id});
-        })
-        .catch((error) =>{
-          console.error(error);
+                        console.log(responseJson.id);
+                        this.props.navigation.navigate('MatchInfoRT', { matchId: responseJson.id });
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    })
+            }
+            else {
+                Alert.alert(`Please login`);
+            }
         });
-        console.log("Match created");
     }
 
-    render(){
-        return(
+    render() {
+        return (
             <View style={styles.container}>
                 <Text style={styles.heading}>Create Match</Text>
 
                 <TextInput
                     style={styles.inputs}
-                    onChangeText={(text) => this.setState({name: text})}
+                    onChangeText={(text) => this.setState({ name: text })}
                     value={this.state.name}
                 />
                 <Text style={styles.label}>Match name</Text>
@@ -89,13 +98,13 @@ const styles = StyleSheet.create({
         flex: 1
     },
     inputs: {
-        flex:1,
+        flex: 1,
         width: '80%',
         padding: 10
     },
-    buttons:{
-        marginTop:15,
-        fontSize:16
+    buttons: {
+        marginTop: 15,
+        fontSize: 16
     },
     labels: {
         paddingBottom: 10
