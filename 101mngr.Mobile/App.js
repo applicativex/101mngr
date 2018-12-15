@@ -10,6 +10,7 @@ import { StartMatch } from './app/views/StartMatch.js';
 import { EndMatch } from './app/views/EndMatch.js';
 import { NewMatch } from './app/views/NewMatch.js';
 import { CreateMatch } from './app/views/CreateMatch.js';
+import { MatchInfo } from './app/views/MatchInfo.js';
 
 const MyRoutes = StackNavigator({
   HomeRT: {
@@ -41,6 +42,9 @@ const MyRoutes = StackNavigator({
   },
   CreateMatchRT: {
     screen: CreateMatch
+  },
+  MatchInfoRT: {
+    screen: MatchInfo
   }
 },
 {

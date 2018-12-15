@@ -31,7 +31,7 @@ namespace _101mngr.WebApp.Controllers
             var matches = await matchListGrain.GetMatches();
             return Ok(matches.Concat(Enumerable.Range(1, 5).Select((x, i) => new Contracts.Models.MatchDto
             {
-                Id = "",
+                Id = Guid.NewGuid().ToString(),
                 Name = $"Match {i + 1}",
                 CreatedAt = DateTime.UtcNow,
             })));

@@ -44,7 +44,7 @@ export class CreateMatch extends React.Component {
         .then((responseJson) => {
 
           console.log(responseJson.id);  
-          this.props.navigation.navigate('MatchRT');
+          this.props.navigation.navigate('MatchInfoRT', {matchId: responseJson.id});
         })
         .catch((error) =>{
           console.error(error);

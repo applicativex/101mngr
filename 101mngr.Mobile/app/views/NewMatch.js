@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, AsyncStorage, Alert, TouchableHighlight, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Image, AsyncStorage, Alert, TouchableHighlight, FlatList, TouchableWithoutFeedback } from 'react-native';
 import {PlayersData} from '../data/Players.js';
 import { PlayerListItem } from '../sections/PlayerListItem.js';
 
@@ -71,17 +71,40 @@ export class NewMatch extends React.Component {
 
                 <Text style={styles.heading}>Current Matches</Text>
 
-                <FlatList style={{flex:1, margin: 10}}
+                
+                <FlatList 
                             data={this.state.matchList}
-                            renderItem={({item})=>
-                                <Text>{item.name}</Text>
-                            }
+                            renderItem={({item}) =>
+                            <MatchItem
+                                navigate={navigate}
+                                id={item.id}
+                                name={item.name} />
+                            }    
                         />
                 
                 <TouchableHighlight onPress={this.newMatch} underlayColor='#31e981'>
                     <Text style={styles.buttons}>New Match</Text>
                 </TouchableHighlight>
             </View>
+        );
+    }
+}
+
+export class MatchItem extends React.Component {
+    onPress = () => {
+        //Alert.alert(this.props.name);
+        this.props.navigate('MatchInfoRT', {matchId: this.props.id} );
+    }
+
+    render(){
+        return(
+            <TouchableWithoutFeedback onPress={this.onPress}>
+                <View style={{paddingTop:20,alignItems:'center'}}>
+                    <Text>
+                        {this.props.name}
+                    </Text>
+                </View>
+            </TouchableWithoutFeedback>
         );
     }
 }
