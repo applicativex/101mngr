@@ -5,6 +5,7 @@ using Orleans;
 using _101mngr.Contracts;
 using _101mngr.Contracts.Enums;
 using _101mngr.Contracts.Models;
+using System.Linq;
 
 namespace _101mngr.Grains
 {
@@ -61,6 +62,12 @@ namespace _101mngr.Grains
         
         public async Task PlayMatch()
         {
+            await Task.WhenAll(State.Players.Select(x => GrainFactory.GetGrain<IPlayerGrain>(x.Id.Value)).Select(x => x.AddMatchHistory(new MatchDto
+            {
+                Id = MatchId,
+                Name = State.Name,
+                CreatedAt = State.CreatedAt
+            })));
             var matchRegistryGrain = GrainFactory.GetGrain<IMatchListGrain>(0);
             await matchRegistryGrain.Remove(MatchId);
         }
@@ -74,7 +81,6 @@ namespace _101mngr.Grains
             public DateTime CreatedAt { get; set; } 
 
             public List<PlayerDataDto> Players { get; set; }
-
         }
     }
 }

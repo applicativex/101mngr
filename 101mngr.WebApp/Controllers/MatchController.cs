@@ -40,12 +40,6 @@ namespace _101mngr.WebApp.Controllers
             })));
         }
 
-        [HttpGet("test")]
-        public async Task<IActionResult> Get()
-        {
-            return Ok(new { Value = "abc" });
-        }
-
         [AllowAnonymous]
         [HttpGet("{matchId}")]
         public async Task<IActionResult> GetMatches(string matchId)
@@ -110,61 +104,19 @@ namespace _101mngr.WebApp.Controllers
             return Ok();
         }
 
-        [HttpPut("{matchId}/captain-pick")]
-        public async Task<IActionResult> PickCaptains(string matchId)
-        {
-            var randomizer = new Random();
-            var match = await _matchRepository.Get(matchId);
-
-            var captainTeam1Index = 0;
-            match.CaptainTeam1 = match.Players[captainTeam1Index];
-            match.Players.RemoveAt(captainTeam1Index);
-            
-            match.Team1.Add(match.CaptainTeam1);
-
-            var captainTeam2Index = randomizer.Next(match.Players.Count - 1);
-            match.CaptainTeam2 = match.Players[captainTeam2Index];
-            match.Players.RemoveAt(captainTeam2Index);
-
-            match.Team2.Add(match.CaptainTeam2);
-
-            await _matchRepository.Save(match);
-
-            return Ok(match);
-        }
-
-        [HttpPut("{matchId}/player-pick/{playerId}")]
-        [ProducesResponseType(typeof(MatchResponse), 200)]
-        public async Task<IActionResult> PickPlayer(string matchId, long playerId)
-        {
-            var randomizer = new Random();
-            var match = await _matchRepository.Get(matchId);
-            if (match.Players.Count == 0)
-            {
-                return Ok(match);
-            }
-
-            var team1Player = match.Players.Single(x => x.Id == playerId);
-            match.Team1.Add(team1Player);
-            match.Players.Remove(team1Player);
-
-            var team2PlayerIndex = randomizer.Next(match.Players.Count - 1);
-            var team2Player = match.Players[team2PlayerIndex];
-            match.Team2.Add(team2Player);
-            match.Players.Remove(team2Player);
-
-            return Ok(match);
-        }
-
         [HttpPut("{matchId}/start")]
         [ProducesResponseType(typeof(MatchResponse), 200)]
         public async Task<IActionResult> StartMatch(string matchId)
         {
-            var match = await _matchRepository.Get(matchId);
-
-            match.Start().ContinueWith(async t => { await _matchRepository.Save(match); });
-
+            var matchGrain = _clusterClient.GetGrain<IMatchGrain>(matchId);
+            await matchGrain.PlayMatch();
             return Ok();
+        }
+
+        [HttpGet("test")]
+        public async Task<IActionResult> Get()
+        {
+            return Ok(new { Value = "abc" });
         }
 
         public class MatchResponse

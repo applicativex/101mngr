@@ -30,7 +30,7 @@ export class CreateMatch extends React.Component {
     createMatch = () => {
         return AsyncStorage.getItem('token', (err, result) => {
             if (result !== null) {
-                return fetch('http://192.168.0.101:80/api/match/new', {
+                return fetch('http://192.168.0.102:80/api/match/new', {
                     method: 'POST',
                     headers: {
                         Accept: 'application/json',

@@ -17,5 +17,9 @@ namespace _101mngr.Contracts
         Task JoinMatch(string matchId);
 
         Task LeaveMatch(string matchId);
+
+        Task<MatchDto[]> GetMatchHistory();
+
+        Task AddMatchHistory(MatchDto match);
     }
 }

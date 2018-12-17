@@ -18,7 +18,7 @@ export class MatchInfo extends React.Component {
 
     componentDidMount() {
         let matchId = this.props.navigation.getParam('matchId');
-        return fetch(`http://192.168.0.101:80/api/match/${matchId}`)
+        return fetch(`http://192.168.0.102:80/api/match/${matchId}`)
           .then((response) => response.json())
           .then((responseJson) => {
 
@@ -38,11 +38,39 @@ export class MatchInfo extends React.Component {
           });
     }
 
+    playMatch = () => {
+        return AsyncStorage.getItem('token', (err, result) => {
+            if (result !== null) {
+                return fetch(`http://192.168.0.102:80/api/match/${this.state.id}/start`, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: result
+                    }})
+                    .then((response) => {
+                        this.props.navigation.navigate('MatchHistoryRT');
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    })
+            }
+            else {
+                Alert.alert(`Please login`);
+            }
+        });
+    }
+
     render () {
         const { navigate } = this.props.navigation;
 
         return (
             <View style={styles.container}>
+
+                <TouchableHighlight onPress={this.playMatch} underlayColor='#31e981'>
+                    <Text style={styles.buttons}>Play Match</Text>
+                </TouchableHighlight>
+                
+                <Text style={styles.heading}>--------------------</Text>
+
                 <Text style={styles.heading}>Id: {this.state.id}</Text>
                 <Text style={styles.heading}>Name: {this.state.name}</Text>
                 <Text style={styles.heading}>Created At: {this.state.createdAt}</Text>

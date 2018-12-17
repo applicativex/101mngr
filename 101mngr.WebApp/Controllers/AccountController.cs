@@ -37,6 +37,15 @@ namespace _101mngr.WebApp.Controllers
             return Ok(result);
         }
 
+        [HttpGet("match-history")]
+        public async Task<IActionResult> GetMatchHistory()
+        {
+            var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
+            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
+            var matchHistory = await playerGrain.GetMatchHistory();
+            return Ok(matchHistory);
+        }
+
         /// <summary>
         /// Register new user
         /// </summary>

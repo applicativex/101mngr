@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Orleans;
 using _101mngr.Contracts;
-using _101mngr.Contracts.Enums;
 using _101mngr.Contracts.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace _101mngr.Grains
 {
@@ -26,7 +26,8 @@ namespace _101mngr.Grains
                 Id = PlayerId,
                 UserName = request.UserName,
                 Email = request.Email,
-                CountryCode = request.CountryCode
+                CountryCode = request.CountryCode,
+                MatchHistory = new List<MatchDto>()
             };
             return Task.CompletedTask;
         }
@@ -56,6 +57,17 @@ namespace _101mngr.Grains
             await matchGrain.LeaveMatch(PlayerId);
         }
 
+        public Task AddMatchHistory(MatchDto match)
+        {
+            State.MatchHistory.Add(match);
+            return Task.CompletedTask;
+        }
+
+        public Task<MatchDto[]> GetMatchHistory()
+        {
+            return Task.FromResult(State.MatchHistory.OrderByDescending(x => x.CreatedAt).ToArray());
+        }
+
         protected class PlayerState
         {
             public long Id { get; set; }
@@ -64,7 +76,9 @@ namespace _101mngr.Grains
 
             public string Email { get; set; }
 
-            public string CountryCode { get; set; } 
+            public string CountryCode { get; set; }
+
+            public List<MatchDto> MatchHistory { get; set; }
         }
     }
 }
