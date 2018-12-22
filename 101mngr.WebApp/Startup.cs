@@ -35,8 +35,6 @@ namespace _101mngr.WebApp
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(JwtBearerDefaults.AuthenticationScheme, ConfigureAuthentication);

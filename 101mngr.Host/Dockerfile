@@ -9,18 +9,21 @@ RUN ls /build
 RUN dotnet restore
 
 # Dotnet Build and publish 
-RUN dotnet publish 101mngr.AuthorizationServer/101mngr.AuthorizationServer.csproj -c Release -o /app/out
+RUN dotnet publish 101mngr.Host/101mngr.Host.csproj -c Release -o /app/out
 
 # Clean up to free up spaces
+
 WORKDIR /app/out
 RUN ls /app/out
+RUN rm -rf /build
 
-## Build runtime image
+# Runtime stage
 FROM microsoft/dotnet:2.1-aspnetcore-runtime
 
 WORKDIR /app
 COPY --from=build-env /app/out .
+RUN ls /app
 
-## Env variable
+CMD ["dotnet", "101mngr.Host.dll"]
 
-CMD ["dotnet", "101mngr.AuthorizationServer.dll"]
+# docker build -f .\101mngr.Host\Dockerfile -t 101mngr/host .

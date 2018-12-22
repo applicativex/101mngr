@@ -9,7 +9,7 @@ RUN ls /build
 RUN dotnet restore
 
 # Dotnet Build and publish 
-RUN dotnet publish 101mngr.AuthorizationServer/101mngr.AuthorizationServer.csproj -c Release -o /app/out
+RUN dotnet publish 101mngr.WebApp/101mngr.WebApp.csproj -c Release -o /app/out
 
 # Clean up to free up spaces
 WORKDIR /app/out
@@ -23,4 +23,4 @@ COPY --from=build-env /app/out .
 
 ## Env variable
 
-CMD ["dotnet", "101mngr.AuthorizationServer.dll"]
+CMD ["dotnet", "101mngr.WebApp.dll"]
