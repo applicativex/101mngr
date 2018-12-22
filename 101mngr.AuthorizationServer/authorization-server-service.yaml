@@ -7,8 +7,10 @@ metadata:
     tier: backend
 spec:
   ports:
-  - port: 8089
-    targetPort: 80
+  - port: 80
+    protocol: TCP
+    targetPort: 8089
   selector:
     app: authorization-server
     tier: backend
+  type: LoadBalancer
