@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: authorization-server
+  labels:
+    app: authorization-server
+    tier: backend
+spec:
+  ports:
+  - port: 8089
+    targetPort: 80
+  selector:
+    app: authorization-server
+    tier: backend

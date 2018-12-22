@@ -1,0 +1,35 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: authorization-server
+spec:
+  selector:
+    matchLabels:
+      app: authorization-server
+      tier: backend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: authorization-server
+        tier: backend
+    spec:
+      containers:
+      - name: authorization-server
+        image: 101mngr/authorization-server 
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 8089        
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Staging
+        - name: ASPNETCORE_URLS
+          value: http://*:8089
+        # ports:
+        # - containerPort: 6379
+
+# to expose
+# kubectl expose deployment authorization-server --type=LoadBalancer --name=authorization-server 
