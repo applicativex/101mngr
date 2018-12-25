@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orleans;
+using Orleans.Clustering.Kubernetes;
 using Orleans.Configuration;
 using Orleans.Runtime;
 using Swashbuckle.AspNetCore.Swagger;
@@ -25,10 +26,12 @@ namespace _101mngr.WebApp
     public class Startup
     {
         public IConfiguration Configuration { get; }
+        public IHostingEnvironment HostingEnvironment { get; }
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
             Configuration = configuration;
+            HostingEnvironment = hostingEnvironment;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -128,6 +131,22 @@ namespace _101mngr.WebApp
             options.ApiName = "web_app";
             options.ApiSecret = "secret";
             options.SupportedTokens = SupportedTokens.Reference;
+        }
+    }
+
+    public static class OrleansExt
+    {
+        public static IClientBuilder ConfigureClustering(
+            this IClientBuilder builder, IHostingEnvironment hostingEnvironment)
+        {
+            if (hostingEnvironment.IsDevelopment())
+            {
+                return builder.UseLocalhostClustering();
+            }
+            else
+            {
+                return builder.UseKubeGatewayListProvider(opt => { opt.Group = "orleans.dot.net"; });
+            }
         }
     }
 }
