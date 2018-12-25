@@ -1,0 +1,35 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  selector:
+    matchLabels:
+      app: web-app
+      tier: backend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web-app
+        tier: backend
+    spec:
+      containers:
+      - name: web-app
+        image: 101mngr/web-app 
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 8089        
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Staging
+        - name: ASPNETCORE_URLS
+          value: http://*:8089
+        # ports:
+        # - containerPort: 6379
+
+# to expose
+# kubectl expose deployment web-app --type=LoadBalancer --name=web-app

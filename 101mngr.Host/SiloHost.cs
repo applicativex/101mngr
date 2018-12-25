@@ -21,14 +21,15 @@ namespace _101mngr.Host
             _silo = new SiloHostBuilder()
                 .Configure<ClusterOptions>(options =>
                 {
-                    options.ClusterId = "wallet";
-                    options.ServiceId = "wallet";
+                    options.ClusterId = "101mngr";
+                    options.ServiceId = "101mngr";
                 })
                 .ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000)
                 .ConfigureClustering(hostingEnvironment)
                 .ConfigureApplicationParts(parts =>
                     parts.AddApplicationPart(typeof(PlayerGrain).Assembly).WithReferences())
                 .ConfigureLogging(builder => builder.AddConsole())
+                .UseDashboard(options => { options.CounterUpdateIntervalMs = 10000; })
                 .Build();
         }
 

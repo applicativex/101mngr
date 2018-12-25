@@ -73,10 +73,10 @@ namespace _101mngr.WebApp
                     client = new ClientBuilder()
                         .Configure<ClusterOptions>(options =>
                         {
-                            options.ClusterId = "wallet";
-                            options.ServiceId = "wallet";
+                            options.ClusterId = "101mngr";
+                            options.ServiceId = "101mngr";
                         })
-                        .UseLocalhostClustering()
+                        .ConfigureClustering(HostingEnvironment)
                         .ConfigureLogging(builder => builder.AddConsole())
                         .ConfigureApplicationParts(parts =>
                             parts.AddApplicationPart(typeof(IPlayerGrain).Assembly).WithReferences())
