@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore;
+﻿using IdentityModel.Client;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
 namespace _101mngr.WebApp
@@ -7,6 +8,7 @@ namespace _101mngr.WebApp
     {
         public static void Main(string[] args)
         {
+            var tmp = new DiscoveryClient("http://localhost:5000/").GetAsync().Result;
             CreateWebHostBuilder(args).Build().Run();
         }
 

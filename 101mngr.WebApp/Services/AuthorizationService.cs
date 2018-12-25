@@ -89,6 +89,11 @@ namespace _101mngr.WebApp.Services
         private async Task<TokenResponse> GetClientCredentialsToken()
         {
             var discoveryDocument = await GetDiscoveryDocument();
+            if (discoveryDocument.Exception != null)
+            {
+                _logger.LogError(discoveryDocument.Exception, "discovery get error");
+            }
+            
             using (var tokenClient =
                 new TokenClient(discoveryDocument.TokenEndpoint, clientId: "web_app.cc", clientSecret: "secret"))
             {
@@ -125,7 +130,13 @@ namespace _101mngr.WebApp.Services
         private async ValueTask<DiscoveryResponse> GetDiscoveryDocument()
         {
             return _discoveryDocument ??
-                   (_discoveryDocument = await new DiscoveryClient(_authorizationServerUrl).GetAsync());
+                   (_discoveryDocument = await RequireHttpsFalse(new DiscoveryClient(_authorizationServerUrl)).GetAsync());
+
+            DiscoveryClient RequireHttpsFalse(DiscoveryClient value)
+            {
+                value.Policy.RequireHttps = false;
+                return value;
+            }
         }
     }
 }
