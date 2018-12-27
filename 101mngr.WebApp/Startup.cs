@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,8 +15,6 @@ using Orleans.Runtime;
 using Swashbuckle.AspNetCore.Swagger;
 using _101mngr.Contracts;
 using _101mngr.WebApp.Configuration;
-using _101mngr.WebApp.Controllers;
-using _101mngr.WebApp.Data;
 using _101mngr.WebApp.Services;
 
 namespace _101mngr.WebApp
@@ -44,21 +40,13 @@ namespace _101mngr.WebApp
             services.AddSingleton<IClusterClient>(CreateClusterClient);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "101mngr API", Version = "v1" });
-            });
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = "101mngr API", Version = "v1"}); });
 
             var authorizationServerUri = Configuration["AuthorizationServer:Authority"];
             services.Configure<AuthorizationServerOptions>(Configuration.GetSection("AuthorizationServer"));
-            services.AddHttpClient<AuthorizationService>(c =>
-            {
-                c.BaseAddress = new Uri(authorizationServerUri);
-            });
-
-            services.AddScoped<IPlayerRepository, PlayerRepository>();
-            services.AddScoped<MatchController.MatchRepository>();
+            services.AddHttpClient<AuthorizationService>(c => { c.BaseAddress = new Uri(authorizationServerUri); });
         }
+
         private IClusterClient CreateClusterClient(IServiceProvider serviceProvider) =>
             StartClientWithRetries().GetAwaiter().GetResult();
 

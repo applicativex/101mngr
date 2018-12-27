@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Orleans;
 using _101mngr.Contracts;
-using _101mngr.WebApp.Data;
-using PlayerType = _101mngr.WebApp.Services.PlayerType;
 using Microsoft.AspNetCore.Authorization;
+using _101mngr.Contracts.Enums;
 
 namespace _101mngr.WebApp.Controllers
 {
@@ -15,14 +13,10 @@ namespace _101mngr.WebApp.Controllers
     [Route("api/[controller]")]
     public class MatchController : Controller    
     {
-        private readonly ApplicationDbContext _context;
-        private readonly MatchRepository _matchRepository;
         private readonly IClusterClient _clusterClient;
 
-        public MatchController(ApplicationDbContext context, MatchRepository matchRepository, IClusterClient clusterClient)
+        public MatchController(IClusterClient clusterClient)
         {
-            _context = context;
-            _matchRepository = matchRepository;
             _clusterClient = clusterClient;
         }
 
@@ -57,45 +51,7 @@ namespace _101mngr.WebApp.Controllers
             var matchId = await playerGrain.NewMatch(request.MatchName);
             return Ok(new { Id = matchId });
         }
-
-        [HttpPut("{matchId}/invite")]
-        [ProducesResponseType(typeof(MatchResponse), 200)]
-        public async Task<IActionResult> InvitePlayers(string matchId)
-        {
-            var match = await _matchRepository.Get(matchId);
-            var player = match.Players.Single(x => x.Id == match.PlayerId);
-            var playerLevel = player.Level;
-            var minLevel = playerLevel >= 10 ? playerLevel - 10 : 1;
-            var maxLevel = playerLevel + 10;
-            var randomizer = new Random();
-            var players = new[]
-            {
-                PlayerType.Goalkeeper,
-                PlayerType.Defender, PlayerType.Defender, PlayerType.Defender, PlayerType.Defender,
-                PlayerType.Midfielder, PlayerType.Midfielder, PlayerType.Midfielder, PlayerType.Midfielder,
-                PlayerType.Forward, PlayerType.Forward
-
-            }.SelectMany(x => new[] {x, x}).Select(x => (x, randomizer.Next(minLevel, maxLevel))).Select((x, i) =>
-                new MatchPlayer
-                {
-                    Id = player.Id + i + 1,
-                    PlayerType = x.Item1,
-                    Level = x.Item2,
-                    UserName = $"Random {x.Item1.ToString()} Level {x.Item2}"
-                });
-
-            match.Players.AddRange(players.Take(21));
-            await _matchRepository.Save(match);
-
-            return Ok(new MatchResponse
-            {
-                MatchId = matchId,
-                Players = match.Players.ToArray(),
-                Team1 = match.Team1.ToArray(),
-                Team2 = match.Team2.ToArray(),
-            });
-        }
-
+        
         [HttpPut("{matchId}/join/{playerId}")]
         public async Task<IActionResult> JoinMatch(string matchId, long playerId)
         {
@@ -105,7 +61,6 @@ namespace _101mngr.WebApp.Controllers
         }
 
         [HttpPut("{matchId}/start")]
-        [ProducesResponseType(typeof(MatchResponse), 200)]
         public async Task<IActionResult> StartMatch(string matchId)
         {
             var matchGrain = _clusterClient.GetGrain<IMatchGrain>(matchId);
@@ -118,121 +73,7 @@ namespace _101mngr.WebApp.Controllers
         {
             return Ok(new { Value = "abc" });
         }
-
-        public class MatchResponse
-        {
-            public string MatchId { get; set; }
-
-            public MatchPlayer[] Players { get; set; }
-
-            public MatchPlayer[] Team1 { get; set; }
-
-            public MatchPlayer[] Team2 { get; set; }
-        }
-
-        public class MatchRepository
-        {
-            private static readonly Dictionary<string, MatchGrain> _dictionary = new Dictionary<string, MatchGrain>();
-
-            public async Task<MatchGrain> Get(string matchId)
-            {
-                return _dictionary[matchId];
-            }
-
-            public async Task Save(MatchGrain matchGrain)
-            {
-                _dictionary[matchGrain.MatchId] = matchGrain;
-            }
-        }
-
-        public class MatchGrain
-        {
-            public long PlayerId { get; set; }
-
-            public string MatchId { get; set; }
-
-            public MatchPlayer CaptainTeam1 { get; set; }
-
-            public MatchPlayer CaptainTeam2 { get; set; }  
-
-            public List<MatchPlayer> Players { get; set; } = new List<MatchPlayer>();
-
-            public List<MatchPlayer> Team1 { get; set; } = new List<MatchPlayer>();
-
-            public List<MatchPlayer> Team2 { get; set; } = new List<MatchPlayer>();
-
-            public int Minute { get; set; }
-
-            public MatchStatus MatchStatus { get; set; }    
-
-            public async Task Start()
-            {
-                MatchStatus = MatchStatus.InProgress;
-
-                Console.WriteLine($"Match {MatchId} started");
-                
-                for (int i = 1; i <= 90; i++)
-                {
-                    Minute = i;
-                    Console.WriteLine(i);
-                    await Task.Delay(500);
-                }
-
-                MatchStatus = MatchStatus.Finished;
-
-                Console.WriteLine($"Match {MatchId} finished");
-            }
-        }
-
-        public class MatchEvent
-        {
-            public int Minute { get; set; }
-
-            public long PlayerId { get; set; }
-
-            public MatchEventType EventType { get; set; }   
-        }
-
-        public enum MatchStatus
-        {
-            Scheduled = 1,
-            InProgress,
-            Finished
-        }
-
-        public enum MatchEventType
-        {
-            Goal = 1,
-            YellowCard,
-            RedCard,
-            Corner,
-            Out,
-        }
-
-        public static class MatchExt
-        {
-            public static IReadOnlyList<MatchEvent> RandomMatchResult()
-            {
-                var randomizer = new Random();
-                var matchEvents = new List<MatchEvent>();
-
-                for (var i = 0; i < 90; i++)
-                {
-
-                }
-
-                return matchEvents;
-            }
-        }
-
-        public class MatchPlayer
-        {
-            public long? Id { get; set; }
-            public string UserName { get; set; }
-            public int Level { get; set; }
-            public PlayerType PlayerType { get; set; }  
-        }
-
+        
         public class NewMatchRequest
         {
             public long PlayerId { get; set; }
@@ -244,37 +85,6 @@ namespace _101mngr.WebApp.Controllers
             public int Level { get; set; }
 
             public string UserName { get; set; }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ScheduleMatch([FromBody] ScheduleMatchInputModel inputModel)
-        {
-            var match = new Match
-            {
-                Name = $"{inputModel.HomeTeamId} vs {inputModel.AwayTeamId}",
-                HomeTeamId = inputModel.HomeTeamId,
-                AwayTeamId = inputModel.AwayTeamId,
-                StartDate = inputModel.StartDate
-            };
-            await _context.AddAsync(match);
-            await _context.SaveChangesAsync();
-
-            return Ok(match.Id);
-        }
-
-        [HttpPut("{matchId}")]
-        public async Task<IActionResult> StartMatch(int matchId, [FromBody]StartMatchInputModel inputModel)
-        {
-            var playerHistory = inputModel.HomeTeamPlayers.Concat(inputModel.AwayTeamPlayers).Select(x =>
-                new PlayerMatchHistory
-                {
-                    Id = Guid.NewGuid(),
-                    PlayerId = x,
-                    MatchId = matchId
-                });
-            await _context.AddRangeAsync(playerHistory);
-            await _context.SaveChangesAsync();
-            return Ok();
         }
     }
 }
