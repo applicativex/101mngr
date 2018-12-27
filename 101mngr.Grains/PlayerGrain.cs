@@ -5,15 +5,15 @@ using _101mngr.Contracts;
 using _101mngr.Contracts.Models;
 using System.Collections.Generic;
 using System.Linq;
+using Orleans.Providers;
 
 namespace _101mngr.Grains
 {
-    public class PlayerGrain : Grain, IPlayerGrain
+    [StorageProvider(ProviderName = "OrleansStorage")]
+    public class PlayerGrain : Grain<PlayerState>, IPlayerGrain
     {
         private long PlayerId => this.GetPrimaryKeyLong();
-
-        protected PlayerState State;
-
+        
         public Task<long> GetPlayer()
         {
             return Task.FromResult(PlayerId);
@@ -29,7 +29,7 @@ namespace _101mngr.Grains
                 CountryCode = request.CountryCode,
                 MatchHistory = new List<MatchDto>()
             };
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         public Task<PlayerDto> GetPlayerInfo()
@@ -60,25 +60,25 @@ namespace _101mngr.Grains
         public Task AddMatchHistory(MatchDto match)
         {
             State.MatchHistory.Add(match);
-            return Task.CompletedTask;
+            return WriteStateAsync();
         }
 
         public Task<MatchDto[]> GetMatchHistory()
         {
             return Task.FromResult(State.MatchHistory.OrderByDescending(x => x.CreatedAt).ToArray());
         }
+    }
 
-        protected class PlayerState
-        {
-            public long Id { get; set; }
+    public class PlayerState
+    {
+        public long Id { get; set; }
 
-            public string UserName { get; set; }
+        public string UserName { get; set; }
 
-            public string Email { get; set; }
+        public string Email { get; set; }
 
-            public string CountryCode { get; set; }
+        public string CountryCode { get; set; }
 
-            public List<MatchDto> MatchHistory { get; set; }
-        }
+        public List<MatchDto> MatchHistory { get; set; }
     }
 }

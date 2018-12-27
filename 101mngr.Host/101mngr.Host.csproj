@@ -5,12 +5,33 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="OrleansAdoNetContent\**" />
+    <Content Remove="OrleansAdoNetContent\**" />
+    <EmbeddedResource Remove="OrleansAdoNetContent\**" />
+    <None Remove="OrleansAdoNetContent\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Scripts\Script0001 - Main.sql" />
+    <None Remove="Scripts\Script0002 - Persistence.sql" />
+    <None Remove="Scripts\Script0003 - Reminders.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\Script0001 - Main.sql" />
+    <EmbeddedResource Include="Scripts\Script0002 - Persistence.sql" />
+    <EmbeddedResource Include="Scripts\Script0003 - Reminders.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="dbup-postgresql" Version="4.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet" Version="2.1.2" />
     <PackageReference Include="Microsoft.Orleans.Server" Version="2.1.2" />
     <PackageReference Include="Orleans.Clustering.Kubernetes" Version="1.0.20" />
     <PackageReference Include="OrleansDashboard" Version="2.1.3" />

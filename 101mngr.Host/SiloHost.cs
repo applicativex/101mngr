@@ -18,7 +18,14 @@ namespace _101mngr.Host
 
         public SiloHost(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
             _silo = new SiloHostBuilder()
+                .AddAdoNetGrainStorage("OrleansStorage", options =>
+                {
+                    options.Invariant = "Npgsql";
+                    options.ConnectionString = connectionString;
+                    options.UseJsonFormat = true;
+                })
                 .Configure<ClusterOptions>(options =>
                 {
                     options.ClusterId = "101mngr";
