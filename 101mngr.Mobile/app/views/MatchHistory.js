@@ -16,7 +16,7 @@ export class MatchHistory extends React.Component {
     componentDidMount() {
         return AsyncStorage.getItem('token', (err, result) => {
             if (result !== null) {
-                return fetch('http://192.168.0.102:80/api/account/match-history', {
+                return fetch('http://35.228.60.109/api/account/match-history', {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',

@@ -18,7 +18,7 @@ export class NewMatch extends React.Component {
     }
 
     componentDidMount(){
-        return fetch('http://192.168.0.102:80/api/match')
+        return fetch('http://35.228.60.109/api/match')
           .then((response) => response.json())
           .then((responseJson) => {
 

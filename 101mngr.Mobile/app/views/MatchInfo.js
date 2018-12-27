@@ -18,7 +18,7 @@ export class MatchInfo extends React.Component {
 
     componentDidMount() {
         let matchId = this.props.navigation.getParam('matchId');
-        return fetch(`http://192.168.0.102:80/api/match/${matchId}`)
+        return fetch(`http://35.228.60.109/api/match/${matchId}`)
           .then((response) => response.json())
           .then((responseJson) => {
 
@@ -41,7 +41,7 @@ export class MatchInfo extends React.Component {
     playMatch = () => {
         return AsyncStorage.getItem('token', (err, result) => {
             if (result !== null) {
-                return fetch(`http://192.168.0.102:80/api/match/${this.state.id}/start`, {
+                return fetch(`http://35.228.60.109/api/match/${this.state.id}/start`, {
                     method: 'PUT',
                     headers: {
                         Authorization: result

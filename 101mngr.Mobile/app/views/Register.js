@@ -37,7 +37,7 @@ export class Register extends React.Component {
             Alert.alert('Passwords do not match');
         }else {
         
-            return fetch('http://192.168.0.102:80/api/account/register', {
+            return fetch('http://35.228.60.109/api/account/register', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
