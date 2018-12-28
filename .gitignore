@@ -266,3 +266,14 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/101mngr.Host/OrleansAdoNetContent/SQLServer/SQLServer-Persistence.sql
+/101mngr.Host/OrleansAdoNetContent/SQLServer/SQLServer-Main.sql
+/101mngr.Host/OrleansAdoNetContent/SQLServer
+/101mngr.Host/OrleansAdoNetContent/PostgreSQL/PostgreSQL-Persistence.sql
+/101mngr.Host/OrleansAdoNetContent/PostgreSQL/PostgreSQL-Main.sql
+/101mngr.Host/OrleansAdoNetContent/PostgreSQL
+/101mngr.Host/OrleansAdoNetContent/Oracle/Oracle-Persistence.sql
+/101mngr.Host/OrleansAdoNetContent/Oracle/Oracle-Main.sql
+/101mngr.Host/OrleansAdoNetContent/Oracle
+/101mngr.Host/OrleansAdoNetContent/MySQL/MySQL-Persistence.sql
+/101mngr.Host/OrleansAdoNetContent/MySQL/MySQL-Main.sql

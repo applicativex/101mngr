@@ -14,17 +14,17 @@ export class Menu extends React.Component {
                     <TouchableOpacity style={styles.buttonStyles} onPress={()=>this.props.navigate("RegisterRT")}>
                         <Text style={styles.buttonText}>REGISTER</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonStyles} onPress={()=>this.props.navigate("MatchRT")}>
-                        <Text style={styles.buttonText}>MATCH</Text>
+                    <TouchableOpacity style={styles.buttonStyles} onPress={()=>this.props.navigate("NewMatchRT")}>
+                        <Text style={styles.buttonText}>NEW MATCH</Text>
                     </TouchableOpacity>
                 </View>
                 
                 <View style={styles.buttonRow}>
-                    <TouchableOpacity style={styles.buttonStyles} onPress={()=>this.props.navigate("NewMatchRT")}>
-                        <Text style={styles.buttonText}>NEW MATCH</Text>
+                    <TouchableOpacity style={styles.buttonStyles} onPress={()=>this.props.navigate("MatchListRT")}>
+                        <Text style={styles.buttonText}>MATCH LIST</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonStyles} onPress={()=>this.onPress()}>
-                        <Text style={styles.buttonText}>CONTACT</Text>
+                    <TouchableOpacity style={styles.buttonStyles} onPress={()=>this.props.navigate("MatchHistoryRT")}>
+                        <Text style={styles.buttonText}>MATCH HISTORY</Text>
                     </TouchableOpacity>
                 </View>
                 

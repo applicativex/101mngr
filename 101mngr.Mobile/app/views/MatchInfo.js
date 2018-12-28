@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, AsyncStorage, Alert, TouchableHighlight, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Button, AsyncStorage, Alert, TouchableHighlight, FlatList } from 'react-native';
 
 export class MatchInfo extends React.Component {
     staticnavigationOptions = {
@@ -65,12 +65,6 @@ export class MatchInfo extends React.Component {
         return (
             <View style={styles.container}>
 
-                <TouchableHighlight onPress={this.playMatch} underlayColor='#31e981'>
-                    <Text style={styles.buttons}>Play Match</Text>
-                </TouchableHighlight>
-                
-                <Text style={styles.heading}>--------------------</Text>
-
                 <Text style={styles.heading}>Id: {this.state.id}</Text>
                 <Text style={styles.heading}>Name: {this.state.name}</Text>
                 <Text style={styles.heading}>Created At: {this.state.createdAt}</Text>
@@ -81,6 +75,9 @@ export class MatchInfo extends React.Component {
                                     renderItem={({item})=>
                                     <Text>Player: {item.userName}</Text>
                                     } />
+
+                
+                <Button title="Start Match" onPress={this.playMatch} underlayColor='#31e981'  />
             </View>
         );
     }
@@ -89,7 +86,9 @@ export class MatchInfo extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center'
+        alignItems:'center',
+        paddingBottom: '10%',
+        paddingTop: '10%',
     },
     selectedPlayer: {
         flex:1,

@@ -1,117 +1,84 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, AsyncStorage, Alert, TouchableHighlight, FlatList, TouchableWithoutFeedback } from 'react-native';
-import {PlayersData} from '../data/Players.js';
-import { PlayerListItem } from '../sections/PlayerListItem.js';
+import {
+    StyleSheet,
+    Text,
+    View,
+    TextInput,
+    TouchableHighlight,
+    Alert,
+    AsyncStorage,
+    Button
+} from 'react-native';
 
 export class NewMatch extends React.Component {
-    staticnavigationOptions = {
+
+    static navigationOptions = {
         header: null
-    };
+    }
 
     constructor(props) {
         super(props);
         this.state = {
-            isInvited: false,
-            loggedUser: false,
-            matchList: []
-        };
+            name: ''
+        }
     }
 
-    componentDidMount(){
-        return fetch('http://35.228.60.109/api/match')
-          .then((response) => response.json())
-          .then((responseJson) => {
-
-            console.log(responseJson);
-            this.setState({
-              matchList: responseJson,
-            }, function(){
-    
-            });
-    
-          })
-          .catch((error) =>{
-            console.error(error);
-          });
+    cancel = () => {
+        console.log('match create cancel');
+        this.props.navigation.navigate('MatchListRT');
     }
 
-    invitePlayers = () =>{
-        this.setState({
-            isInvited: true,
-            playersList: Array.from(PlayersData.players)
+    createMatch = () => {
+        return AsyncStorage.getItem('token', (err, result) => {
+            if (result !== null) {
+                return fetch('http://35.228.60.109/api/match/new', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        Authorization: result
+                    },
+                    body: JSON.stringify({
+                        playerId: 1,
+                        matchName: this.state.name,
+                    }),
+                })
+                    .then((response) => {
+                        console.log(response);
+                        return response.json();
+                    })
+                    .then((responseJson) => {
+
+                        console.log(responseJson.id);
+                        this.props.navigation.navigate('MatchInfoRT', { matchId: responseJson.id });
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    })
+            }
+            else {
+                Alert.alert(`Please login`);
+            }
         });
     }
 
-    newMatch = () => {
-        this.props.navigation.navigate('CreateMatchRT');
-    }
-
-    render () {
-        const { navigate } = this.props.navigation;
-
+    render() {
         return (
             <View style={styles.container}>
-                <TouchableHighlight onPress={this.newMatch} underlayColor='#31e981'>
-                    <Text style={styles.buttons}>New Match</Text>
-                </TouchableHighlight>
+                <Text style={styles.heading}>New Match</Text>
 
-                <Text style={styles.heading}>Current Matches</Text>
+                <TextInput
+                    style={styles.input}
+                    onChangeText={(text) => this.setState({ name: text })}
+                    value={this.state.name}
+                />
 
-                
-                <FlatList 
-                            data={this.state.matchList}
-                            renderItem={({item}) =>
-                            <MatchItem
-                                navigate={navigate}
-                                id={item.id}
-                                name={item.name} />
-                            }    
-                        />
-                
-                <TouchableHighlight onPress={this.newMatch} underlayColor='#31e981'>
-                    <Text style={styles.buttons}>New Match</Text>
-                </TouchableHighlight>
-            </View>
-        );
-    }
-}
+                <View style={styles.alternativeLayoutButtonContainer}>
+                    <Button style={{margin:'20%'}} title="Create" onPress={this.createMatch} underlayColor='#31e981'  />
 
-export class MatchItem extends React.Component {
-    onPress = () => {
-        //Alert.alert(this.props.name);
-        this.props.navigate('MatchInfoRT', {matchId: this.props.id} );
-    }
-
-    render(){
-        return(
-            <TouchableWithoutFeedback onPress={this.onPress}>
-                <View style={{paddingTop:20,alignItems:'center'}}>
-                    <Text>
-                        {this.props.name}
-                    </Text>
+                    <Button style={{margin:'20%'}} title="Cancel" onPress={this.cancel} />
                 </View>
-            </TouchableWithoutFeedback>
-        );
-    }
-}
 
-export class PlayerList extends React.Component {
-    onPress = () => {
-        this.props.navigate('PlayerPickRT', {players: this.props.playersList} );
-    }
-
-    render(){
-        return(
-            <View>
-                <TouchableHighlight onPress={this.onPress} underlayColor='#31e981'>
-                    <Text style={styles.buttons}>Pick Players</Text>
-                </TouchableHighlight>
-                <FlatList style={{flex:1, margin: 10}}                            
-                            data={this.props.playersList}
-                            renderItem={({item})=>
-                                <Text>{item.userName}</Text>
-                            }
-                        />
             </View>
         );
     }
@@ -120,22 +87,26 @@ export class PlayerList extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center'
+        alignItems:'center',
+        margin: '10%',
+        paddingBottom: '10%',
+        paddingTop: '10%',
+
+    },
+    label:{
+        width:'100%'
+    },
+    input:{
+        width:'100%',
+        margin:'15%'
     },
     heading: {
-        fontSize: 16,
-        margin:10
+        fontSize: 16
     },
-    inputs: {
-        flex:1,
-        width: '80%',
-        padding: 10
-    },
-    buttons:{
-        marginTop:15,
-        fontSize:16
-    },
-    labels: {
-        paddingBottom: 10
+    alternativeLayoutButtonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems:'center',
+      width: '50%'
     }
 });
