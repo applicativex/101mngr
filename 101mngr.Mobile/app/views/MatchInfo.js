@@ -59,6 +59,48 @@ export class MatchInfo extends React.Component {
         });
     }
 
+    joinMatch = () => {
+        return AsyncStorage.getItem('token', (err, result) => {
+            if (result !== null) {
+                return fetch(`http://35.228.60.109/api/match/${this.state.id}/join`, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: result
+                    }})
+                    .then((response) => {
+                        console.log('Success join');
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    })
+            }
+            else {
+                Alert.alert(`Please login`);
+            }
+        });
+    }
+
+    leaveMatch = () => {
+        return AsyncStorage.getItem('token', (err, result) => {
+            if (result !== null) {
+                return fetch(`http://35.228.60.109/api/match/${this.state.id}/leave`, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: result
+                    }})
+                    .then((response) => {
+                        console.log('Success leave');
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    })
+            }
+            else {
+                Alert.alert(`Please login`);
+            }
+        });
+    }
+
     render () {
         const { navigate } = this.props.navigation;
 
@@ -77,7 +119,13 @@ export class MatchInfo extends React.Component {
                                     } />
 
                 
-                <Button title="Start Match" onPress={this.playMatch} underlayColor='#31e981'  />
+                <View style={styles.alternativeLayoutButtonContainer}>
+                
+                    <Button style={{margin:'20%'}} title="Start" onPress={this.playMatch} underlayColor='#31e981'  />
+                    <Button style={{margin:'20%'}} title="Join" onPress={this.joinMatch} underlayColor='#31e981'  />
+
+                    <Button style={{margin:'20%'}} title="Leave" onPress={this.leaveMatch} />
+                </View>
             </View>
         );
     }
@@ -109,5 +157,11 @@ const styles = StyleSheet.create({
     },
     labels: {
         paddingBottom: 10
+    },
+    alternativeLayoutButtonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems:'center',
+      width: '75%'
     }
 });
