@@ -5,7 +5,7 @@ import { Header } from '../sections/Header.js';
 
 export class Home extends React.Component {
     static navigationOptions = {
-        header: null
+      drawerLabel: 'Home'
     };
 
     render () {

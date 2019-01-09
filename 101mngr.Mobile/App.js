@@ -1,5 +1,5 @@
 import React from 'react';
-import { StackNavigator  } from 'react-navigation';
+import { createDrawerNavigator, createAppContainer } from 'react-navigation';
 import { Home } from './app/views/Home.js';
 import { Register } from './app/views/Register.js';
 import { Login } from './app/views/Login.js';
@@ -9,7 +9,7 @@ import { NewMatch } from './app/views/NewMatch.js';
 import { MatchInfo } from './app/views/MatchInfo.js';
 import { MatchHistory } from './app/views/MatchHistory.js';
 
-const MyRoutes = StackNavigator({
+const MyRoutes = createDrawerNavigator({
   HomeRT: {
     screen: Home
   },
@@ -34,15 +34,20 @@ const MyRoutes = StackNavigator({
   MatchHistoryRT: {
     screen: MatchHistory
   }
-},
-{
+}, {
   initialRouteName: 'HomeRT'
 });
 
-export default class App extends React.Component {
-  render() { 
-    return (
-      <MyRoutes />
-    );
-  }
-}
+const AppContainer = createAppContainer(MyRoutes);
+
+// Now AppContainer is the main component for React to render
+
+export default AppContainer;
+
+// export default class App extends React.Component {
+//   render() { 
+//     return (
+//       <MyRoutes />
+//     );
+//   }
+// }
