@@ -12,8 +12,8 @@ import {
 export class Login extends React.Component {
 
     static navigationOptions = {
-        header: null
-    }
+        title: 'Login',
+      };
 
     constructor(props) {
         super(props);
@@ -95,7 +95,6 @@ export class Login extends React.Component {
     render(){
         return(
             <View style={styles.container}>
-                <Text style={styles.heading}>Login</Text>
 
                 <TextInput
                     style={styles.inputs}

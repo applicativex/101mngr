@@ -5,7 +5,7 @@ import { Header } from '../sections/Header.js';
 
 export class Home extends React.Component {
     static navigationOptions = {
-      drawerLabel: 'Home'
+      title: 'Home',
     };
 
     render () {
@@ -13,8 +13,6 @@ export class Home extends React.Component {
 
         return (
             <View style={styles.container}>
-                <Header navigate={navigate} message = 'Press to Login' />
-                <Menu navigate = {navigate} />
             </View>
         );
     }
@@ -22,6 +20,25 @@ export class Home extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
+        alignItems: 'center',
+        paddingBottom: '45%',
+        paddingTop: '10%'
+    },
+    heading: {
+        fontSize: 16,
         flex: 1
+    },
+    inputs: {
+        flex:1,
+        width: '80%',
+        padding: 10
+    },
+    buttons:{
+        marginTop:15,
+        fontSize:16
+    },
+    labels: {
+        paddingBottom: 10
     }
 });

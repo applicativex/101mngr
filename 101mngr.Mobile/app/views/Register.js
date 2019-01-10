@@ -12,8 +12,8 @@ import {
 export class Register extends React.Component {
 
     static navigationOptions = {
-        header: null
-    }
+        title: 'Register',
+      };
 
     constructor(props) {
         super(props);
@@ -76,7 +76,6 @@ export class Register extends React.Component {
     render () {
         return (
             <View style={styles.container}>
-                <Text style={styles.heading}>Register Account</Text>
 
                 <TextInput
                     style={styles.inputs}

@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, Button, AsyncStorage, Alert, TouchableHighlight, FlatList } from 'react-native';
 
 export class MatchInfo extends React.Component {
-    staticnavigationOptions = {
-        header: null
+    static navigationOptions = {
+      title: 'Match Info',
     };
 
     constructor(props) {

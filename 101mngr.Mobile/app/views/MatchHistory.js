@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, AsyncStorage, Alert, TouchableHighlight, FlatList } from 'react-native';
 
 export class MatchHistory extends React.Component {
-    staticnavigationOptions = {
-        header: null
+    static navigationOptions = {
+      title: 'Match History',
     };
 
     constructor(props) {
@@ -49,7 +49,6 @@ export class MatchHistory extends React.Component {
 
         return (
             <View style={styles.container}>
-                <Text style={styles.heading}>Match history</Text>
                 <FlatList style={{flex:1, margin: 10}}
                                     data={this.state.matchList}
                                     renderItem={({item})=>

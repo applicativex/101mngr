@@ -13,8 +13,8 @@ import {
 export class NewMatch extends React.Component {
 
     static navigationOptions = {
-        header: null
-    }
+        title: 'New Match',
+      };
 
     constructor(props) {
         super(props);
@@ -65,7 +65,6 @@ export class NewMatch extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text style={styles.heading}>New Match</Text>
 
                 <TextInput
                     style={styles.input}

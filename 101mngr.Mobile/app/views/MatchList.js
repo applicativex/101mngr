@@ -4,8 +4,8 @@ import {PlayersData} from '../data/Players.js';
 import { PlayerListItem } from '../sections/PlayerListItem.js';
 
 export class MatchList extends React.Component {
-    staticnavigationOptions = {
-        header: null
+    static navigationOptions = {
+      title: 'Current Matches',
     };
 
     constructor(props) {
@@ -51,8 +51,6 @@ export class MatchList extends React.Component {
 
         return (
             <View style={styles.container}>
-
-                <Text style={styles.heading}>Current Matches</Text>
                 
                 <FlatList 
                             data={this.state.matchList}
