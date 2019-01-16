@@ -54,8 +54,8 @@ const RegisterStack = createStackNavigator(
 const MatchListStack = createStackNavigator(
   {
     MatchListRT: { screen: MatchList },
-    NewMatchRT: { screen: NewMatch },
     MatchInfoRT: { screen: MatchInfo },
+    NewMatchRT: { screen: NewMatch },
   },
   {
     navigationOptions: ({ navigation }) => ({
