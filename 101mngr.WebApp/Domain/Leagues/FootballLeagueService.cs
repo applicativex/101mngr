@@ -1,90 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace _101mngr.WebApp.Domain
 {
-    public enum FootballPlayerType
-    {
-        Goalkeeper = 1,
-        Defender,
-        Midfielder,
-        Forward
-    }
-
-    public class FootballPlayer
-    {
-        public string Id { get; set; }
-
-        public string FirstName { get; set; }
-
-        public string LastName { get; set; }
-
-        public int Age { get; set; }
-
-        public int Level { get; set; }
-
-        public string CountryId { get; set; }
-    }
-
-    public class FootballClub
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public FootballPlayer[] Players { get; set; }
-    }
-
-    /// <summary>
-    /// Static description of soccer league e.g. Premier League, Primera, Bundesliga
-    /// </summary>
-    public class FootballLeague
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public string CountryId { get; set; }
-
-        public int Level { get; set; }
-    }
-
-    public class FootballLeagueSeason
-    {
-        public string Id { get; set; }
-
-        public string FootballLeagueId { get; set; }
-
-        public string Name { get; set; }
-
-        public int Number { get; set; }
-
-        public string[] FootballClubIds { get; set; }
-    }
-
-    public class FootballMatch
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public string HomeTeamId { get; set; }
-
-        public string AwayTeamId { get; set; }
-
-        public DateTime StartDate { get; set; }
-
-        public string FootballLeagueSeasonId { get; set; }
-    }
-
-    public class Country
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-    }
-
-    public class FootballMatchService
+    public class FootballLeagueService
     {
         private const string EnglandId = "1";
         private const string FranceId = "2";
@@ -102,9 +21,9 @@ namespace _101mngr.WebApp.Domain
 
         private readonly Dictionary<string, FootballPlayer> _footballPlayers;
 
-        private readonly Dictionary<string, FootballClub> _footballClubs;
+        private readonly Dictionary<string, FootballTeam> _footballTeams;
 
-        public FootballMatchService()
+        public FootballLeagueService()
         {
             _footballPlayers = new Dictionary<string, FootballPlayer>
             {
@@ -141,11 +60,11 @@ namespace _101mngr.WebApp.Domain
                     LastName = "Lukaku"
                 },
             };
-            _footballClubs = new Dictionary<string, FootballClub>
+            _footballTeams = new Dictionary<string, FootballTeam>
             {
                 {
                     ManchesterCityId,
-                    new FootballClub
+                    new FootballTeam
                     {
                         Id = ManchesterCityId, Name = "Manchester City",
                         Players = new[] {_footballPlayers[VincentKompanyId],_footballPlayers[DeBruyneId]}
@@ -153,7 +72,7 @@ namespace _101mngr.WebApp.Domain
                 },
                 {
                     ManchesterUnitedId,
-                    new FootballClub
+                    new FootballTeam
                     {
                         Id = ManchesterUnitedId, Name = "Manchester United",
                         Players = new[] {_footballPlayers[MarouaneFellainiId],_footballPlayers[RomeluLukakuId]}
@@ -171,7 +90,16 @@ namespace _101mngr.WebApp.Domain
         {
             return new[]
             {
-                new FootballLeague {Id = PremierLeagueId, Name = "Premier League", Level = 0, CountryId = EnglandId},
+                new FootballLeague {Id = PremierLeagueId, Name = "Premier League", Level = 0, CountryId = EnglandId,CurrentSeasonId = PremierLeague2019Id},
+            };
+        }
+
+        public FootballLeague GetLeague(string leagueId)
+        {
+            return new FootballLeague
+            {
+                Id = PremierLeagueId, Name = "Premier League", Level = 0, CountryId = EnglandId,
+                CurrentSeasonId = PremierLeague2019Id
             };
         }
 
@@ -187,6 +115,18 @@ namespace _101mngr.WebApp.Domain
                     FootballClubIds = new []{ManchesterCityId,ManchesterUnitedId}
                 },
             };
+        }
+
+        public FootballTeam[] GetSeasonTeams(string seasonId)
+        {
+            return new[] {ManchesterCityId, ManchesterUnitedId}.Select(x => _footballTeams[x]).ToArray();
+        }
+
+        public FootballPlayer[] GetPlayers() => _footballPlayers.Values.ToArray();
+
+        public FootballPlayer[] GetTeamPlayers(string teamId)
+        {
+            return _footballTeams[teamId].Players;
         }
     }
 }

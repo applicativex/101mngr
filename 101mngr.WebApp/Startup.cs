@@ -15,6 +15,7 @@ using Orleans.Runtime;
 using Swashbuckle.AspNetCore.Swagger;
 using _101mngr.Contracts;
 using _101mngr.WebApp.Configuration;
+using _101mngr.WebApp.Domain;
 using _101mngr.WebApp.Services;
 
 namespace _101mngr.WebApp
@@ -45,6 +46,7 @@ namespace _101mngr.WebApp
             var authorizationServerUri = Configuration["AuthorizationServer:Authority"];
             services.Configure<AuthorizationServerOptions>(Configuration.GetSection("AuthorizationServer"));
             services.AddHttpClient<AuthorizationService>(c => { c.BaseAddress = new Uri(authorizationServerUri); });
+            services.AddSingleton<FootballLeagueService>();
         }
 
         private IClusterClient CreateClusterClient(IServiceProvider serviceProvider) =>
