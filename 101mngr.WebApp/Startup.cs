@@ -46,7 +46,8 @@ namespace _101mngr.WebApp
             var authorizationServerUri = Configuration["AuthorizationServer:Authority"];
             services.Configure<AuthorizationServerOptions>(Configuration.GetSection("AuthorizationServer"));
             services.AddHttpClient<AuthorizationService>(c => { c.BaseAddress = new Uri(authorizationServerUri); });
-            services.AddSingleton<FootballLeagueService>();
+            services.AddSingleton<LeagueService>();
+            services.AddSingleton<LeagueDbContext>();
         }
 
         private IClusterClient CreateClusterClient(IServiceProvider serviceProvider) =>

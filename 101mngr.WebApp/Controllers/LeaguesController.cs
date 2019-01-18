@@ -7,9 +7,9 @@ namespace _101mngr.WebApp.Controllers
     [Route("api/[controller]")]
     public class LeaguesController : Controller
     {
-        private readonly FootballLeagueService _leagueService;
+        private readonly LeagueService _leagueService;
 
-        public LeaguesController(FootballLeagueService leagueService)
+        public LeaguesController(LeagueService leagueService)
         {
             _leagueService = leagueService;
         }
