@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace _101mngr.WebApp.Domain
+namespace _101mngr.Leagues
 {
     public class LeagueDbContext
     {
@@ -233,7 +233,14 @@ namespace _101mngr.WebApp.Domain
                     new FootballTeam
                     {
                         Id = ManchesterCityId, Name = "Manchester City",
-                        Players = new[] {Players[VincentKompanyId], Players[DeBruyneId]}
+                        Players = new[]
+                        {
+                            Players[VincentKompanyId], Players[DeBruyneId], Players[OlexandrZinchenkoId],
+                            Players[ClaudioBravoId], Players[KyleWalkerId], Players[FernandinhoId],
+                            Players[LukeBoltonId],
+                            Players[DavidSilvaId], Players[SergioAgueroId], Players[AymericLaporteId],
+                            Players[SterlingRaheemId]
+                        }
                     }
                 },
                 {
@@ -241,7 +248,13 @@ namespace _101mngr.WebApp.Domain
                     new FootballTeam
                     {
                         Id = ManchesterUnitedId, Name = "Manchester United",
-                        Players = new[] { Players[MarouaneFellainiId], Players[RomeluLukakuId]}
+                        Players = new[]
+                        {
+                            Players[MarouaneFellainiId], Players[RomeluLukakuId], Players[AshleyYoungId],
+                            Players[FredId], Players[PaulPogbaId], Players[JesseLingardId], Players[AnderHerreraId],
+                            Players[AlexisSanchezId], Players[MarcusRashfordId], Players[SergioRomeroId],
+                            Players[AntonioValenciaId]
+                        }
                     }
                 }
             };

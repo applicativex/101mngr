@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace _101mngr.WebApp.Domain
+namespace _101mngr.Leagues
 {
     public class FootballMatch
     {

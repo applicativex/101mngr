@@ -6,9 +6,11 @@ using _101mngr.Contracts;
 using _101mngr.Contracts.Enums;
 using _101mngr.Contracts.Models;
 using System.Linq;
+using Orleans.Concurrency;
 
 namespace _101mngr.Grains
 {
+    [Reentrant]
     public class MatchGrain : Grain, IMatchGrain
     {
         private string MatchId => this.GetPrimaryKeyString();
@@ -42,13 +44,13 @@ namespace _101mngr.Grains
             await matchRegistryGrain.Add(MatchId, State.Name);
         }
 
-        public Task JoinMatch(long playerId, string playerName)
+        public Task JoinMatch(long playerId, string playerName, bool isVirtualPlayer)
         {
             State.Players.Add(new PlayerDataDto
             {
                 Id = playerId,
-                Level = 10,
-                PlayerType = PlayerType.Midfielder,
+                Level = 10, // todo: consolidate player level
+                PlayerType = PlayerType.Midfielder, // todo: consolidate player type
                 UserName = playerName
             });
             return Task.CompletedTask;
@@ -62,14 +64,25 @@ namespace _101mngr.Grains
         
         public async Task PlayMatch()
         {
-            await Task.WhenAll(State.Players.Select(x => GrainFactory.GetGrain<IPlayerGrain>(x.Id.Value)).Select(x => x.AddMatchHistory(new MatchDto
+            await Task.WhenAll(State.Players.Select(PlayerHistory));
+            var matchRegistryGrain = GrainFactory.GetGrain<IMatchListGrain>(0);
+            await matchRegistryGrain.Remove(MatchId);
+        }
+
+        private async Task PlayerHistory(PlayerDataDto dto)
+        {
+            if (dto.IsVirtual)
+            {
+                return;
+            }
+
+            var playerGrain = GrainFactory.GetGrain<IPlayerGrain>(dto.Id.Value);
+            await playerGrain.AddMatchHistory(new MatchDto()
             {
                 Id = MatchId,
                 Name = State.Name,
                 CreatedAt = State.CreatedAt
-            })));
-            var matchRegistryGrain = GrainFactory.GetGrain<IMatchListGrain>(0);
-            await matchRegistryGrain.Remove(MatchId);
+            });
         }
 
         private class MatchState

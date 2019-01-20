@@ -1,4 +1,4 @@
-﻿namespace _101mngr.WebApp.Domain
+﻿namespace _101mngr.Leagues
 {
     /// <summary>
     /// Static description of soccer league e.g. Premier League, Primera, Bundesliga

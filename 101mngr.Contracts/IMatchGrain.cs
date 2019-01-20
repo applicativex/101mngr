@@ -10,7 +10,7 @@ namespace _101mngr.Contracts
 
         Task NewMatch(long playerId, string playerName, string matchName);
 
-        Task JoinMatch(long playerId, string playerName);
+        Task JoinMatch(long playerId, string playerName, bool isVirtualPlayer);
 
         Task LeaveMatch(long playerId);
 

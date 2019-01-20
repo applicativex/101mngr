@@ -21,5 +21,7 @@ namespace _101mngr.Contracts
         Task<MatchDto[]> GetMatchHistory();
 
         Task AddMatchHistory(MatchDto match);
+
+        Task<string> RandomMatch();
     }
 }

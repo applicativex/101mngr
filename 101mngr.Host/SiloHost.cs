@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans.Configuration;
@@ -8,6 +9,7 @@ using Orleans.Hosting;
 using Orleans;
 using Orleans.Clustering.Kubernetes;
 using _101mngr.Grains;
+using _101mngr.Leagues;
 using IHostingEnvironment = Microsoft.Extensions.Hosting.IHostingEnvironment;
 
 namespace _101mngr.Host
@@ -32,6 +34,11 @@ namespace _101mngr.Host
                     options.ServiceId = "101mngr";
                 })
                 .ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000)
+                .ConfigureServices(services =>
+                {
+                    services.AddSingleton<LeagueDbContext>();
+                    services.AddSingleton<LeagueService>();
+                })
                 .ConfigureClustering(hostingEnvironment)
                 .ConfigureApplicationParts(parts =>
                     parts.AddApplicationPart(typeof(PlayerGrain).Assembly).WithReferences())

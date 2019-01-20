@@ -9,5 +9,7 @@ namespace _101mngr.Contracts.Models
         public string Name { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        public string[] Players { get; set; } 
     }
-}
+}   

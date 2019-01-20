@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using _101mngr.WebApp.Domain;
+using _101mngr.Leagues;
 
 namespace _101mngr.WebApp.Controllers
 {

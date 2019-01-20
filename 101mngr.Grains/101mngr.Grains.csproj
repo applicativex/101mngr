@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\101mngr.Contracts\101mngr.Contracts.csproj" />
+    <ProjectReference Include="..\101mngr.Leagues\101mngr.Leagues.csproj" />
   </ItemGroup>
 
 </Project>

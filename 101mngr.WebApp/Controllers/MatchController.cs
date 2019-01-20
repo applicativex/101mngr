@@ -51,7 +51,16 @@ namespace _101mngr.WebApp.Controllers
             var matchId = await playerGrain.NewMatch(request.MatchName);
             return Ok(new { Id = matchId });
         }
-        
+
+        [HttpPost("random")]
+        public async Task<IActionResult> RandomMatch()
+        {
+            var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
+            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
+            var matchId = await playerGrain.RandomMatch();
+            return Ok(new { Id = matchId });
+        }
+
         [HttpPut("{matchId}/join")]
         public async Task<IActionResult> JoinMatch(string matchId)
         {

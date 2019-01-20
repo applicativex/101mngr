@@ -9,5 +9,6 @@ namespace _101mngr.Contracts.Models
         public string UserName { get; set; }
         public int Level { get; set; }
         public PlayerType PlayerType { get; set; }
+        public bool IsVirtual { get; set; } 
     }
 }

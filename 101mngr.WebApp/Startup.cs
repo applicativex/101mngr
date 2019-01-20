@@ -14,8 +14,8 @@ using Orleans.Configuration;
 using Orleans.Runtime;
 using Swashbuckle.AspNetCore.Swagger;
 using _101mngr.Contracts;
+using _101mngr.Leagues;
 using _101mngr.WebApp.Configuration;
-using _101mngr.WebApp.Domain;
 using _101mngr.WebApp.Services;
 
 namespace _101mngr.WebApp
