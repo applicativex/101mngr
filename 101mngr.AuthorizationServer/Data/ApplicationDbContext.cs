@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace _101mngr.AuthorizationServer.Data
 {
+    // todo: add ability to query players
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, long>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)

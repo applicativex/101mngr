@@ -18,9 +18,5 @@ namespace _101mngr.WebApp.Models.Requests
         [Required(AllowEmptyStrings = false)]
         [Display(Name = "UserName")]
         public string UserName { get; set; }
-
-        [Required]
-        [Display(Name = "Country Code")]
-        public string CountryCode { get; set; }
     }
 }

@@ -51,25 +51,38 @@ namespace _101mngr.WebApp.Controllers
         /// </summary>
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         [AllowAnonymous]
-        [HttpPost("register")]
+        [HttpPost("register")] // todo: add email confirmation
         public async Task<IActionResult> Register([FromBody] RegisterInputModel inputModel)
         {
-            if (!IsCountryCodeValid(inputModel.CountryCode))
-            {
-                return BadRequest("Invalid country code");
-            }
-
-            var accountId = await _authorizationService.Register(
-                inputModel.UserName, inputModel.Email, inputModel.Password, inputModel.CountryCode);
+            var accountId =
+                await _authorizationService.Register(inputModel.UserName, inputModel.Email, inputModel.Password);
             var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
             await playerGrain.Create(new CreatePlayerDto
             {
                 UserName = inputModel.UserName,
-                CountryCode = inputModel.CountryCode,
                 Email = inputModel.Email
             });
             return Ok(new { Id = accountId });
+        }
 
+        [HttpPut("profile")]
+        public async Task<IActionResult> ProfileInfo([FromBody]ProfileInfoInputModel inputModel)
+        {
+            var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
+            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
+            await playerGrain.ProfileInfo(new ProfileInfoDto
+            {
+                FirstName = inputModel.FirstName,
+                LastName = inputModel.LastName,
+                DateOfBirth = inputModel.DateOfBirth,
+                CountryCode = inputModel.CountryCode,
+                Weight = inputModel.Weight,
+                Height = inputModel.Height,
+                PlayerType = inputModel.PlayerType
+            });
+            return Ok();
+
+            // todo: enable country check
             bool IsCountryCodeValid(string countryCode) => CultureInfo
                 .GetCultures(CultureTypes.SpecificCultures)
                 .Select(culture => new RegionInfo(culture.Name))
@@ -89,8 +102,11 @@ namespace _101mngr.WebApp.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
-            var userInfo = await _authorizationService.GetUserInfo(accountId);
-            return Content(userInfo, "application/json");
+            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
+            var playerData = await playerGrain.GetPlayerInfo();
+            return Ok(playerData);
+            //var userInfo = await _authorizationService.GetUserInfo(accountId);
+            //return Content(userInfo, "application/json");
         }
 
         [AllowAnonymous]

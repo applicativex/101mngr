@@ -6,6 +6,7 @@ using _101mngr.Contracts.Models;
 using System.Collections.Generic;
 using System.Linq;
 using Orleans.Providers;
+using _101mngr.Contracts.Enums;
 using _101mngr.Leagues;
 
 namespace _101mngr.Grains
@@ -39,9 +40,33 @@ namespace _101mngr.Grains
             return WriteStateAsync();
         }
 
+        public Task ProfileInfo(ProfileInfoDto dto)
+        {
+            State.FirstName = dto.FirstName;
+            State.LastName = dto.LastName;
+            State.DateOfBirth = dto.DateOfBirth;
+            State.CountryCode = dto.CountryCode;
+            State.Height = dto.Height;
+            State.Weight = dto.Weight;
+            State.PlayerType = dto.PlayerType;
+            return WriteStateAsync();
+        }
+
         public Task<PlayerDto> GetPlayerInfo()
         {
-            throw new NotImplementedException();
+            var result = new PlayerDto
+            {
+                Id = State.Id,
+                FirstName = State.FirstName,
+                LastName = State.LastName,
+                BirthDate = State.DateOfBirth,
+                Height = State.Height,
+                Weight = State.Weight,
+                CountryCode = State.CountryCode,
+                Level = State.Level,
+                PlayerType = State.PlayerType
+            };
+            return Task.FromResult(result);
         }
 
         public async Task<string> NewMatch(string matchName)
@@ -102,8 +127,22 @@ namespace _101mngr.Grains
 
         public string Email { get; set; }
 
+        public List<MatchDto> MatchHistory { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public DateTime DateOfBirth { get; set; }
+
         public string CountryCode { get; set; }
 
-        public List<MatchDto> MatchHistory { get; set; }
+        public double Height { get; set; }
+
+        public double Weight { get; set; }
+
+        public int Level { get; set; }
+
+        public PlayerType PlayerType { get; set; }  
     }
 }

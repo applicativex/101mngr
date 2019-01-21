@@ -42,10 +42,9 @@ namespace _101mngr.AuthorizationServer.Controllers
                     {
                         UserName = model.UserName,
                         Email = model.Email,
-                        CountryCode = model.CountryCode,
-                        BirthDate = DateTime.Today
                     };
 
+                    // todo: sync user data in database and orleans storage
                     var result = await _userManager.CreateAsync(user, model.Password);
 
                     if (result.Succeeded)

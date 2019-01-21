@@ -13,13 +13,5 @@ namespace _101mngr.AuthorizationServer.Models
 
         [Required]
         public string Password { get; set; }
-
-        [Required]
-        public string CountryCode { get; set; }
-    }
-
-    public class GetUserNameInputModel
-    {
-
     }
 }

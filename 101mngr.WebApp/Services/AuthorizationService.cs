@@ -27,7 +27,7 @@ namespace _101mngr.WebApp.Services
             _authorizationServerUrl = authorizationServerOptions.Value.Authority;
         }
 
-        public async Task<long> Register(string userName, string email, string password, string countryCode)
+        public async Task<long> Register(string userName, string email, string password)
         {
             var token = await GetClientCredentialsToken();
             _httpClient.SetBearerToken(token.AccessToken);
@@ -37,8 +37,7 @@ namespace _101mngr.WebApp.Services
                     {
                         Email = email,
                         UserName = userName,
-                        Password = password,
-                        CountryCode = countryCode
+                        Password = password
                     }), Encoding.UTF8,
                     "application/json"));
             var content = await response.Content.ReadAsStringAsync();

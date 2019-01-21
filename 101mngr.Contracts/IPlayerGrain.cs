@@ -10,6 +10,8 @@ namespace _101mngr.Contracts
 
         Task Create(CreatePlayerDto request);
 
+        Task ProfileInfo(ProfileInfoDto dto);
+
         Task<PlayerDto> GetPlayerInfo();
 
         Task<string> NewMatch(string matchName);
