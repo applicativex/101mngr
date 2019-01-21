@@ -73,14 +73,14 @@ namespace _101mngr.Grains
         {
             var matchId = $"{PlayerId}:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
             var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
-            await matchGrain.NewMatch(PlayerId, State?.UserName, matchName);
+            await matchGrain.NewMatch(PlayerId, GetFullName(State.FirstName, State.LastName), matchName);
             return matchId;
         }
 
         public async Task JoinMatch(string matchId)
         {
             var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
-            await matchGrain.JoinMatch(PlayerId, State?.UserName, false);
+            await matchGrain.JoinMatch(PlayerId, GetFullName(State.FirstName, State.LastName), false);
         }
 
         public async Task LeaveMatch(string matchId)
@@ -99,14 +99,14 @@ namespace _101mngr.Grains
         {
             var matchId = $"{PlayerId}:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
             var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
-            await matchGrain.NewMatch(PlayerId, State.UserName,
+            await matchGrain.NewMatch(PlayerId, GetFullName(State.FirstName, State.LastName),
                 $"Random Match {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
             var virtualPlayers = _leagueService.GetPlayers().Take(21).ToArray();
             foreach (var virtualPlayer in virtualPlayers)
             {
                 // todo: handle id long vs string
                 await matchGrain.JoinMatch(
-                    long.Parse(virtualPlayer.Id), $"{virtualPlayer.FirstName} {virtualPlayer.LastName}", true);
+                    long.Parse(virtualPlayer.Id), GetFullName(virtualPlayer.FirstName, virtualPlayer.LastName), true);
             }
 
             await matchGrain.PlayMatch();
@@ -116,6 +116,11 @@ namespace _101mngr.Grains
         public Task<MatchDto[]> GetMatchHistory()
         {
             return Task.FromResult(State.MatchHistory.OrderByDescending(x => x.CreatedAt).ToArray());
+        }
+
+        private static string GetFullName(string firstName, string lastName)
+        {
+            return $"{firstName} {lastName}";
         }
     }
 

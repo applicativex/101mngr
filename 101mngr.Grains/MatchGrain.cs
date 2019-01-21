@@ -44,6 +44,7 @@ namespace _101mngr.Grains
             await matchRegistryGrain.Add(MatchId, State.Name);
         }
 
+        // todo: add player types for virtual players and real
         public Task JoinMatch(long playerId, string playerName, bool isVirtualPlayer)
         {
             State.Players.Add(new PlayerDataDto
