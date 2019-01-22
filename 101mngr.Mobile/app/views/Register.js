@@ -54,7 +54,7 @@ export class Register extends React.Component {
             .then((responseJson) => {
     
               console.log(responseJson.id);  
-              this.props.navigation.navigate('HomeRT');
+              this.props.navigation.navigate('ProfileRT');
             })
             .catch((error) =>{
               console.error(error);

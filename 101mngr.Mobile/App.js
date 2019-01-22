@@ -8,6 +8,7 @@ import { MatchList } from './app/views/MatchList.js';
 import { NewMatch } from './app/views/NewMatch.js';
 import { MatchInfo } from './app/views/MatchInfo.js';
 import { MatchHistory } from './app/views/MatchHistory.js';
+import { Profile } from './app/views/Profile.js';
 
 const HomeStack = createStackNavigator(
   {
@@ -39,11 +40,26 @@ const LoginStack = createStackNavigator(
 
 const RegisterStack = createStackNavigator(
   {
-    RegisterRT: { screen: Register }
+    RegisterRT: { screen: Register },
+    ProfileRT: { screen: Profile }
   },
   {
     navigationOptions: ({ navigation }) => ({
       drawerLabel: 'Register',
+      drawerLockMode: (
+        navigation.state.routes[navigation.state.index].params || {}
+      ).drawerLockMode
+    }),
+  }
+);
+
+const ProfileStack = createStackNavigator(
+  {
+    ProfileRT: { screen: Profile }
+  },
+  {
+    navigationOptions: ({ navigation }) => ({
+      drawerLabel: 'Profile',
       drawerLockMode: (
         navigation.state.routes[navigation.state.index].params || {}
       ).drawerLockMode
@@ -97,6 +113,9 @@ const MyRoutes = createDrawerNavigator({
   },
   MatchHistoryRT: {
     screen: MatchHistoryStack
+  },
+  ProfileRT: {
+    screen: ProfileStack
   }
 }, {
   initialRouteName: 'HomeRT'
