@@ -6,6 +6,7 @@ import {
     TextInput,
     TouchableHighlight,
     Alert,
+    Picker,
     AsyncStorage
 } from 'react-native';
 
@@ -22,13 +23,18 @@ export class Profile extends React.Component {
             lastName: '',
             dateOfBirth: '',
             countryCode: '',
-            weight: 0,
-            height: 0,
+            weight: '',
+            height: '',
             playerType: 0
         }
     }
 
+    componentWillMount(){
+        console.log('will u');
+    }
+
     componentDidMount() {
+        console.log('MOUNTED');
         return AsyncStorage.getItem('token', (err, result) => {
             if (result !== null) {
                 return fetch('http://35.228.60.109/api/account/profile', {
@@ -87,9 +93,6 @@ export class Profile extends React.Component {
                 })
                     .then((response) => {
                         console.log(response);
-                        return response.json();
-                    })
-                    .then((responseJson) => {
 
                         this.setState({
                             isEditing: false
@@ -117,6 +120,7 @@ export class Profile extends React.Component {
 
     render () {
         if(this.state.isEditing) {
+            return (
             <View style={styles.container}>
                 <TextInput
                     style={styles.inputs}
@@ -132,11 +136,11 @@ export class Profile extends React.Component {
                 />
                 <Text style={styles.label}>Last Name</Text>
 
-                <TextInput
+                {/* <TextInput
                     style={styles.inputs}
                     onChangeText={(text) => this.setState({dateOfBirth: text})}
                     value={this.state.dateOfBirth}
-                />
+                /> */}
                 <Text style={styles.label}>Date Of Birth</Text>
 
                 <TextInput
@@ -146,14 +150,20 @@ export class Profile extends React.Component {
                 />
                 <Text style={styles.label}>Country</Text>
 
-                <TextInput
-                    style={styles.inputs}
-                    onChangeText={(text) => this.setState({playerType: text})}
-                    value={this.state.playerType}
-                />
+                <Picker
+                    selectedValue={this.state.playerType}
+                    style={{ height: 50, width: '50%' }}
+                    prompt="Player Type"
+                    onValueChange={(itemValue, itemIndex) => this.setState({playerType: itemValue})}>
+                    <Picker.Item label="Goalkeeper" value="1" />
+                    <Picker.Item label="Defender" value="2" />
+                    <Picker.Item label="Midfielder" value="3" />
+                    <Picker.Item label="Forward" value="4" />
+        
+                </Picker>
                 <Text style={styles.label}>Player Type</Text>
 
-                <TextInput
+                {/* <TextInput
                     style={styles.inputs}
                     onChangeText={(text) => this.setState({height: text})}
                     value={this.state.height}
@@ -165,14 +175,14 @@ export class Profile extends React.Component {
                     onChangeText={(text) => this.setState({weight: text})}
                     value={this.state.weight}
                 />
-                <Text style={styles.label}>Weight</Text>
+                <Text style={styles.label}>Weight</Text> */}
 
                 <TouchableHighlight onPress={this.saveProfile} underlayColor='#31e981'>
                     <Text style={styles.buttons}>Save Profile</Text>
                 </TouchableHighlight>
 
             </View>
-
+            )
         }
         return (
             <View style={styles.container}>

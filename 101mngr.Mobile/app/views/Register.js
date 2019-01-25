@@ -6,7 +6,7 @@ import {
     TextInput,
     TouchableHighlight,
     Alert,
-    AsyncStorage
+    AsyncStorage,
 } from 'react-native';
 
 export class Register extends React.Component {
@@ -54,7 +54,7 @@ export class Register extends React.Component {
             .then((responseJson) => {
     
               console.log(responseJson.id);  
-              this.props.navigation.navigate('ProfileRT');
+              this.props.navigation.navigate('HomeRT');
             })
             .catch((error) =>{
               console.error(error);
