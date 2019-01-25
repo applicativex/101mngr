@@ -25,41 +25,30 @@ export class NewMatch extends React.Component {
 
     cancel = () => {
         console.log('match create cancel');
-        this.props.navigation.navigate('MatchListRT');
+        this.props.navigation.navigate('MatchList');
     }
 
-    createMatch = () => {
-        return AsyncStorage.getItem('token', (err, result) => {
-            if (result !== null) {
-                return fetch('http://35.228.60.109/api/match/new', {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        Authorization: result
-                    },
-                    body: JSON.stringify({
-                        playerId: 1,
-                        matchName: this.state.name,
-                    }),
-                })
-                    .then((response) => {
-                        console.log(response);
-                        return response.json();
-                    })
-                    .then((responseJson) => {
-
-                        console.log(responseJson.id);
-                        this.props.navigation.navigate('MatchInfoRT', { matchId: responseJson.id });
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    })
-            }
-            else {
-                Alert.alert(`Please login`);
-            }
-        });
+    createMatch = async () => {
+        try {
+            let token = await AsyncStorage.getItem('token');
+            var response = await fetch('http://35.228.60.109/api/match/new', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: token
+                },
+                body: JSON.stringify({
+                    playerId: 1,
+                    matchName: this.state.name,
+                }),
+            });
+            let responseJson = await response.json();
+            console.log(responseJson.id);
+            this.props.navigation.navigate('MatchList');
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     render() {

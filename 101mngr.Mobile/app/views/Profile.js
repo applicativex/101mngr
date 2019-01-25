@@ -5,9 +5,9 @@ import {
     View,
     TextInput,
     TouchableHighlight,
-    Alert,
     Picker,
-    AsyncStorage
+    AsyncStorage,
+    Button
 } from 'react-native';
 
 export class Profile extends React.Component {
@@ -29,85 +29,63 @@ export class Profile extends React.Component {
         }
     }
 
-    componentWillMount(){
-        console.log('will u');
+    componentDidMount = async () => {
+        try {
+            let token = await AsyncStorage.getItem('token');
+            let response = await fetch('http://35.228.60.109/api/account/profile', {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: token
+                }});
+            let responseJson = await response.json();
+            console.log(responseJson);
+            this.setState({
+                firstName: responseJson.firstName,
+                lastName: responseJson.lastName,
+                dateOfBirth: responseJson.dateOfBirth,
+                countryCode: responseJson.countryCode,
+                weight: responseJson.weight,
+                height: responseJson.height,
+                playerType: responseJson.playerType
+            }, function(){
+
+            });
+        } catch (error) {
+            console.error(error);
+        }
     }
 
-    componentDidMount() {
-        console.log('MOUNTED');
-        return AsyncStorage.getItem('token', (err, result) => {
-            if (result !== null) {
-                return fetch('http://35.228.60.109/api/account/profile', {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        Authorization: result
-                    }})
-                    .then((response) => {
-                        console.log(response);
-                        return response.json();})
-                    .then((responseJson) => {
-                        console.log(responseJson);
-                        this.setState({
-                            firstName: responseJson.firstName,
-                            lastName: responseJson.lastName,
-                            dateOfBirth: responseJson.dateOfBirth,
-                            countryCode: responseJson.countryCode,
-                            weight: responseJson.weight,
-                            height: responseJson.height,
-                            playerType: responseJson.playerType
-                        }, function(){
-                
-                        });
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    })
-            }
-            else {
-                Alert.alert(`Please login`);
-            }
-        });
-    }
-
-    saveProfile = () =>{
-        return AsyncStorage.getItem('token', (err, result) => {
-            if (result !== null) {
-                return fetch('http://35.228.60.109/api/account/profile', {
-                    method: 'PUT',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        Authorization: result
-                    },
-                    body: JSON.stringify({
-                        firstName: this.state.firstName,
-                        lastName: this.state.lastName,
-                        dateOfBirth: this.state.dateOfBirth,
-                        countryCode: this.state.countryCode,
-                        weight: this.state.weight,
-                        height: this.state.height,
-                        playerType: this.state.playerType
-                    }),
-                })
-                    .then((response) => {
-                        console.log(response);
-
-                        this.setState({
-                            isEditing: false
-                          }, function(){
-                  
-                          });
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    })
-            }
-            else {
-                Alert.alert(`Please login`);
-            }
-        });
+    saveProfile = async () =>{
+        try {
+            
+            let token = await AsyncStorage.getItem('token');
+            let response = await fetch('http://35.228.60.109/api/account/profile', {
+                method: 'PUT',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: token
+                },
+                body: JSON.stringify({
+                    firstName: this.state.firstName,
+                    lastName: this.state.lastName,
+                    dateOfBirth: this.state.dateOfBirth,
+                    countryCode: this.state.countryCode,
+                    weight: this.state.weight,
+                    height: this.state.height,
+                    playerType: this.state.playerType
+                }),
+            });
+            this.setState({
+                isEditing: false
+              }, function(){
+      
+              });
+        } catch (error) {
+            console.error(error);
+        };
     }
 
     editProfile = () =>{
@@ -117,6 +95,10 @@ export class Profile extends React.Component {
   
           });
     }
+  
+    _showMatchHistory = () => {
+      this.props.navigation.navigate('MatchHistory');
+    };
 
     render () {
         if(this.state.isEditing) {
@@ -195,9 +177,8 @@ export class Profile extends React.Component {
                 <Text style={styles.heading}>Height: {this.state.height}</Text>
                 <Text style={styles.heading}>Weight: {this.state.weight}</Text>
 
-                <TouchableHighlight onPress={this.editProfile} underlayColor='#31e981'>
-                    <Text style={styles.buttons}>Edit</Text>
-                </TouchableHighlight>
+                <Button title="Edit" onPress={this.editProfile} />
+                <Button title="Match history" onPress={this._showMatchHistory} />
 
             </View>
         );

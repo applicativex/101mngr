@@ -1,5 +1,5 @@
 import React from 'react';
-import { createStackNavigator, createDrawerNavigator, createAppContainer } from 'react-navigation';
+import { createStackNavigator, createDrawerNavigator, createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { Home } from './app/views/Home.js';
 import { Register } from './app/views/Register.js';
 import { Login } from './app/views/Login.js';
@@ -9,128 +9,40 @@ import { NewMatch } from './app/views/NewMatch.js';
 import { MatchInfo } from './app/views/MatchInfo.js';
 import { MatchHistory } from './app/views/MatchHistory.js';
 import { Profile } from './app/views/Profile.js';
+import { AuthLoading } from './app/views/AuthLoading.js';
+import { Other } from './app/views/Other.js';
+import { SignIn } from './app/views/SignIn.js';
+import { Countries } from './app/views/Countries';
+import { Leagues } from './app/views/Leagues';
+import { Seasons } from './app/views/Seasons';
+import { Teams } from './app/views/Teams';
+import { Players } from './app/views/Players';
 
-const HomeStack = createStackNavigator(
-  {
-    HomeRT: { screen: Home }
-  },
-  {
-    navigationOptions: ({ navigation }) => ({
-      drawerLabel: 'Home',
-      drawerLockMode: (
-        navigation.state.routes[navigation.state.index].params || {}
-      ).drawerLockMode
-    }),
-  }
-);
+const AppStack = createStackNavigator({ 
+  Home: Home, 
+  Other: Other, 
+  MatchList: MatchList, 
+  MatchInfo: MatchInfo, 
+  NewMatch: NewMatch,
 
-const LoginStack = createStackNavigator(
-  {
-    LoginRT: { screen: Login }
-  },
-  {
-    navigationOptions: ({ navigation }) => ({
-      drawerLabel: 'Login',
-      drawerLockMode: (
-        navigation.state.routes[navigation.state.index].params || {}
-      ).drawerLockMode
-    }),
-  }
-);
+  Profile: Profile,
+  MatchHistory: MatchHistory,
 
-const RegisterStack = createStackNavigator(
-  {
-    RegisterRT: { screen: Register },
-    ProfileRT: { screen: Profile }
-  },
-  {
-    navigationOptions: ({ navigation }) => ({
-      drawerLabel: 'Register',
-      drawerLockMode: (
-        navigation.state.routes[navigation.state.index].params || {}
-      ).drawerLockMode
-    }),
-  }
-);
-
-const ProfileStack = createStackNavigator(
-  {
-    ProfileRT: { screen: Profile }
-  },
-  {
-    navigationOptions: ({ navigation }) => ({
-      drawerLabel: 'Profile',
-      drawerLockMode: (
-        navigation.state.routes[navigation.state.index].params || {}
-      ).drawerLockMode
-    }),
-  }
-);
-
-const MatchListStack = createStackNavigator(
-  {
-    MatchListRT: { screen: MatchList },
-    MatchInfoRT: { screen: MatchInfo },
-    NewMatchRT: { screen: NewMatch },
-  },
-  {
-    navigationOptions: ({ navigation }) => ({
-      drawerLabel: 'Current Matches',
-      drawerLockMode: (
-        navigation.state.routes[navigation.state.index].params || {}
-      ).drawerLockMode
-    }),
-  }
-);
-
-const MatchHistoryStack = createStackNavigator(
-  {
-    MatchHistoryRT: { screen: MatchHistory },
-    MatchInfoRT: { screen: MatchInfo },
-  },
-  {
-    navigationOptions: ({ navigation }) => ({
-      drawerLabel: 'Match History',
-      drawerLockMode: (
-        navigation.state.routes[navigation.state.index].params || {}
-      ).drawerLockMode
-    }),
-  }
-);
-
-const MyRoutes = createDrawerNavigator({
-  HomeRT: {
-    screen: HomeStack
-  },
-  RegisterRT: {
-    screen: RegisterStack
-  },
-  LoginRT: {
-    screen: LoginStack
-  },
-  MatchListRT: {
-    screen: MatchListStack
-  },
-  MatchHistoryRT: {
-    screen: MatchHistoryStack
-  },
-  ProfileRT: {
-    screen: ProfileStack
-  }
-}, {
-  initialRouteName: 'HomeRT'
+  Countries: Countries,
+  Leagues: Leagues,
+  Seasons: Seasons,
+  Teams: Teams,
+  Players: Players
 });
+const AuthStack = createStackNavigator({ SignIn: SignIn, Register: Register });
 
-const AppContainer = createAppContainer(MyRoutes);
-
-// Now AppContainer is the main component for React to render
-
-export default AppContainer;
-
-// export default class App extends React.Component {
-//   render() { 
-//     return (
-//       <MyRoutes />
-//     );
-//   }
-// }
+export default createAppContainer(createSwitchNavigator(
+  {
+    AuthLoading: AuthLoading,
+    App: AppStack,
+    Auth: AuthStack
+  },  
+  {
+    initialRouteName: 'AuthLoading',
+  }
+));

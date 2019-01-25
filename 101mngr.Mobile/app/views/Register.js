@@ -4,6 +4,7 @@ import {
     Text,
     View,
     TextInput,
+    Button,
     TouchableHighlight,
     Alert,
     AsyncStorage,
@@ -25,51 +26,32 @@ export class Register extends React.Component {
         }
     }
 
-    cancelRegister = () => {
-        Alert.alert('Registration cancelled');
-        this.props.navigation.navigate('HomeRT');
-    }
-
-    registerAccount = () =>{
+    _registerAsync = async () => {
         if (!this.state.username){
             Alert.alert('Please enter a username');
         } else if(this.state.passwrd !== this.state.passwrdConfirm){
             Alert.alert('Passwords do not match');
         }else {
         
-            return fetch('http://35.228.60.109/api/account/register', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: this.state.email,
-                    userName: this.state.username,
-                    password: this.state.passwrd,
-                    countryCode: "UA"
-                }),
-            })
-            .then((response) => response.json())
-            .then((responseJson) => {
-    
-              console.log(responseJson.id);  
-              this.props.navigation.navigate('HomeRT');
-            })
-            .catch((error) =>{
-              console.error(error);
-            });
-            // AsyncStorage.getItem(this.state.username, (err,result)=>{
-            //     if (result!==null){
-            //         Alert.alert(`${this.state.username} account exists`)
-            //     }
-            //     else{
-            //         AsyncStorage.setItem(this.state.username, this.state.passwrd, (err,result=>{
-            //             Alert.alert(`${this.state.username} account created`);
-            //             this.props.navigation.navigate('HomeRT');
-            //         }))
-            //     }
-            // });
+            try {
+                var response = await fetch('http://35.228.60.109/api/account/register', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: this.state.email,
+                        userName: this.state.username,
+                        password: this.state.passwrd
+                    }),
+                });
+                var responseJson = await response.json();
+                console.log(responseJson.id);  
+                this.props.navigation.navigate('SignIn');
+            } catch (error) {
+                console.error(error);
+            }
         }
     }
 
@@ -107,13 +89,7 @@ export class Register extends React.Component {
                 />
                 <Text style={styles.label}>Confirm Password</Text>
 
-                <TouchableHighlight onPress={this.registerAccount} underlayColor='#31e981'>
-                    <Text style={styles.buttons}>Register</Text>
-                </TouchableHighlight>
-
-                <TouchableHighlight onPress={this.cancelRegister} underlayColor='#31e981'>
-                    <Text style={styles.buttons}>Cancel</Text>
-                </TouchableHighlight>
+                <Button title="Sign up" onPress={this._registerAsync} />
 
             </View>
         );

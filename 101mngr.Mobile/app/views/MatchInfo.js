@@ -37,7 +37,7 @@ export class MatchInfo extends React.Component {
             console.error(error);
           });
     }
-
+ 
     playMatch = () => {
         return AsyncStorage.getItem('token', (err, result) => {
             if (result !== null) {
@@ -80,25 +80,18 @@ export class MatchInfo extends React.Component {
         });
     }
 
-    leaveMatch = () => {
-        return AsyncStorage.getItem('token', (err, result) => {
-            if (result !== null) {
-                return fetch(`http://35.228.60.109/api/match/${this.state.id}/leave`, {
-                    method: 'PUT',
-                    headers: {
-                        Authorization: result
-                    }})
-                    .then((response) => {
-                        console.log('Success leave');
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    })
-            }
-            else {
-                Alert.alert(`Please login`);
-            }
-        });
+    leaveMatch = async () => {
+        try {
+            let token = await AsyncStorage.getItem('token');
+            let response = await fetch(`http://35.228.60.109/api/match/${this.state.id}/leave`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: token
+                }});
+            this.props.navigation.navigate('MatchList');
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     render () {
@@ -114,6 +107,7 @@ export class MatchInfo extends React.Component {
                 
                 <FlatList style={{flex:1, margin: 10}}
                                     data={this.state.playerList}
+                                    keyExtractor={(item, index) => item.id.toString()}
                                     renderItem={({item})=>
                                     <Text>Player: {item.userName}</Text>
                                     } />

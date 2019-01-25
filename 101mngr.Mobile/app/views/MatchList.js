@@ -17,10 +17,10 @@ export class MatchList extends React.Component {
         };
     }
 
-    componentDidMount(){
-        return fetch('http://35.228.60.109/api/match')
-          .then((response) => response.json())
-          .then((responseJson) => {
+    componentDidMount = async () => {
+        try {
+            let response = await fetch('http://35.228.60.109/api/match');
+            let responseJson = await response.json(); 
 
             console.log(responseJson);
             this.setState({
@@ -28,11 +28,9 @@ export class MatchList extends React.Component {
             }, function(){
     
             });
-    
-          })
-          .catch((error) =>{
+        } catch (error) {
             console.error(error);
-          });
+        }
     }
 
     invitePlayers = () =>{
@@ -43,7 +41,7 @@ export class MatchList extends React.Component {
     }
 
     newMatch = () => {
-        this.props.navigation.navigate('NewMatchRT');
+        this.props.navigation.navigate('NewMatch');
     }
 
     render () {
@@ -54,6 +52,7 @@ export class MatchList extends React.Component {
                 
                 <FlatList 
                             data={this.state.matchList}
+                            keyExtractor={(item, index) => item.id}
                             renderItem={({item}) =>
                             <MatchItem
                                 navigate={navigate}
@@ -71,7 +70,7 @@ export class MatchList extends React.Component {
 export class MatchItem extends React.Component {
     onPress = () => {
         //Alert.alert(this.props.name);
-        this.props.navigate('MatchInfoRT', {matchId: this.props.id} );
+        this.props.navigate('MatchInfo', {matchId: this.props.id} );
     }
 
     render(){

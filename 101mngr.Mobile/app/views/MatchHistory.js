@@ -51,6 +51,7 @@ export class MatchHistory extends React.Component {
             <View style={styles.container}>
                 <FlatList style={{flex:1, margin: 10}}
                                     data={this.state.matchList}
+                                    keyExtractor={(item, index) => index.toString()}
                                     renderItem={({item})=>
                                     <Text>Id: {item.id} - Name: {item.name} - Date: {item.date}</Text>
                                     } />
