@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, AsyncStorage, Alert, TouchableHighlight, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Button, AsyncStorage, Alert, ScrollView, RefreshControl, FlatList } from 'react-native';
 
 export class MatchInfo extends React.Component {
     static navigationOptions = {
@@ -12,72 +12,89 @@ export class MatchInfo extends React.Component {
             id: 0,
             name: "",
             createdAt: null,
-            playerList: []
+            playerList: [],
+            accountId: '',
+            refreshing: false
         };
     }
 
-    componentDidMount() {
-        let matchId = this.props.navigation.getParam('matchId');
-        return fetch(`http://35.228.60.109/api/match/${matchId}`)
-          .then((response) => response.json())
-          .then((responseJson) => {
+    componentDidMount = async () => {
+        await this._refreshMatchInfo();
+    }
+    
+    _onRefresh = async () => {
+        this.setState({refreshing: true});
+        await this._refreshMatchInfo();
+        this.setState({refreshing: false});
+    }
 
-            console.log(responseJson);
+    _refreshMatchInfo = async () => {
+        try {
+            let matchId = this.props.navigation.getParam('matchId');
+            let matchResponse = await fetch(`http://35.228.60.109/api/match/${matchId}`);
+            let matchJson = await matchResponse.json();
             this.setState({
-              id: responseJson.id,
-              name: responseJson.name,
-              createdAt: responseJson.createdAt,
-              playerList: responseJson.players
-            }, function(){
-    
+              id: matchJson.id,
+              name: matchJson.name,
+              createdAt: matchJson.createdAt,
+              playerList: matchJson.players
             });
-    
-          })
-          .catch((error) =>{
+            let token = await AsyncStorage.getItem('token');
+            let profileResponse = await fetch('http://35.228.60.109/api/account/profile', {
+                method: 'GET',
+                headers: {
+                    Authorization: token
+                }});
+            let profileJson = await profileResponse.json();
+            this.setState({
+                accountId: profileJson.id
+              });
+        } catch (error) {
             console.error(error);
-          });
+        }
+    }
+
+    inPlayerList = () => {
+        return this.state.playerList.some(x=>x.id === this.state.accountId);
     }
  
-    playMatch = () => {
-        return AsyncStorage.getItem('token', (err, result) => {
-            if (result !== null) {
-                return fetch(`http://35.228.60.109/api/match/${this.state.id}/start`, {
-                    method: 'PUT',
-                    headers: {
-                        Authorization: result
-                    }})
-                    .then((response) => {
-                        this.props.navigation.navigate('MatchHistoryRT');
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    })
-            }
-            else {
-                Alert.alert(`Please login`);
-            }
-        });
+    playMatch = async () => {
+        try {
+            let token = await AsyncStorage.getItem('token');
+            let response = await fetch(`http://35.228.60.109/api/match/${this.state.id}/start`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: token
+                }});
+            this.props.navigation.navigate('MatchStats', {matchId: this.state.id});
+
+        } catch (error) {
+            console.error(error);
+        }
     }
 
-    joinMatch = () => {
-        return AsyncStorage.getItem('token', (err, result) => {
-            if (result !== null) {
-                return fetch(`http://35.228.60.109/api/match/${this.state.id}/join`, {
-                    method: 'PUT',
-                    headers: {
-                        Authorization: result
-                    }})
-                    .then((response) => {
-                        console.log('Success join');
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    })
-            }
-            else {
-                Alert.alert(`Please login`);
-            }
-        });
+    joinMatch = async () => {
+        try {
+            let token = await AsyncStorage.getItem('token');
+            let response = await fetch(`http://35.228.60.109/api/match/${this.state.id}/join`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: token
+                }});
+            let profileResponse = await fetch('http://35.228.60.109/api/account/profile', {
+                method: 'GET',
+                headers: {
+                    Authorization: token
+                }});
+            let profileJson = await profileResponse.json();
+            this.setState(state => ({
+                playerList: [...state.playerList, { id: profileJson.id, userName: `${profileJson.firstName} ${profileJson.lastName}`}]
+              }));
+            console.log('Success join');
+            
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     leaveMatch = async () => {
@@ -98,7 +115,13 @@ export class MatchInfo extends React.Component {
         const { navigate } = this.props.navigation;
 
         return (
-            <View style={styles.container}>
+            
+            <ScrollView contentContainerStyle={styles.container} refreshControl={
+                <RefreshControl
+                  refreshing={this.state.refreshing}
+                  onRefresh={this._onRefresh}
+                />
+              }>
 
                 <Text style={styles.heading}>Id: {this.state.id}</Text>
                 <Text style={styles.heading}>Name: {this.state.name}</Text>
@@ -115,12 +138,10 @@ export class MatchInfo extends React.Component {
                 
                 <View style={styles.alternativeLayoutButtonContainer}>
                 
-                    <Button style={{margin:'20%'}} title="Start" onPress={this.playMatch} underlayColor='#31e981'  />
-                    <Button style={{margin:'20%'}} title="Join" onPress={this.joinMatch} underlayColor='#31e981'  />
-
-                    <Button style={{margin:'20%'}} title="Leave" onPress={this.leaveMatch} />
+                    <Button style={{margin:'30%'}} title="Start" onPress={this.playMatch} underlayColor='#31e981'  />
+                    <Button style={{margin:'30%'}} title={!this.inPlayerList() ? "Join" : "Leave"} onPress={ !this.inPlayerList() ? this.joinMatch : this.leaveMatch} underlayColor='#31e981'  />
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }

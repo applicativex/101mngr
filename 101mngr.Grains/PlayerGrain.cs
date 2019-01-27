@@ -108,8 +108,6 @@ namespace _101mngr.Grains
                 await matchGrain.JoinMatch(
                     long.Parse(virtualPlayer.Id), GetFullName(virtualPlayer.FirstName, virtualPlayer.LastName), true);
             }
-
-            await matchGrain.PlayMatch();
             return matchId;
         }
 

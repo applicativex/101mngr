@@ -65,7 +65,10 @@ namespace _101mngr.Grains
         
         public async Task PlayMatch()
         {
-            await Task.WhenAll(State.Players.Select(PlayerHistory));
+            foreach (var player in State.Players)
+            {
+                await PlayerHistory(player);
+            }
             var matchRegistryGrain = GrainFactory.GetGrain<IMatchListGrain>(0);
             await matchRegistryGrain.Remove(MatchId);
         }

@@ -23,7 +23,7 @@ export class Home extends React.Component {
     };
   
     _showLeaderboard = () => {
-      //this.props.navigation.navigate('MatchHistory');
+      this.props.navigation.navigate('Leaderboard');
     };
   
     _showLeagues = () => {

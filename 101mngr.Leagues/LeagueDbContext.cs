@@ -19,29 +19,29 @@ namespace _101mngr.Leagues
         private const string ManchesterCityId = "1";
         private const string ManchesterUnitedId = "2";
 
-        private const string DeBruyneId = "1";
-        private const string VincentKompanyId = "2";
-        private const string ClaudioBravoId = "5";
-        private const string KyleWalkerId = "6";
-        private const string LukeBoltonId = "7";
-        private const string FernandinhoId = "8";
-        private const string DavidSilvaId = "9";
-        private const string SergioAgueroId = "10";
-        private const string OlexandrZinchenkoId = "11";
-        private const string AymericLaporteId = "12";
-        private const string SterlingRaheemId = "13";
+        private const string DeBruyneId = "1000";
+        private const string VincentKompanyId = "2000";
+        private const string ClaudioBravoId = "5000";
+        private const string KyleWalkerId = "6000";
+        private const string LukeBoltonId = "7000";
+        private const string FernandinhoId = "8000";
+        private const string DavidSilvaId = "9000";
+        private const string SergioAgueroId = "1000";
+        private const string OlexandrZinchenkoId = "1100";
+        private const string AymericLaporteId = "1200";
+        private const string SterlingRaheemId = "1300";
 
-        private const string MarouaneFellainiId = "3";
-        private const string RomeluLukakuId = "4";
-        private const string SergioRomeroId = "14";
-        private const string AntonioValenciaId = "15";
-        private const string MarcusRashfordId = "16";
-        private const string AlexisSanchezId = "17";
-        private const string JesseLingardId = "18";
-        private const string AnderHerreraId = "19";
-        private const string FredId = "20";
-        private const string PaulPogbaId = "21";
-        private const string AshleyYoungId = "22";
+        private const string MarouaneFellainiId = "3000";
+        private const string RomeluLukakuId = "4000";
+        private const string SergioRomeroId = "1400";
+        private const string AntonioValenciaId = "1500";
+        private const string MarcusRashfordId = "1600";
+        private const string AlexisSanchezId = "1700";
+        private const string JesseLingardId = "1800";
+        private const string AnderHerreraId = "1900";
+        private const string FredId = "2000";
+        private const string PaulPogbaId = "2100";
+        private const string AshleyYoungId = "2200";
 
         public LeagueDbContext()
         {

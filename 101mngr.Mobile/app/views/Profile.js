@@ -99,6 +99,19 @@ export class Profile extends React.Component {
     _showMatchHistory = () => {
       this.props.navigation.navigate('MatchHistory');
     };
+  
+    _randomMatch = async () => {
+        let token = await AsyncStorage.getItem('token');
+        let response = await fetch('http://35.228.60.109/api/match/random', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                Authorization: token
+            }
+        });
+        this.props.navigation.navigate('MatchHistory');
+    };
 
     render () {
         if(this.state.isEditing) {
@@ -179,6 +192,7 @@ export class Profile extends React.Component {
 
                 <Button title="Edit" onPress={this.editProfile} />
                 <Button title="Match history" onPress={this._showMatchHistory} />
+                <Button title="Random match" onPress={this._randomMatch} />
 
             </View>
         );

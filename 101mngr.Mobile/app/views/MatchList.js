@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, AsyncStorage, Alert, TouchableHighlight, FlatList, TouchableWithoutFeedback, Button } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, RefreshControl, AsyncStorage, Alert, TouchableHighlight, FlatList, TouchableWithoutFeedback, Button } from 'react-native';
 import {PlayersData} from '../data/Players.js';
 import { PlayerListItem } from '../sections/PlayerListItem.js';
 
@@ -13,11 +13,23 @@ export class MatchList extends React.Component {
         this.state = {
             isInvited: false,
             loggedUser: false,
-            matchList: []
+            matchList: [],
+            refreshing: false,
         };
     }
+    
+    _onRefresh = async () => {
+        this.setState({refreshing: true});
+        await this._refreshMatchList();
+        this.setState({refreshing: false});
+      }
+    
 
     componentDidMount = async () => {
+        await this._refreshMatchList();
+    }
+
+    _refreshMatchList = async () => {
         try {
             let response = await fetch('http://35.228.60.109/api/match');
             let responseJson = await response.json(); 
@@ -48,10 +60,15 @@ export class MatchList extends React.Component {
         const { navigate } = this.props.navigation;
 
         return (
-            <View style={styles.container}>
+            
+            <ScrollView contentContainerStyle={styles.container} refreshControl={
+                <RefreshControl
+                  refreshing={this.state.refreshing}
+                  onRefresh={this._onRefresh}
+                />
+              }>
                 
-                <FlatList 
-                            data={this.state.matchList}
+                <FlatList   data={this.state.matchList}
                             keyExtractor={(item, index) => item.id}
                             renderItem={({item}) =>
                             <MatchItem
@@ -62,7 +79,7 @@ export class MatchList extends React.Component {
                         />
 
                 <Button title="New Match" onPress={this.newMatch} underlayColor='#31e981'  />
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -93,7 +110,13 @@ export class PlayerList extends React.Component {
 
     render(){
         return(
-            <View>
+            
+            <ScrollView refreshControl={
+                <RefreshControl
+                  refreshing={this.state.refreshing}
+                  onRefresh={this._onRefresh}
+                />
+              }>
                 <TouchableHighlight onPress={this.onPress} underlayColor='#31e981'>
                     <Text style={styles.buttons}>Pick Players</Text>
                 </TouchableHighlight>
@@ -103,7 +126,7 @@ export class PlayerList extends React.Component {
                                 <Text style={{width:'100%'}}>{item.userName}</Text>
                             }
                         />
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -130,5 +153,11 @@ const styles = StyleSheet.create({
     },
     labels: {
         paddingBottom: 10
+    },
+    alternativeLayoutButtonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems:'center',
+      width: '75%'
     }
 });

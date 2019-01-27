@@ -17,6 +17,8 @@ import { Leagues } from './app/views/Leagues';
 import { Seasons } from './app/views/Seasons';
 import { Teams } from './app/views/Teams';
 import { Players } from './app/views/Players';
+import { Leaderboard } from './app/views/Leaderboard';
+import { MatchStats } from './app/views/MatchStats'
 
 const AppStack = createStackNavigator({ 
   Home: Home, 
@@ -24,6 +26,7 @@ const AppStack = createStackNavigator({
   MatchList: MatchList, 
   MatchInfo: MatchInfo, 
   NewMatch: NewMatch,
+  MatchStats: MatchStats,
 
   Profile: Profile,
   MatchHistory: MatchHistory,
@@ -32,7 +35,8 @@ const AppStack = createStackNavigator({
   Leagues: Leagues,
   Seasons: Seasons,
   Teams: Teams,
-  Players: Players
+  Players: Players,
+  Leaderboard: Leaderboard
 });
 const AuthStack = createStackNavigator({ SignIn: SignIn, Register: Register });
 
