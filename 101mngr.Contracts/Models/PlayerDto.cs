@@ -5,7 +5,7 @@ namespace _101mngr.Contracts.Models
 {
     public class PlayerDto
     {   
-        public long Id { get; set; }
+        public string Id { get; set; }
 
         public long AccountId { get; set; }
 

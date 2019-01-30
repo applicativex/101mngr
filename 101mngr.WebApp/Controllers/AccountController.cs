@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Orleans;
 using _101mngr.AuthorizationServer.Models;
 using _101mngr.Contracts;
@@ -21,11 +22,13 @@ namespace _101mngr.WebApp.Controllers
     {
         private readonly AuthorizationService _authorizationService;
         private readonly IClusterClient _clusterClient;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(AuthorizationService authorizationService, IClusterClient clusterClient)
+        public AccountController(AuthorizationService authorizationService, IClusterClient clusterClient, ILogger<AccountController> logger)
         {
             _authorizationService = authorizationService;
             _clusterClient = clusterClient;
+            _logger = logger;
         }
 
         [AllowAnonymous]
@@ -54,33 +57,49 @@ namespace _101mngr.WebApp.Controllers
         [HttpPost("register")] // todo: add email confirmation
         public async Task<IActionResult> Register([FromBody] RegisterInputModel inputModel)
         {
-            var accountId =
-                await _authorizationService.Register(inputModel.UserName, inputModel.Email, inputModel.Password);
-            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
-            await playerGrain.Create(new CreatePlayerDto
+            try
             {
-                UserName = inputModel.UserName,
-                Email = inputModel.Email
-            });
-            return Ok(new { Id = accountId });
+                var accountId =
+                    await _authorizationService.Register(inputModel.UserName, inputModel.Email, inputModel.Password);
+                var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
+                await playerGrain.Create(new CreatePlayerDto
+                {
+                    UserName = inputModel.UserName,
+                    Email = inputModel.Email
+                });
+                return Ok(new { Id = accountId });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Register error");
+                throw;
+            }
         }
 
         [HttpPut("profile")]
         public async Task<IActionResult> ProfileInfo([FromBody]ProfileInfoInputModel inputModel)
         {
-            var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
-            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
-            await playerGrain.ProfileInfo(new ProfileInfoDto
+            try
             {
-                FirstName = inputModel.FirstName,
-                LastName = inputModel.LastName,
-                DateOfBirth = inputModel.DateOfBirth,
-                CountryCode = inputModel.CountryCode,
-                Weight = inputModel.Weight,
-                Height = inputModel.Height,
-                PlayerType = inputModel.PlayerType
-            });
-            return Ok();
+                var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
+                var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
+                await playerGrain.ProfileInfo(new ProfileInfoDto
+                {
+                    FirstName = inputModel.FirstName,
+                    LastName = inputModel.LastName,
+                    DateOfBirth = inputModel.DateOfBirth,
+                    CountryCode = inputModel.CountryCode,
+                    Weight = inputModel.Weight,
+                    Height = inputModel.Height,
+                    PlayerType = inputModel.PlayerType
+                });
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "ProfileInfo error");
+                throw;
+            }
 
             // todo: enable country check
             bool IsCountryCodeValid(string countryCode) => CultureInfo

@@ -28,6 +28,7 @@ export class MatchInfo extends React.Component {
         this.setState({refreshing: false});
     }
 
+
     _refreshMatchInfo = async () => {
         try {
             let matchId = this.props.navigation.getParam('matchId');
@@ -38,7 +39,7 @@ export class MatchInfo extends React.Component {
               name: matchJson.name,
               createdAt: matchJson.createdAt,
               playerList: matchJson.players
-            });
+            });  
             let token = await AsyncStorage.getItem('token');
             let profileResponse = await fetch('http://35.228.60.109/api/account/profile', {
                 method: 'GET',

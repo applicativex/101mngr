@@ -1,5 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Marten;
+using Marten.Events;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +10,7 @@ using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans;
 using Orleans.Clustering.Kubernetes;
+using _101mngr.Contracts;
 using _101mngr.Grains;
 using _101mngr.Leagues;
 using IHostingEnvironment = Microsoft.Extensions.Hosting.IHostingEnvironment;
@@ -36,13 +39,27 @@ namespace _101mngr.Host
                 .ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000)
                 .ConfigureServices(services =>
                 {
+                    var documentStore = DocumentStore.For(_ =>
+                    {
+                        _.Connection(connectionString);
+
+                        _.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
+                        _.Events.StreamIdentity = StreamIdentity.AsString;
+                        _.Events.AddEventTypes(new[]
+                        {
+                            typeof(PlayerCreated)
+                        });
+                        // _.Events.InlineProjections.AggregateStreamsWith<PlayerState>();
+                    });
+                    services.AddSingleton<IDocumentStore>(documentStore);
+                    services.AddSingleton<IEventStorage, MartenEventStorage>();
                     services.AddSingleton<LeagueDbContext>();
                     services.AddSingleton<LeagueService>();
                 })
                 .ConfigureClustering(hostingEnvironment)
                 .ConfigureApplicationParts(parts =>
                     parts.AddApplicationPart(typeof(PlayerGrain).Assembly).WithReferences())
-                .ConfigureLogging(builder => builder.AddConsole())
+                .ConfigureLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Warning))
                 .UseDashboard(options => { options.CounterUpdateIntervalMs = 10000; })
                 .Build();
         }

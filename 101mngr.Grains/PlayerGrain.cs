@@ -5,51 +5,53 @@ using _101mngr.Contracts;
 using _101mngr.Contracts.Models;
 using System.Collections.Generic;
 using System.Linq;
-using Orleans.Providers;
 using _101mngr.Contracts.Enums;
 using _101mngr.Leagues;
 
 namespace _101mngr.Grains
 {
-    [StorageProvider(ProviderName = "OrleansStorage")]
-    public class PlayerGrain : Grain<PlayerState>, IPlayerGrain
+    public class PlayerGrain : Grain, IPlayerGrain
     {
         private readonly LeagueService _leagueService;
+        private readonly IEventStorage _eventStorage;
         private long PlayerId => this.GetPrimaryKeyLong();
 
-        public PlayerGrain(LeagueService leagueService)
+        private PlayerState State { get; set; }
+
+        public PlayerGrain(LeagueService leagueService, IEventStorage eventStorage)
         {
             _leagueService = leagueService;
+            _eventStorage = eventStorage;
         }
-        
+
+        public override async Task OnActivateAsync()
+        {
+            State = (await _eventStorage.GetStreamState<PlayerState>(this.GetPrimaryKeyLong().ToString())).Value;
+            await base.OnActivateAsync();
+        }
+
         public Task<long> GetPlayer()
         {
             return Task.FromResult(PlayerId);
         }
 
-        public Task Create(CreatePlayerDto request)
+        public async Task Create(CreatePlayerDto request)
         {
-            State = new PlayerState
+            await RaiseEvent(new PlayerCreated
             {
-                Id = PlayerId,
-                UserName = request.UserName,
-                Email = request.Email,
-                CountryCode = request.CountryCode,
-                MatchHistory = new List<MatchDto>()
-            };
-            return WriteStateAsync();
+                Id = this.GetPrimaryKeyLong().ToString(), UserName = request.UserName, CountryCode = request.CountryCode,
+                Email = request.Email
+            });
         }
 
-        public Task ProfileInfo(ProfileInfoDto dto)
+        public async Task ProfileInfo(ProfileInfoDto dto)
         {
-            State.FirstName = dto.FirstName;
-            State.LastName = dto.LastName;
-            State.DateOfBirth = dto.DateOfBirth;
-            State.CountryCode = dto.CountryCode;
-            State.Height = dto.Height;
-            State.Weight = dto.Weight;
-            State.PlayerType = dto.PlayerType;
-            return WriteStateAsync();
+            var profileInfoChanged = new ProfileInfoChanged
+            {
+                CountryCode = dto.CountryCode, PlayerType = dto.PlayerType, FirstName = dto.FirstName,
+                LastName = dto.LastName, DateOfBirth = dto.DateOfBirth, Weight = dto.Weight, Height = dto.Height
+            };
+            await RaiseEvent(profileInfoChanged);
         }
 
         public Task<PlayerDto> GetPlayerInfo()
@@ -89,10 +91,13 @@ namespace _101mngr.Grains
             await matchGrain.LeaveMatch(PlayerId);
         }
 
-        public Task AddMatchHistory(MatchDto match)
+        public async Task AddMatchHistory(MatchDto match)
         {
-            State.MatchHistory.Add(match);
-            return WriteStateAsync();
+            var matchPlayed = new MatchPlayed
+            {
+                Id = match.Id, Name = match.Name, Players = match.Players, CreatedAt = DateTime.UtcNow
+            };
+            await RaiseEvent(matchPlayed);
         }
 
         public async Task<string> RandomMatch()
@@ -120,11 +125,22 @@ namespace _101mngr.Grains
         {
             return $"{firstName} {lastName}";
         }
+
+        private async Task RaiseEvent(IPlayerEvent @event)
+        {
+            await _eventStorage.AppendToStream(this.GetPrimaryKeyLong().ToString(), State.Version + 1, @event);
+            State.Apply(@event);
+        }
     }
 
     public class PlayerState
     {
-        public long Id { get; set; }
+        public PlayerState()
+        {
+            MatchHistory = new List<MatchDto>();
+        }
+
+        public string Id { get; set; }
 
         public string UserName { get; set; }
 
@@ -146,6 +162,98 @@ namespace _101mngr.Grains
 
         public int Level { get; set; }
 
-        public PlayerType PlayerType { get; set; }  
+        public PlayerType PlayerType { get; set; }
+
+        public int Version { get; set; }    
+
+        public void Apply(PlayerCreated @event)
+        {
+            Id = @event.Id;
+            UserName = @event.UserName;
+            Email = @event.Email;
+            CountryCode = @event.CountryCode;
+            Version++;
+        }
+
+        public void Apply(ProfileInfoChanged @event)
+        {
+            FirstName = @event.FirstName;
+            LastName = @event.LastName;
+            DateOfBirth = @event.DateOfBirth;
+            CountryCode = @event.CountryCode;
+            Height = @event.Height;
+            Weight = @event.Weight;
+            PlayerType = @event.PlayerType;
+            Version++;
+        }
+
+        public void Apply(MatchPlayed @event)
+        {
+            MatchHistory.Add(new MatchDto
+                {Id = @event.Id, Name = @event.Name, Players = @event.Players, CreatedAt = @event.CreatedAt});
+            Version++;
+        }
+
+        public void Apply(IPlayerEvent @event)
+        {
+            switch (@event)
+            {
+                case MatchPlayed matchPlayed:
+                    Apply(matchPlayed);
+                    break;
+                case PlayerCreated playerCreated:
+                    Apply(playerCreated);
+                    break;
+                case ProfileInfoChanged profileInfoChanged:
+                    Apply(profileInfoChanged);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+    }
+
+    public interface IPlayerEvent
+    {
+
+    }
+
+    public class PlayerCreated : IPlayerEvent
+    {
+        public string Id { get; set; }
+
+        public string UserName { get; set; }
+
+        public string Email { get; set; }
+        
+        public string CountryCode { get; set; }
+    }
+
+    public class ProfileInfoChanged : IPlayerEvent
+    {
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public DateTime DateOfBirth { get; set; }
+
+        public string CountryCode { get; set; }
+
+        public double Height { get; set; }
+
+        public double Weight { get; set; }
+
+        public PlayerType PlayerType { get; set; }
+    }
+
+    public class MatchPlayed : IPlayerEvent
+    {
+        public string Id { get; set; }
+
+        public string Name { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public string[] Players { get; set; }
     }
 }
