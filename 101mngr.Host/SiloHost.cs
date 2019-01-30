@@ -41,7 +41,9 @@ namespace _101mngr.Host
                         _.Events.StreamIdentity = StreamIdentity.AsString;
                         _.Events.AddEventTypes(new[]
                         {
-                            typeof(PlayerCreated)
+                            typeof(PlayerCreated),
+                            typeof(ProfileInfoChanged),
+                            typeof(MatchPlayed),
                         });
                         // _.Events.InlineProjections.AggregateStreamsWith<PlayerState>();
                     });
