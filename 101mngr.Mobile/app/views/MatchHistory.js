@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, AsyncStorage, Alert, TouchableHighlight, FlatList } from 'react-native';
+import { ListItem } from 'react-native-elements'
 
 export class MatchHistory extends React.Component {
     static navigationOptions = {
@@ -48,12 +49,11 @@ export class MatchHistory extends React.Component {
         const { navigate } = this.props.navigation;
 
         return (
-            <View style={styles.container}>
-                <FlatList style={{flex:1, margin: 10}}
-                                    data={this.state.matchList}
-                                    keyExtractor={(item, index) => index.toString()}
+            <View>
+                <FlatList data={this.state.matchList}
+                                    keyExtractor={(item, index) => item.id}
                                     renderItem={({item})=>
-                                    <Text>Id: {item.id} - Name: {item.name} - Date: {item.date}</Text>
+                                        <ListItem title={item.name} subtitle={item.date} bottomDivider />
                                     } />
             </View>
         );

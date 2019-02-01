@@ -58,7 +58,7 @@ export class CountryItem extends React.Component {
     render(){
         return(
             <View>
-               <ListItem title={this.props.name} onPress={this.onPress} leftAvatar={{ source: { uri: 'https://www.crwflags.com/fotw/images/g/gb-eng.gif' } }} />
+               <ListItem title={this.props.name} onPress={this.onPress} leftAvatar={{ source: { uri: 'https://www.crwflags.com/fotw/images/g/gb-eng.gif' } }} bottomDivider />
             </View>
         );
     }

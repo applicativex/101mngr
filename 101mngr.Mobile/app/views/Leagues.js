@@ -58,7 +58,7 @@ export class LeagueItem extends React.Component {
     render(){
         return(
             <View>
-               <ListItem title={this.props.name} onPress={this.onPress} leftAvatar={{ source: { uri: 'http://schah.at/img/public/premier-league-logo-vector-380x380.jpg' } }} />
+               <ListItem title={this.props.name} onPress={this.onPress} leftAvatar={{ source: { uri: 'http://schah.at/img/public/premier-league-logo-vector-380x380.jpg' } }} bottomDivider />
             </View>
         );
     }

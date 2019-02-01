@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, AsyncStorage } from 'react-native';
+import { StyleSheet, View, AsyncStorage } from 'react-native';
+import { Button } from 'react-native-elements'
 
 export class Home extends React.Component {
     static navigationOptions = {
@@ -9,11 +10,11 @@ export class Home extends React.Component {
     render() {
       return (
         <View style={styles.container}>
-          <Button title="Current matches" onPress={this._showCurrentMatches} />
-          <Button title="Profile" onPress={this._showProfile} />
-          <Button title="Leaderboard" onPress={this._showLeaderboard} />
-          <Button title="Leagues" onPress={this._showLeagues} />
-          <Button title="Sign out" onPress={this._signOutAsync} />
+          <Button title="Current matches" onPress={this._showCurrentMatches} containerStyle={{margin:10, marginTop: 20, width:'75%'}} />
+          <Button title="Profile" onPress={this._showProfile} containerStyle={{margin:10, width:'75%'}} />
+          <Button title="Leaderboard" onPress={this._showLeaderboard} containerStyle={{margin:10, width:'75%'}} />
+          <Button title="Leagues" onPress={this._showLeagues} containerStyle={{margin:10, width:'75%'}} />
+          <Button title="Sign out" onPress={this._signOutAsync} containerStyle={{margin:10, width:'75%'}} />
         </View>
       );
     }

@@ -68,7 +68,7 @@ export class TeamItem extends React.Component {
     render(){
         return(
             <View>
-               <ListItem title={this.props.name} onPress={this.onPress} leftAvatar={{ source: { uri: this.props.avatar_url } }} />
+               <ListItem title={this.props.name} onPress={this.onPress} leftAvatar={{ source: { uri: this.props.avatar_url } }} bottomDivider />
             </View>
         );
     }

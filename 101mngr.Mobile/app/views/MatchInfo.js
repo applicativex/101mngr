@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, AsyncStorage, Alert, ScrollView, RefreshControl, FlatList } from 'react-native';
+import { StyleSheet, View, AsyncStorage, ScrollView, RefreshControl, FlatList } from 'react-native';
+import { Text, Card, ListItem, Button } from 'react-native-elements'
 
 export class MatchInfo extends React.Component {
     static navigationOptions = {
@@ -117,31 +118,42 @@ export class MatchInfo extends React.Component {
 
         return (
             
-            <ScrollView contentContainerStyle={styles.container} refreshControl={
+            <ScrollView refreshControl={
                 <RefreshControl
                   refreshing={this.state.refreshing}
                   onRefresh={this._onRefresh}
                 />
               }>
+                <Card>
+                    <ListItem title={this.state.id.toString()} subtitle='Id' containerStyle={{margin:0}} bottomDivider />
+                    <ListItem title={this.state.name} subtitle='Name' containerStyle={{margin:0}} bottomDivider />
+                    <ListItem title={this.state.createdAt} subtitle='Created at' containerStyle={{margin:0}} bottomDivider />
+                </Card>
 
-                <Text style={styles.heading}>Id: {this.state.id}</Text>
-                <Text style={styles.heading}>Name: {this.state.name}</Text>
-                <Text style={styles.heading}>Created At: {this.state.createdAt}</Text>
-                <Text style={styles.heading}>Players:</Text>
-                
-                <FlatList style={{flex:1, margin: 10}}
-                                    data={this.state.playerList}
-                                    keyExtractor={(item, index) => item.id.toString()}
-                                    renderItem={({item})=>
-                                    <Text>Player: {item.userName}</Text>
-                                    } />
+                 <Card title='PLAYERS' containerStyle={{paddingHorizontal: 0}} >
+                {
+                    this.state.playerList.map((u, i) => {
+                    return (
+                        <View>
+                        <ListItem
+                        key={i}
+                        title={u.userName}
+                        containerStyle={{margin:0, paddingVertical:0}}
+                        />
+                        <ListItem
+                        key={i}
+                        title={u.userName}
+                        containerStyle={{margin:0, paddingVertical:0}}
+                        />
 
-                
-                <View style={styles.alternativeLayoutButtonContainer}>
-                
-                    <Button style={{margin:'30%'}} title="Start" onPress={this.playMatch} underlayColor='#31e981'  />
-                    <Button style={{margin:'30%'}} title={!this.inPlayerList() ? "Join" : "Leave"} onPress={ !this.inPlayerList() ? this.joinMatch : this.leaveMatch} underlayColor='#31e981'  />
-                </View>
+                        </View>
+                    );
+                    })
+                }
+                </Card>
+
+                <Button title={!this.inPlayerList() ? "Join" : "Leave"} onPress={ !this.inPlayerList() ? this.joinMatch : this.leaveMatch} underlayColor='#31e981' containerStyle={{margin:10}}  />
+                <Button title="Start" onPress={this.playMatch} underlayColor='#31e981' containerStyle={{margin:10}}  />
             </ScrollView>
         );
     }

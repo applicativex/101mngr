@@ -1,14 +1,14 @@
 import React from 'react';
 import {
     StyleSheet,
-    Text,
     View,
+    ScrollView,
     TextInput,
     TouchableHighlight,
     Picker,
-    AsyncStorage,
-    Button
+    AsyncStorage    
 } from 'react-native';
+import { Text, Card, ListItem, Button } from 'react-native-elements'
 
 export class Profile extends React.Component {
 
@@ -180,21 +180,25 @@ export class Profile extends React.Component {
             )
         }
         return (
-            <View style={styles.container}>
+            <ScrollView>
+                <Card title='Account info'>
+                    <ListItem title={this.state.firstName} subtitle='First name' />
+                    <ListItem title={this.state.lastName} subtitle='Last name' />
+                    <ListItem title={this.state.dateOfBirth} subtitle='Date of birth' />
+                    <ListItem title={this.state.countryCode} subtitle='Country' />
+                </Card>
 
-                <Text style={styles.heading}>First Name: {this.state.firstName}</Text>
-                <Text style={styles.heading}>Last Name: {this.state.lastName}</Text>
-                <Text style={styles.heading}>Date Of Birth: {this.state.dateOfBirth}</Text>
-                <Text style={styles.heading}>Country: {this.state.countryCode}</Text>
-                <Text style={styles.heading}>Player Type: {this.state.playerType}</Text>
-                <Text style={styles.heading}>Height: {this.state.height}</Text>
-                <Text style={styles.heading}>Weight: {this.state.weight}</Text>
+                <Card title='Player info'>
+                    <ListItem title={this.state.playerType.toString()} subtitle='Player type' />
+                    <ListItem title={this.state.height.toString()} subtitle='Height' />
+                    <ListItem title={this.state.weight.toString()} subtitle='Weight' />
+                </Card>
 
-                <Button title="Edit" onPress={this.editProfile} />
-                <Button title="Match history" onPress={this._showMatchHistory} />
-                <Button title="Random match" onPress={this._randomMatch} />
+                <Button title="Edit" onPress={this.editProfile} containerStyle={{margin:10, marginTop: 20}} />
+                <Button title="Match history" onPress={this._showMatchHistory} containerStyle={{margin:10}} />
+                <Button title="Random match" onPress={this._randomMatch} containerStyle={{margin:10}} />
 
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -202,13 +206,7 @@ export class Profile extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
-        paddingBottom: '35%',
-        paddingTop: '10%'
-    },
-    heading: {
-        fontSize: 16,
-        flex: 1
+        alignItems: 'center'
     },
     inputs: {
         flex:1,
