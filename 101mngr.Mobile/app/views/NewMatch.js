@@ -6,9 +6,9 @@ import {
     TextInput,
     TouchableHighlight,
     Alert,
-    AsyncStorage,
-    Button
+    AsyncStorage
 } from 'react-native';
+import { Input, Button } from 'react-native-elements'
 
 export class NewMatch extends React.Component {
 
@@ -54,18 +54,14 @@ export class NewMatch extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-
-                <TextInput
-                    style={styles.input}
+                <Input
+                    containerStyle={{ margin: 10, marginTop: 100, width:'75%' }}
+                    placeholder='Match name'
                     onChangeText={(text) => this.setState({ name: text })}
                     value={this.state.name}
-                />
-
-                <View style={styles.alternativeLayoutButtonContainer}>
-                    <Button style={{margin:'20%'}} title="Create" onPress={this.createMatch} underlayColor='#31e981'  />
-
-                    <Button style={{margin:'20%'}} title="Cancel" onPress={this.cancel} />
-                </View>
+                    />
+                
+                <Button title="Create" onPress={this.createMatch} underlayColor='#31e981' containerStyle={{margin:10, marginTop: 20, width:'75%'}}  />
 
             </View>
         );

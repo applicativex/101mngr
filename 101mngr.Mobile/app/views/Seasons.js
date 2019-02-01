@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, TouchableWithoutFeedback, Text, FlatList, StyleSheet } from 'react-native'
+import { ListItem } from 'react-native-elements'
 
 export class Seasons extends React.Component {
     static navigationOptions = {
@@ -36,7 +37,7 @@ export class Seasons extends React.Component {
         const { navigate } = this.props.navigation;
 
         return (
-            <View style={styles.container}>
+            <View>
                 
                 <FlatList 
                             data={this.state.seasons}
@@ -61,13 +62,9 @@ export class SeasonItem extends React.Component {
 
     render(){
         return(
-            <TouchableWithoutFeedback onPress={this.onPress}>
-                <View style={{paddingTop:20,alignItems:'center'}}>
-                    <Text>
-                        {this.props.name}
-                    </Text>
-                </View>
-            </TouchableWithoutFeedback>
+            <View>
+               <ListItem title={this.props.name} onPress={this.onPress} leftAvatar={{ source: { uri: 'http://schah.at/img/public/premier-league-logo-vector-380x380.jpg' } }} />
+            </View>
         );
     }
 }

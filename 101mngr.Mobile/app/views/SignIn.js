@@ -3,9 +3,9 @@ import {
     StyleSheet,
     View,
     AsyncStorage,
-    TextInput,
-    Button
+    TextInput
 } from 'react-native';
+import { Input, Button } from 'react-native-elements'
 
 export class SignIn extends React.Component {
     static navigationOptions = {
@@ -52,22 +52,24 @@ export class SignIn extends React.Component {
     render() {
       return (
         <View style={styles.container}>
+  
+            <Input
+                    containerStyle={{ margin: 10, marginTop: 100, width:'75%' }}
+                    placeholder='User name'
+                    onChangeText={(text) => this.setState({ username: text })}
+                    value={this.state.username}
+                    />
 
-            <TextInput
-                style={styles.inputs}
-                onChangeText={(text) => this.setState({username: text})}
-                value={this.state.username}
-            />
+            <Input
+                    containerStyle={{ margin: 10, width:'75%' }}
+                    placeholder='Password'
+                    onChangeText={(text) => this.setState({ passwrd: text })}
+                    value={this.state.passwrd}
+                    secureTextEntry={true}
+                    />
 
-            <TextInput
-                style={styles.inputs}
-                onChangeText={(text) => this.setState({passwrd: text})}
-                value={this.state.passwrd}
-                secureTextEntry={true}
-            />
-
-          <Button title="Sign in" onPress={this._signInAsync} />
-          <Button title="Sign up" onPress={this._showRegister} />
+          <Button title="Sign in" onPress={this._signInAsync} containerStyle={{margin:10, marginTop: 20, width:'75%'}} />
+          <Button title="Sign up" onPress={this._showRegister} containerStyle={{margin:10, width:'75%'}} />
         </View>
       );
     }
@@ -76,8 +78,7 @@ export class SignIn extends React.Component {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center'
+      alignItems: 'center'
     },
     inputs: {
         width: '50%',

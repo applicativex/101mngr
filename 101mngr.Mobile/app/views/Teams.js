@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, TouchableWithoutFeedback, Text, FlatList, StyleSheet } from 'react-native'
+import { ListItem } from 'react-native-elements'
 
 export class Teams extends React.Component {
     static navigationOptions = {
@@ -19,6 +20,14 @@ export class Teams extends React.Component {
             let seasonId = this.props.navigation.getParam('seasonId');
             let response = await fetch(`http://35.228.60.109/api/leagues/${leagueId}/seasons/${seasonId}/teams`);
             let responseJson = await response.json();
+            var i;
+            for (i = 0; i < responseJson.length; i++) { 
+                if (responseJson[i].id == 1) {
+                    responseJson[i].avatar_url = 'http://t2.gstatic.com/images?q=tbn:ANd9GcTGHmVADITLo0K1zMlJzAfMDYEX11Dq3L6-QdgMRBxvNuQSxmAq'
+                } else if (responseJson[i].id == 2) {
+                    responseJson[i].avatar_url = 'http://toplogos.ru/images/logo-manchester-united.jpg'
+                }
+            }
             this.setState({
                 teams: responseJson,
             }, function(){
@@ -33,7 +42,7 @@ export class Teams extends React.Component {
         const { navigate } = this.props.navigation;
 
         return (
-            <View style={styles.container}>
+            <View>
                 
                 <FlatList 
                             data={this.state.teams}
@@ -42,6 +51,7 @@ export class Teams extends React.Component {
                             <TeamItem
                                 navigate={navigate}
                                 id={item.id}
+                                avatar_url={item.avatar_url}
                                 name={item.name} />
                             }    
                         />
@@ -57,13 +67,9 @@ export class TeamItem extends React.Component {
 
     render(){
         return(
-            <TouchableWithoutFeedback onPress={this.onPress}>
-                <View style={{paddingTop:20,alignItems:'center'}}>
-                    <Text>
-                        {this.props.name}
-                    </Text>
-                </View>
-            </TouchableWithoutFeedback>
+            <View>
+               <ListItem title={this.props.name} onPress={this.onPress} leftAvatar={{ source: { uri: this.props.avatar_url } }} />
+            </View>
         );
     }
 }

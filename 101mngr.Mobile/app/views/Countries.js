@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, TouchableWithoutFeedback, Text, FlatList, StyleSheet } from 'react-native'
+import { ListItem } from 'react-native-elements'
 
 export class Countries extends React.Component {
     static navigationOptions = {
@@ -26,17 +27,16 @@ export class Countries extends React.Component {
             console.error(error);
         }
     }
-
+    
     render () {
         const { navigate } = this.props.navigation;
 
         return (
-            <View style={styles.container}>
-                
-                <FlatList 
-                            data={this.state.countries}
-                            keyExtractor={(item, index) => item.id}
-                            renderItem={({item}) =>
+            <View>
+              
+              <FlatList data={this.state.countries}
+                        keyExtractor={(item, index) => item.id}
+                        renderItem={({item}) =>
                             <CountryItem
                                 navigate={navigate}
                                 id={item.id}
@@ -51,18 +51,15 @@ export class Countries extends React.Component {
 
 export class CountryItem extends React.Component {
     onPress = () => {
+        console.log(this.props.id);
         this.props.navigate('Leagues', {countryId: this.props.id} );
     }
 
     render(){
         return(
-            <TouchableWithoutFeedback onPress={this.onPress}>
-                <View style={{paddingTop:20,alignItems:'center'}}>
-                    <Text>
-                        {this.props.name}
-                    </Text>
-                </View>
-            </TouchableWithoutFeedback>
+            <View>
+               <ListItem title={this.props.name} onPress={this.onPress} leftAvatar={{ source: { uri: 'https://www.crwflags.com/fotw/images/g/gb-eng.gif' } }} />
+            </View>
         );
     }
 }

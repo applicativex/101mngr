@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, RefreshControl, FlatList, Text, View, StyleSheet } from 'react-native';
+import { ListItem } from 'react-native-elements'
 
 export class Leaderboard extends React.Component {
 
@@ -12,34 +13,41 @@ export class Leaderboard extends React.Component {
         this.state = {
             refreshing: false,
             players: [
-                {id:'1',name:'Jack Daniels'},
-                {id:'2',name:'Johny Walker'},
-                {id:'3',name:'Tulamour Deuw'}
+                {id:'1',userName:'baltazar',fullName:'Jack Daniels', level:1},
+                {id:'2',userName:'dude',fullName:'Johny Walker', level:1},
+                {id:'3',userName:'maduro',fullName:'Tulamour Deuw', level:1}
             ]
         }
     }
+
+    keyExtractor = (item, index) => item.id
+
+    renderItem = ({ item }) => (
+        <ListItem
+            title={item.userName}
+            badge={{ value: item.level, textStyle: { color: 'white' }, containerStyle: { marginTop: -20 } }}
+            subtitle={item.fullName}
+            // leftAvatar={{ source: { uri: item.avatar_url } }}
+        />
+    )
 
     render () {
         const { navigate } = this.props.navigation;
 
         return (
             
-            <ScrollView contentContainerStyle={styles.container} refreshControl={
+            <ScrollView refreshControl={
                 <RefreshControl
                   refreshing={this.state.refreshing}
                   onRefresh={this._onRefresh}
                 />
               }>
+              
+              <FlatList
+                    keyExtractor={this.keyExtractor}
+                    data={this.state.players}
+                    renderItem={this.renderItem} />
                 
-                <FlatList   data={this.state.players}
-                            keyExtractor={(item, index) => item.id}
-                            renderItem={({item}) =>
-                            <LeaderboardItem
-                                navigate={navigate}
-                                id={item.id}
-                                name={item.name} />
-                            }    
-                        />
             </ScrollView>
         );
     }
@@ -49,35 +57,27 @@ export class LeaderboardItem extends React.Component {
     render(){
         return(
             <View style={{paddingTop:20,alignItems:'center'}}>
-                <Text>
-                    {this.props.name}
-                </Text>
+                <ListItem
+                    title={this.props.name}
+                    subtitle={this.props.name}
+                />
             </View>
         );
     }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        paddingBottom: '45%',
-        paddingTop: '10%'
+styles = StyleSheet.create({
+    subtitleView: {
+      flexDirection: 'row',
+      paddingLeft: 10,
+      paddingTop: 5
     },
-    heading: {
-        fontSize: 16,
-        flex: 1
+    ratingImage: {
+      height: 19.21,
+      width: 100
     },
-    inputs: {
-        flex:1,
-        width: '80%',
-        padding: 10
-    },
-    buttons:{
-        marginTop:15,
-        fontSize:16
-    },
-    labels: {
-        paddingBottom: 10
+    ratingText: {
+      paddingLeft: 10,
+      color: 'grey'
     }
-});
+  })

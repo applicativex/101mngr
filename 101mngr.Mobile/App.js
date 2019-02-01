@@ -19,6 +19,7 @@ import { Teams } from './app/views/Teams';
 import { Players } from './app/views/Players';
 import { Leaderboard } from './app/views/Leaderboard';
 import { MatchStats } from './app/views/MatchStats'
+import { ThemeProvider } from 'react-native-elements';
 
 const AppStack = createStackNavigator({ 
   Home: Home, 
@@ -40,7 +41,7 @@ const AppStack = createStackNavigator({
 });
 const AuthStack = createStackNavigator({ SignIn: SignIn, Register: Register });
 
-export default createAppContainer(createSwitchNavigator(
+const AppContainer = createAppContainer(createSwitchNavigator(
   {
     AuthLoading: AuthLoading,
     App: AppStack,
@@ -50,3 +51,13 @@ export default createAppContainer(createSwitchNavigator(
     initialRouteName: 'AuthLoading',
   }
 ));
+
+const App = () => {
+  return (
+    <ThemeProvider>
+      <AppContainer />
+    </ThemeProvider>
+  );
+};
+
+export default App;

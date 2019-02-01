@@ -4,11 +4,11 @@ import {
     Text,
     View,
     TextInput,
-    Button,
     TouchableHighlight,
     Alert,
     AsyncStorage,
 } from 'react-native';
+import { Input, Button } from 'react-native-elements'
 
 export class Register extends React.Component {
 
@@ -58,38 +58,38 @@ export class Register extends React.Component {
     render () {
         return (
             <View style={styles.container}>
-
-                <TextInput
-                    style={styles.inputs}
-                    onChangeText={(text) => this.setState({username: text})}
+                
+                <Input
+                    containerStyle={{ margin: 10, marginTop: 50, width:'75%' }}
+                    placeholder='User name'
+                    onChangeText={(text) => this.setState({ username: text })}
                     value={this.state.username}
-                />
-                <Text style={styles.label}>Enter Username</Text>
-
-                <TextInput
-                    style={styles.inputs}
-                    onChangeText={(text) => this.setState({email: text})}
+                    />
+                
+                <Input
+                    containerStyle={{ margin: 10, width:'75%' }}
+                    placeholder='Email'
+                    onChangeText={(text) => this.setState({ email: text })}
                     value={this.state.email}
-                />
-                <Text style={styles.label}>Enter Email</Text>
-
-                <TextInput
-                    style={styles.inputs}
-                    onChangeText={(text) => this.setState({passwrd: text})}
+                    />
+                
+                <Input
+                    containerStyle={{ margin: 10, width:'75%' }}
+                    placeholder='Password'
+                    onChangeText={(text) => this.setState({ passwrd: text })}
                     value={this.state.passwrd}
                     secureTextEntry={true}
-                />
-                <Text style={styles.label}>Enter Password</Text>
-
-                <TextInput
-                    style={styles.inputs}
-                    onChangeText={(text) => this.setState({passwrdConfirm: text})}
+                    />
+                
+                <Input
+                    containerStyle={{ margin: 10, width:'75%' }}
+                    placeholder='Confirm Password'
+                    onChangeText={(text) => this.setState({ passwrdConfirm: text })}
                     value={this.state.passwrdConfirm}
                     secureTextEntry={true}
-                />
-                <Text style={styles.label}>Confirm Password</Text>
+                    />
 
-                <Button title="Sign up" onPress={this._registerAsync} />
+                <Button title="Sign up" onPress={this._registerAsync} containerStyle={{margin:10, marginTop: 20, width:'75%'}} />
 
             </View>
         );

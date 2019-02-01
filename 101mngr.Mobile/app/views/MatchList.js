@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, RefreshControl, AsyncStorage, Alert, TouchableHighlight, FlatList, TouchableWithoutFeedback, Button } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, RefreshControl, TouchableHighlight, FlatList } from 'react-native';
 import {PlayersData} from '../data/Players.js';
-import { PlayerListItem } from '../sections/PlayerListItem.js';
+import { ListItem, Button } from 'react-native-elements'
 
 export class MatchList extends React.Component {
     static navigationOptions = {
@@ -61,7 +61,7 @@ export class MatchList extends React.Component {
 
         return (
             
-            <ScrollView contentContainerStyle={styles.container} refreshControl={
+            <ScrollView refreshControl={
                 <RefreshControl
                   refreshing={this.state.refreshing}
                   onRefresh={this._onRefresh}
@@ -78,7 +78,7 @@ export class MatchList extends React.Component {
                             }    
                         />
 
-                <Button title="New Match" onPress={this.newMatch} underlayColor='#31e981'  />
+                <Button title="New Match" onPress={this.newMatch} underlayColor='#31e981' containerStyle={{margin:10, marginTop: 20}}  />
             </ScrollView>
         );
     }
@@ -92,13 +92,7 @@ export class MatchItem extends React.Component {
 
     render(){
         return(
-            <TouchableWithoutFeedback onPress={this.onPress}>
-                <View style={{paddingTop:20,alignItems:'center'}}>
-                    <Text>
-                        {this.props.name}
-                    </Text>
-                </View>
-            </TouchableWithoutFeedback>
+            <ListItem title={this.props.name} onPress={this.onPress} bottomDivider />
         );
     }
 }
