@@ -110,7 +110,9 @@ export class Profile extends React.Component {
                 Authorization: token
             }
         });
-        this.props.navigation.navigate('MatchHistory');
+        let responseJson = await response.json();
+        console.log(responseJson.id);
+        this.props.navigation.navigate('MatchInfo', {matchId: responseJson.id});
     };
 
     render () {

@@ -124,30 +124,22 @@ export class MatchInfo extends React.Component {
                   onRefresh={this._onRefresh}
                 />
               }>
-                <Card>
-                    <ListItem title={this.state.id.toString()} subtitle='Id' containerStyle={{margin:0}} bottomDivider />
-                    <ListItem title={this.state.name} subtitle='Name' containerStyle={{margin:0}} bottomDivider />
-                    <ListItem title={this.state.createdAt} subtitle='Created at' containerStyle={{margin:0}} bottomDivider />
+                <Card title='Match details' containerStyle={{paddingHorizontal: 0}} >
+                    <ListItem title={this.state.name} subtitle='Name' containerStyle={{paddingTop: 0}} />
+                    <ListItem title={this.state.createdAt} subtitle='Created at' containerStyle={{paddingTop: 0}} />
                 </Card>
-
-                 <Card title='PLAYERS' containerStyle={{paddingHorizontal: 0}} >
+                {/* <ListItem key={this.state.name} title={this.state.name} subtitle='Name' containerStyle={{margin:0}} bottomDivider />
+                <ListItem key={this.state.createdAt} title={this.state.createdAt} subtitle='Created at' containerStyle={{margin:0}} bottomDivider /> */}
+                <Card title='Players' containerStyle={{paddingHorizontal: 0}} >
                 {
                     this.state.playerList.map((u, i) => {
                     return (
-                        <View>
                         <ListItem
-                        key={i}
-                        title={u.userName}
-                        containerStyle={{margin:0, paddingVertical:0}}
-                        />
-                        <ListItem
-                        key={i}
-                        title={u.userName}
-                        containerStyle={{margin:0, paddingVertical:0}}
-                        />
-
-                        </View>
-                    );
+                            key={u.id}
+                            title={u.userName}
+                            containerStyle={{paddingVertical:0}}
+                            />
+                            );
                     })
                 }
                 </Card>

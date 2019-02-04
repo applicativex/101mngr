@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Text, Card, ListItem, Button } from 'react-native-elements'
 
 export class MatchStats extends React.Component {
     static navigationOptions = {
@@ -36,10 +37,12 @@ export class MatchStats extends React.Component {
     render () {
         return (
             <View>
-                <Text style={styles.heading}>Id: {this.state.id}</Text>
-                <Text style={styles.heading}>Name: {this.state.name}</Text>
-                        
-                <Button title="Home" onPress={this._showHome} />
+                <Card title='Match details'>
+                    <ListItem key={this.state.id.toString()} title={this.state.id.toString()} subtitle='Id' />
+                    <ListItem key={this.state.name}  title={this.state.name} subtitle='Name' />
+                </Card>
+
+                <Button title="Home" onPress={this._showHome} containerStyle={{margin:10}} />
 
             </View>
         );
