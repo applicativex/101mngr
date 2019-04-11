@@ -8,6 +8,7 @@ import {
     Alert,
     AsyncStorage
 } from 'react-native';
+import { Environment } from '../Environment'
 
 export class Login extends React.Component {
 
@@ -37,7 +38,7 @@ export class Login extends React.Component {
         }
         else{
 
-            return fetch('http://35.228.60.109/api/account/login', {
+            return fetch(`${Environment.API_URI}/api/account/login`, {
                                         method: 'POST',
                                         headers: {
                                             Accept: 'application/json',

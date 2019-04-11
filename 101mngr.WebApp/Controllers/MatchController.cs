@@ -87,6 +87,7 @@ namespace _101mngr.WebApp.Controllers
             return Ok();
         }
 
+        [AllowAnonymous]
         [HttpGet("test")]
         public async Task<IActionResult> Get()
         {

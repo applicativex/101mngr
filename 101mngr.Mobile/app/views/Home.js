@@ -1,12 +1,17 @@
 import React from 'react';
 import { StyleSheet, View, AsyncStorage } from 'react-native';
 import { Button } from 'react-native-elements'
+import { Environment } from '../Environment'
 
 export class Home extends React.Component {
     static navigationOptions = {
       title: 'Home',
     };
 
+    componentDidMount() {
+      console.log(Environment.API_URI);
+    }  
+    
     render() {
       return (
         <View style={styles.container}>

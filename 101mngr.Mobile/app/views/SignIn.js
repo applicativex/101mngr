@@ -6,6 +6,7 @@ import {
     TextInput
 } from 'react-native';
 import { Input, Button } from 'react-native-elements'
+import { Environment } from '../Environment'
 
 export class SignIn extends React.Component {
     static navigationOptions = {
@@ -19,7 +20,7 @@ export class SignIn extends React.Component {
             passwrd: ''
         }
     }
-  
+      
     _showRegister = () => {
       this.props.navigation.navigate('Register');
     };
@@ -27,7 +28,7 @@ export class SignIn extends React.Component {
     _signInAsync = async () => {
       try {
         let response = await fetch(
-            'http://35.228.60.109/api/account/login', {
+            `${Environment.API_URI}/api/account/login`, {
                                             method: 'POST',
                                             headers: {
                                                 Accept: 'application/json',
@@ -73,7 +74,7 @@ export class SignIn extends React.Component {
         </View>
       );
     }
-  }
+  } 
   
   const styles = StyleSheet.create({
     container: {

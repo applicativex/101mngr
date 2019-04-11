@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Card, ListItem, Button } from 'react-native-elements'
+import { Environment } from '../Environment';
 
 export class MatchStats extends React.Component {
     static navigationOptions = {
@@ -18,7 +19,7 @@ export class MatchStats extends React.Component {
     componentDidMount = async () => {
         try {
             let matchId = this.props.navigation.getParam('matchId');
-            let matchResponse = await fetch(`http://35.228.60.109/api/match/${matchId}`);
+            let matchResponse = await fetch(`${Environment.API_URI}/api/match/${matchId}`);
             let matchJson = await matchResponse.json();
             this.setState({
               id: matchJson.id,

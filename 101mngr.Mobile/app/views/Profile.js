@@ -9,6 +9,7 @@ import {
     AsyncStorage    
 } from 'react-native';
 import { Text, Card, ListItem, Button } from 'react-native-elements'
+import { Environment } from '../Environment'
 
 export class Profile extends React.Component {
 
@@ -32,7 +33,7 @@ export class Profile extends React.Component {
     componentDidMount = async () => {
         try {
             let token = await AsyncStorage.getItem('token');
-            let response = await fetch('http://35.228.60.109/api/account/profile', {
+            let response = await fetch(`${Environment.API_URI}/api/account/profile`, {
                 method: 'GET',
                 headers: {
                     Accept: 'application/json',
@@ -61,7 +62,7 @@ export class Profile extends React.Component {
         try {
             
             let token = await AsyncStorage.getItem('token');
-            let response = await fetch('http://35.228.60.109/api/account/profile', {
+            let response = await fetch(`${Environment.API_URI}/api/account/profile`, {
                 method: 'PUT',
                 headers: {
                     Accept: 'application/json',
@@ -102,7 +103,7 @@ export class Profile extends React.Component {
   
     _randomMatch = async () => {
         let token = await AsyncStorage.getItem('token');
-        let response = await fetch('http://35.228.60.109/api/match/random', {
+        let response = await fetch(`${Environment.API_URI}/api/match/random`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',

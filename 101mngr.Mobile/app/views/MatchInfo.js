@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, AsyncStorage, ScrollView, RefreshControl, FlatList } from 'react-native';
 import { Text, Card, ListItem, Button } from 'react-native-elements'
+import { Environment } from '../Environment';
 
 export class MatchInfo extends React.Component {
     static navigationOptions = {
@@ -33,7 +34,7 @@ export class MatchInfo extends React.Component {
     _refreshMatchInfo = async () => {
         try {
             let matchId = this.props.navigation.getParam('matchId');
-            let matchResponse = await fetch(`http://35.228.60.109/api/match/${matchId}`);
+            let matchResponse = await fetch(`${Environment.API_URI}/api/match/${matchId}`);
             let matchJson = await matchResponse.json();
             this.setState({
               id: matchJson.id,
@@ -42,7 +43,7 @@ export class MatchInfo extends React.Component {
               playerList: matchJson.players
             });  
             let token = await AsyncStorage.getItem('token');
-            let profileResponse = await fetch('http://35.228.60.109/api/account/profile', {
+            let profileResponse = await fetch(`${Environment.API_URI}/api/account/profile`, {
                 method: 'GET',
                 headers: {
                     Authorization: token
@@ -63,7 +64,7 @@ export class MatchInfo extends React.Component {
     playMatch = async () => {
         try {
             let token = await AsyncStorage.getItem('token');
-            let response = await fetch(`http://35.228.60.109/api/match/${this.state.id}/start`, {
+            let response = await fetch(`${Environment.API_URI}/api/match/${this.state.id}/start`, {
                 method: 'PUT',
                 headers: {
                     Authorization: token
@@ -78,12 +79,12 @@ export class MatchInfo extends React.Component {
     joinMatch = async () => {
         try {
             let token = await AsyncStorage.getItem('token');
-            let response = await fetch(`http://35.228.60.109/api/match/${this.state.id}/join`, {
+            let response = await fetch(`${Environment.API_URI}/api/match/${this.state.id}/join`, {
                 method: 'PUT',
                 headers: {
                     Authorization: token
                 }});
-            let profileResponse = await fetch('http://35.228.60.109/api/account/profile', {
+            let profileResponse = await fetch(`${Environment.API_URI}/api/account/profile`, {
                 method: 'GET',
                 headers: {
                     Authorization: token
@@ -102,7 +103,7 @@ export class MatchInfo extends React.Component {
     leaveMatch = async () => {
         try {
             let token = await AsyncStorage.getItem('token');
-            let response = await fetch(`http://35.228.60.109/api/match/${this.state.id}/leave`, {
+            let response = await fetch(`${Environment.API_URI}/api/match/${this.state.id}/leave`, {
                 method: 'PUT',
                 headers: {
                     Authorization: token

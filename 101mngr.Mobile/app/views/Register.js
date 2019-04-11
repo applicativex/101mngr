@@ -9,6 +9,7 @@ import {
     AsyncStorage,
 } from 'react-native';
 import { Input, Button } from 'react-native-elements'
+import { Environment } from '../Environment'
 
 export class Register extends React.Component {
 
@@ -34,7 +35,7 @@ export class Register extends React.Component {
         }else {
         
             try {
-                var response = await fetch('http://35.228.60.109/api/account/register', {
+                var response = await fetch(`${Environment.API_URI}/api/account/register`, {
                     method: 'POST',
                     headers: {
                         Accept: 'application/json',

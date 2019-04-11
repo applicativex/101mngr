@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableWithoutFeedback, Text, FlatList, StyleSheet } from 'react-native'
 import { ListItem } from 'react-native-elements'
+import { Environment } from '../Environment'
 
 export class Teams extends React.Component {
     static navigationOptions = {
@@ -18,7 +19,7 @@ export class Teams extends React.Component {
         try {
             let leagueId = this.props.navigation.getParam('leagueId');
             let seasonId = this.props.navigation.getParam('seasonId');
-            let response = await fetch(`http://35.228.60.109/api/leagues/${leagueId}/seasons/${seasonId}/teams`);
+            let response = await fetch(`${Environment.API_URI}/api/leagues/${leagueId}/seasons/${seasonId}/teams`);
             let responseJson = await response.json();
             var i;
             for (i = 0; i < responseJson.length; i++) { 

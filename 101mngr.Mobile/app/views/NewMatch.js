@@ -9,6 +9,7 @@ import {
     AsyncStorage
 } from 'react-native';
 import { Input, Button } from 'react-native-elements'
+import { Environment } from '../Environment'
 
 export class NewMatch extends React.Component {
 
@@ -31,7 +32,7 @@ export class NewMatch extends React.Component {
     createMatch = async () => {
         try {
             let token = await AsyncStorage.getItem('token');
-            var response = await fetch('http://35.228.60.109/api/match/new', {
+            var response = await fetch(`${Environment.API_URI}/api/match/new`, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',

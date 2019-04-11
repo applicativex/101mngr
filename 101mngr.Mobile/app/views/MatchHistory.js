@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, AsyncStorage, Alert, TouchableHighlight, FlatList } from 'react-native';
 import { ListItem } from 'react-native-elements'
+import { Environment } from '../Environment'
 
 export class MatchHistory extends React.Component {
     static navigationOptions = {
@@ -17,7 +18,7 @@ export class MatchHistory extends React.Component {
     componentDidMount() {
         return AsyncStorage.getItem('token', (err, result) => {
             if (result !== null) {
-                return fetch('http://35.228.60.109/api/account/match-history', {
+                return fetch(`${Environment.API_URI}/api/account/match-history`, {
                     method: 'GET',
                     headers: {
                         Accept: 'application/json',

@@ -229,6 +229,11 @@ namespace _101mngr.Grains
         public string CountryCode { get; set; }
     }
 
+    public class PlayerLevelRaised : IPlayerEvent
+    {
+        public int LevelRaise { get; set; } 
+    }
+
     public class ProfileInfoChanged : IPlayerEvent
     {
         public string FirstName { get; set; }

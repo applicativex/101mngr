@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, ScrollView, RefreshControl, TouchableHighlight, FlatList } from 'react-native';
 import {PlayersData} from '../data/Players.js';
 import { ListItem, Button } from 'react-native-elements'
+import { Environment } from '../Environment'
 
 export class MatchList extends React.Component {
     static navigationOptions = {
@@ -31,7 +32,7 @@ export class MatchList extends React.Component {
 
     _refreshMatchList = async () => {
         try {
-            let response = await fetch('http://35.228.60.109/api/match');
+            let response = await fetch(`${Environment.API_URI}/api/match`);
             let responseJson = await response.json(); 
 
             console.log(responseJson);
