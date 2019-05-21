@@ -18,7 +18,8 @@ import { Seasons } from './app/views/Seasons';
 import { Teams } from './app/views/Teams';
 import { Players } from './app/views/Players';
 import { Leaderboard } from './app/views/Leaderboard';
-import { MatchStats } from './app/views/MatchStats'
+import { Training } from './app/views/Training';
+import { MatchStats } from './app/views/MatchStats';
 import { ThemeProvider } from 'react-native-elements';
 
 const AppStack = createStackNavigator({ 
@@ -37,7 +38,9 @@ const AppStack = createStackNavigator({
   Seasons: Seasons,
   Teams: Teams,
   Players: Players,
-  Leaderboard: Leaderboard
+  Leaderboard: Leaderboard,
+
+  Training: Training
 });
 const AuthStack = createStackNavigator({ SignIn: SignIn, Register: Register });
 

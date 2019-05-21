@@ -25,5 +25,19 @@ namespace _101mngr.Contracts
         Task AddMatchHistory(MatchDto match);
 
         Task<string> RandomMatch();
+
+        Task StartTraining();
+
+        Task<TrainingResultDto> GetCurrentTraining();
+
+        Task FinishTraining();
+
+        Task<TrainingResultDto> TrainPassing();
+
+        Task<TrainingResultDto> TrainEndurance();
+
+        Task<TrainingResultDto> TrainDribbling();
+
+        Task<TrainingResultDto> TrainCoverage();
     }
 }

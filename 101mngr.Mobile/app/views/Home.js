@@ -19,11 +19,12 @@ export class Home extends React.Component {
           <Button title="Profile" onPress={this._showProfile} containerStyle={{margin:10, width:'75%'}} />
           <Button title="Leaderboard" onPress={this._showLeaderboard} containerStyle={{margin:10, width:'75%'}} />
           <Button title="Leagues" onPress={this._showLeagues} containerStyle={{margin:10, width:'75%'}} />
+          <Button title="Training" onPress={this._showTraining} containerStyle={{margin:10, width:'75%'}} />
           <Button title="Sign out" onPress={this._signOutAsync} containerStyle={{margin:10, width:'75%'}} />
         </View>
       );
     }
-  
+   
     _showCurrentMatches = () => {
       this.props.navigation.navigate('MatchList');
     };
@@ -34,10 +35,14 @@ export class Home extends React.Component {
   
     _showLeagues = () => {
       this.props.navigation.navigate('Countries');
-    };
+    };  
   
     _showProfile = () => {
       this.props.navigation.navigate('Profile');
+    };
+
+    _showTraining = () => {
+      this.props.navigation.navigate('Training');
     };
   
     _signOutAsync = async () => {

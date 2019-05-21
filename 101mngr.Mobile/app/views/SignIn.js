@@ -44,6 +44,7 @@ export class SignIn extends React.Component {
           console.log(responseJson);
     
           await AsyncStorage.setItem('token', responseJson.token);
+          console.log(responseJson);
           this.props.navigation.navigate('App');
       } catch (error) {
         console.error(error);          

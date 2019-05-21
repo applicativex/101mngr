@@ -3,9 +3,7 @@ using System.Threading.Tasks;
 using Orleans;
 using _101mngr.Contracts;
 using _101mngr.Contracts.Models;
-using System.Collections.Generic;
 using System.Linq;
-using _101mngr.Contracts.Enums;
 using _101mngr.Leagues;
 
 namespace _101mngr.Grains
@@ -15,6 +13,8 @@ namespace _101mngr.Grains
         private readonly LeagueService _leagueService;
         private readonly IEventStorage _eventStorage;
         private long PlayerId => this.GetPrimaryKeyLong();
+
+        private TrainingResultDto CurrentTraining { get; set; }
 
         private PlayerState State { get; set; }
 
@@ -116,6 +116,130 @@ namespace _101mngr.Grains
             return matchId;
         }
 
+        public Task StartTraining()
+        {
+            CurrentTraining = new TrainingResultDto();
+            return Task.CompletedTask;
+        }
+
+        public async Task<TrainingResultDto> GetCurrentTraining()
+        {
+            return CurrentTraining != null
+                ? new TrainingResultDto()
+                {
+                    CoverageDelta = CurrentTraining.CoverageDelta,
+                    DribblingDelta = CurrentTraining.DribblingDelta,
+                    EnduranceDelta = CurrentTraining.EnduranceDelta,
+                    HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
+                    HittingPowerDelta = CurrentTraining.HittingPowerDelta,
+                    PassingDelta = CurrentTraining.PassingDelta,
+                    ReceivingDelta = CurrentTraining.ReceivingDelta,
+                    TackleDelta = CurrentTraining.TackleDelta
+                }
+                : new TrainingResultDto();
+        }
+
+        public Task<TrainingResultDto> TrainPassing()
+        {
+            if (CurrentTraining == null)
+            {
+                CurrentTraining = new TrainingResultDto();
+            }
+            CurrentTraining.PassingDelta++;
+            return Task.FromResult(new TrainingResultDto
+            {
+                CoverageDelta = CurrentTraining.CoverageDelta,
+                DribblingDelta = CurrentTraining.DribblingDelta,
+                EnduranceDelta = CurrentTraining.EnduranceDelta,
+                HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
+                HittingPowerDelta = CurrentTraining.HittingPowerDelta,
+                PassingDelta = CurrentTraining.PassingDelta,
+                ReceivingDelta = CurrentTraining.ReceivingDelta,
+                TackleDelta = CurrentTraining.TackleDelta
+            });
+        }
+
+        public Task<TrainingResultDto> TrainEndurance()
+        {
+            if (CurrentTraining == null)
+            {
+                CurrentTraining = new TrainingResultDto();
+            }
+            CurrentTraining.EnduranceDelta++;
+            return Task.FromResult(new TrainingResultDto()
+            {
+                CoverageDelta = CurrentTraining.CoverageDelta,
+                DribblingDelta = CurrentTraining.DribblingDelta,
+                EnduranceDelta = CurrentTraining.EnduranceDelta,
+                HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
+                HittingPowerDelta = CurrentTraining.HittingPowerDelta,
+                PassingDelta = CurrentTraining.PassingDelta,
+                ReceivingDelta = CurrentTraining.ReceivingDelta,
+                TackleDelta = CurrentTraining.TackleDelta
+            });
+        }
+
+        public Task<TrainingResultDto> TrainDribbling()
+        {
+            if (CurrentTraining == null)
+            {
+                CurrentTraining = new TrainingResultDto();
+            }
+            CurrentTraining.DribblingDelta++;
+            return Task.FromResult(new TrainingResultDto()
+            {
+                CoverageDelta = CurrentTraining.CoverageDelta,
+                DribblingDelta = CurrentTraining.DribblingDelta,
+                EnduranceDelta = CurrentTraining.EnduranceDelta,
+                HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
+                HittingPowerDelta = CurrentTraining.HittingPowerDelta,
+                PassingDelta = CurrentTraining.PassingDelta,
+                ReceivingDelta = CurrentTraining.ReceivingDelta,
+                TackleDelta = CurrentTraining.TackleDelta
+            });
+        }
+
+        public Task<TrainingResultDto> TrainCoverage()
+        {
+            if (CurrentTraining == null)
+            {
+                CurrentTraining = new TrainingResultDto();
+            }
+            CurrentTraining.CoverageDelta++;
+            return Task.FromResult(new TrainingResultDto()
+            {
+                CoverageDelta = CurrentTraining.CoverageDelta,
+                DribblingDelta = CurrentTraining.DribblingDelta,
+                EnduranceDelta = CurrentTraining.EnduranceDelta,
+                HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
+                HittingPowerDelta = CurrentTraining.HittingPowerDelta,
+                PassingDelta = CurrentTraining.PassingDelta,
+                ReceivingDelta = CurrentTraining.ReceivingDelta,
+                TackleDelta = CurrentTraining.TackleDelta
+            });
+        }
+
+        public async Task FinishTraining()
+        {
+            if (CurrentTraining == null)
+            {
+                CurrentTraining = new TrainingResultDto();
+            }
+            var playerAcquiredSkillsChanged = new PlayerAcquiredSkillsChanged
+            {
+                CoverageDelta = CurrentTraining.CoverageDelta,
+                DribblingDelta = CurrentTraining.DribblingDelta,
+                EnduranceDelta = CurrentTraining.EnduranceDelta,
+                HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
+                HittingPowerDelta = CurrentTraining.HittingPowerDelta,
+                PassingDelta = CurrentTraining.PassingDelta,
+                ReceivingDelta = CurrentTraining.ReceivingDelta,
+                TackleDelta = CurrentTraining.TackleDelta
+            };
+            await RaiseEvent(playerAcquiredSkillsChanged);
+            CurrentTraining = null;
+        }
+
         public Task<MatchDto[]> GetMatchHistory()
         {
             return Task.FromResult(State.MatchHistory.OrderByDescending(x => x.CreatedAt).ToArray());
@@ -128,137 +252,16 @@ namespace _101mngr.Grains
 
         private async Task RaiseEvent(IPlayerEvent @event)
         {
-            await _eventStorage.AppendToStream(this.GetPrimaryKeyLong().ToString(), State.Version + 1, @event);
-            State.Apply(@event);
-        }
-    }
-
-    public class PlayerState
-    {
-        public PlayerState()
-        {
-            MatchHistory = new List<MatchDto>();
-        }
-
-        public string Id { get; set; }
-
-        public string UserName { get; set; }
-
-        public string Email { get; set; }
-
-        public List<MatchDto> MatchHistory { get; set; }
-
-        public string FirstName { get; set; }
-
-        public string LastName { get; set; }
-
-        public DateTime DateOfBirth { get; set; }
-
-        public string CountryCode { get; set; }
-
-        public double Height { get; set; }
-
-        public double Weight { get; set; }
-
-        public int Level { get; set; }
-
-        public PlayerType PlayerType { get; set; }
-
-        public int Version { get; set; }    
-
-        public void Apply(PlayerCreated @event)
-        {
-            Id = @event.Id;
-            UserName = @event.UserName;
-            Email = @event.Email;
-            CountryCode = @event.CountryCode;
-            Version++;
-        }
-
-        public void Apply(ProfileInfoChanged @event)
-        {
-            FirstName = @event.FirstName;
-            LastName = @event.LastName;
-            DateOfBirth = @event.DateOfBirth;
-            CountryCode = @event.CountryCode;
-            Height = @event.Height;
-            Weight = @event.Weight;
-            PlayerType = @event.PlayerType;
-            Version++;
-        }
-
-        public void Apply(MatchPlayed @event)
-        {
-            MatchHistory.Add(new MatchDto
-                {Id = @event.Id, Name = @event.Name, Players = @event.Players, CreatedAt = @event.CreatedAt});
-            Version++;
-        }
-
-        public void Apply(IPlayerEvent @event)
-        {
-            switch (@event)
+            try
             {
-                case MatchPlayed matchPlayed:
-                    Apply(matchPlayed);
-                    break;
-                case PlayerCreated playerCreated:
-                    Apply(playerCreated);
-                    break;
-                case ProfileInfoChanged profileInfoChanged:
-                    Apply(profileInfoChanged);
-                    break;
-                default:
-                    throw new NotSupportedException();
+                await _eventStorage.AppendToStream(this.GetPrimaryKeyLong().ToString(), State.Version + 1, @event);
+                State.Apply(@event);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
             }
         }
-    }
-
-    public interface IPlayerEvent
-    {
-
-    }
-
-    public class PlayerCreated : IPlayerEvent
-    {
-        public string Id { get; set; }
-
-        public string UserName { get; set; }
-
-        public string Email { get; set; }
-        
-        public string CountryCode { get; set; }
-    }
-
-    public class PlayerLevelRaised : IPlayerEvent
-    {
-        public int LevelRaise { get; set; } 
-    }
-
-    public class ProfileInfoChanged : IPlayerEvent
-    {
-        public string FirstName { get; set; }
-
-        public string LastName { get; set; }
-
-        public DateTime DateOfBirth { get; set; }
-
-        public string CountryCode { get; set; }
-
-        public double Height { get; set; }
-
-        public double Weight { get; set; }
-
-        public PlayerType PlayerType { get; set; }
-    }
-
-    public class MatchPlayed : IPlayerEvent
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public string[] Players { get; set; }
     }
 }
