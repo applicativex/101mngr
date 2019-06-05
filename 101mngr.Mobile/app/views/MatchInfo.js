@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, AsyncStorage, ScrollView, RefreshControl, FlatList } from 'react-native';
 import { Text, Card, ListItem, Button } from 'react-native-elements'
 import { Environment } from '../Environment';
+import { HubConnectionBuilder } from '@aspnet/signalr';
 
 export class MatchInfo extends React.Component {
     static navigationOptions = {
@@ -12,7 +13,7 @@ export class MatchInfo extends React.Component {
         super(props);
         this.state = {
             id: 0,
-            name: "",
+            name: "fgfgh",
             createdAt: null,
             playerList: [],
             accountId: '',
@@ -22,6 +23,21 @@ export class MatchInfo extends React.Component {
 
     componentDidMount = async () => {
         await this._refreshMatchInfo();
+
+        const connection = new HubConnectionBuilder().withUrl("http://192.168.0.103/matches").build();
+        
+        connection.start().then(() => {    
+          connection.stream("GetMatchStream",this.state.id).subscribe({
+            close: false,
+            next: (match) => {
+                console.log(match.id);
+                console.log(match.name);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+          });
+        });
     }
     
     _onRefresh = async () => {

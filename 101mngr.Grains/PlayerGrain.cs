@@ -73,7 +73,7 @@ namespace _101mngr.Grains
 
         public async Task<string> NewMatch(string matchName)
         {
-            var matchId = $"{PlayerId}:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+            var matchId = Guid.NewGuid().ToString();
             var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
             await matchGrain.NewMatch(PlayerId, GetFullName(State.FirstName, State.LastName), matchName);
             return matchId;

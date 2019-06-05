@@ -18,6 +18,7 @@ export class Countries extends React.Component {
     componentDidMount = async () => {
         try {
             let response = await fetch(`${Environment.API_URI}/api/leagues/countries`);
+			
             let responseJson = await response.json();
             this.setState({
                 countries: responseJson,

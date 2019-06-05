@@ -16,7 +16,9 @@ using Swashbuckle.AspNetCore.Swagger;
 using _101mngr.Contracts;
 using _101mngr.Leagues;
 using _101mngr.WebApp.Configuration;
+using _101mngr.WebApp.Hubs;
 using _101mngr.WebApp.Services;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace _101mngr.WebApp
 {
@@ -48,6 +50,9 @@ namespace _101mngr.WebApp
             services.AddHttpClient<AuthorizationService>(c => { c.BaseAddress = new Uri(authorizationServerUri); });
             services.AddSingleton<LeagueService>();
             services.AddSingleton<LeagueDbContext>();
+
+            services.AddSingleton<MatchStream>();
+            services.AddSignalR();
         }
 
         private IClusterClient CreateClusterClient(IServiceProvider serviceProvider) =>
@@ -71,6 +76,7 @@ namespace _101mngr.WebApp
                         .ConfigureLogging(builder => builder.AddConsole())
                         .ConfigureApplicationParts(parts =>
                             parts.AddApplicationPart(typeof(IPlayerGrain).Assembly).WithReferences())
+                        .AddSimpleMessageStreamProvider("SMSProvider")
                         .Build();
                     await client.Connect();
                     Console.WriteLine("Client successfully connect to silo host");
@@ -112,6 +118,7 @@ namespace _101mngr.WebApp
             app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseAuthentication();
             app.UseMvc();
+            app.UseSignalR(routes => { routes.MapHub<MatchHub>("/matches"); });
         }
 
         private void ConfigureAuthentication(IdentityServerAuthenticationOptions options)
@@ -138,6 +145,13 @@ namespace _101mngr.WebApp
             {
                 return builder.UseKubeGatewayListProvider(opt => { opt.Group = "orleans.dot.net"; });
             }
+        }
+
+        public static IClientBuilder AddSimpleMessageStreamProvider(this IClientBuilder builder,
+            string name,
+            Action<OptionsBuilder<SimpleMessageStreamProviderOptions>> configureOptions = null)
+        {
+            return  Orleans.Hosting.ClientStreamExtensions.AddSimpleMessageStreamProvider(builder, name, configureOptions);
         }
     }
 }

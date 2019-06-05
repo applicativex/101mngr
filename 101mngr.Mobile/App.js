@@ -29,7 +29,6 @@ const AppStack = createStackNavigator({
   MatchInfo: MatchInfo, 
   NewMatch: NewMatch,
   MatchStats: MatchStats,
-
   Profile: Profile,
   MatchHistory: MatchHistory,
 

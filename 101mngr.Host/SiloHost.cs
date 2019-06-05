@@ -57,6 +57,8 @@ namespace _101mngr.Host
                     parts.AddApplicationPart(typeof(PlayerGrain).Assembly).WithReferences())
                 .ConfigureLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Warning))
                 .UseDashboard(options => { options.CounterUpdateIntervalMs = 10000; })
+                .AddSimpleMessageStreamProvider("SMSProvider")
+                .AddMemoryGrainStorage("PubSubStore")
                 .Build();
         }
 

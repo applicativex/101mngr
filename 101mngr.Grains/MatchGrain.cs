@@ -7,6 +7,7 @@ using _101mngr.Contracts.Enums;
 using _101mngr.Contracts.Models;
 using System.Linq;
 using Orleans.Concurrency;
+using Orleans.Streams;
 
 namespace _101mngr.Grains
 {
@@ -15,9 +16,16 @@ namespace _101mngr.Grains
     {
         private string MatchId => this.GetPrimaryKeyString();
         private MatchState State;
+        private IAsyncStream<MatchListItemDto> _stream;
+        private Guid _streamId;
 
         public override Task OnActivateAsync()
         {
+            _streamId = Guid.Parse(MatchId);
+            Console.WriteLine($"Activated as {_streamId}");
+            var streamProvider = GetStreamProvider("SMSProvider");
+            
+            _stream = streamProvider.GetStream<MatchListItemDto>(_streamId, "Matches");
             State = new MatchState {Id = MatchId,Players = new List<PlayerDataDto>()};
             return base.OnActivateAsync();
         }
@@ -28,6 +36,14 @@ namespace _101mngr.Grains
             {
                 Id = MatchId, Name = State.Name, CreatedAt = DateTime.UtcNow, Players = State.Players.ToArray()
             });
+        }
+
+        private async Task PublishMatchStateUpdate()
+        {
+            var streamProvider = GetStreamProvider("SMSProvider");
+            var stream = streamProvider.GetStream<MatchStateData>(Guid.Empty, "matchStateStream");
+
+            await stream.OnNextAsync(new MatchStateData { });
         }
 
         public async Task NewMatch(long playerId, string playerName, string matchName)
@@ -42,10 +58,16 @@ namespace _101mngr.Grains
             State.Name = matchName;
             var matchRegistryGrain = GrainFactory.GetGrain<IMatchListGrain>(0);
             await matchRegistryGrain.Add(MatchId, State.Name);
+            await _stream.OnNextAsync(new MatchListItemDto
+            {
+                Id = MatchId,
+                Name = State.Name,
+                PlayersCount = State.Players.Count
+            });
         }
 
         // todo: add player types for virtual players and real
-        public Task JoinMatch(long playerId, string playerName, bool isVirtualPlayer)
+        public async Task JoinMatch(long playerId, string playerName, bool isVirtualPlayer)
         {
             State.Players.Add(new PlayerDataDto
             {
@@ -54,7 +76,12 @@ namespace _101mngr.Grains
                 PlayerType = PlayerType.Midfielder, // todo: consolidate player type
                 UserName = playerName
             });
-            return Task.CompletedTask;
+            await _stream.OnNextAsync(new MatchListItemDto
+            {
+                Id = MatchId,
+                Name = State.Name,
+                PlayersCount = State.Players.Count
+            });
         }
 
         public Task LeaveMatch(long playerId)

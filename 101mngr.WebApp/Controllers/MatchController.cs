@@ -5,10 +5,32 @@ using Microsoft.AspNetCore.Mvc;
 using Orleans;
 using _101mngr.Contracts;
 using Microsoft.AspNetCore.Authorization;
+using Orleans.Streams;
 using _101mngr.Contracts.Enums;
+using _101mngr.Contracts.Models;
 
 namespace _101mngr.WebApp.Controllers
 {
+    public class Obs : IAsyncObserver<MatchListItemDto>
+    {
+        public Task OnNextAsync(MatchListItemDto item, StreamSequenceToken token = null)
+        {
+            Console.WriteLine($"Stream update {item.Id} {item.Name} {item.PlayersCount}");
+            return Task.CompletedTask;
+        }
+
+        public Task OnCompletedAsync()
+        {
+            Console.WriteLine("Completed");
+            return Task.CompletedTask;
+        }
+
+        public Task OnErrorAsync(Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Task.CompletedTask;
+        }
+    }
     [Authorize]
     [Route("api/[controller]")]
     public class MatchController : Controller    
@@ -18,6 +40,24 @@ namespace _101mngr.WebApp.Controllers
         public MatchController(IClusterClient clusterClient)
         {
             _clusterClient = clusterClient;
+        }
+
+        [AllowAnonymous]
+        [HttpGet("test")]
+        public async Task<IActionResult> Test()
+        {
+            var streamProvider = _clusterClient.GetStreamProvider("SMSProvider");
+            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(1);
+            var matchId = await playerGrain.NewMatch("sdfsf");
+            var stream = streamProvider.GetStream<MatchListItemDto>(Guid.Parse(matchId), "Matches");
+            await stream.SubscribeAsync(new Obs());
+            for (int i = 0; i < 1000; i++)
+            {
+                await _clusterClient.GetGrain<IMatchGrain>(matchId).JoinMatch(i + 1, $"lol {i + 1}", false);
+                await Task.Delay(100);
+            }
+            await Task.Delay(10000);
+            return Ok();
         }
 
         [AllowAnonymous]
@@ -87,12 +127,12 @@ namespace _101mngr.WebApp.Controllers
             return Ok();
         }
 
-        [AllowAnonymous]
-        [HttpGet("test")]
-        public async Task<IActionResult> Get()
-        {
-            return Ok(new { Value = "abc" });
-        }
+        //[AllowAnonymous]
+        //[HttpGet("test")]
+        //public async Task<IActionResult> Get()
+        //{
+        //    return Ok(new { Value = "abc" });
+        //}
         
         public class NewMatchRequest
         {
