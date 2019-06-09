@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,7 +44,23 @@ namespace _101mngr.WebApp
             services.AddSingleton<IClusterClient>(CreateClusterClient);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = "101mngr API", Version = "v1"}); });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info {Title = "101mngr API", Version = "v1"});
+
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description =
+                        "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
+                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new string[] { }}
+                });
+            });
 
             var authorizationServerUri = Configuration["AuthorizationServer:Authority"];
             services.Configure<AuthorizationServerOptions>(Configuration.GetSection("AuthorizationServer"));
@@ -52,6 +69,7 @@ namespace _101mngr.WebApp
             services.AddSingleton<LeagueDbContext>();
 
             services.AddSingleton<MatchStream>();
+            services.AddSingleton<MatchRoomService>();
             services.AddSignalR();
         }
 
@@ -118,7 +136,11 @@ namespace _101mngr.WebApp
             app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseAuthentication();
             app.UseMvc();
-            app.UseSignalR(routes => { routes.MapHub<MatchHub>("/matches"); });
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<MatchHub>("/matches");
+                routes.MapHub<MatchRoomHub>("/rooms");
+            });
         }
 
         private void ConfigureAuthentication(IdentityServerAuthenticationOptions options)

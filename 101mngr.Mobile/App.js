@@ -20,6 +20,10 @@ import { Players } from './app/views/Players';
 import { Leaderboard } from './app/views/Leaderboard';
 import { Training } from './app/views/Training';
 import { MatchStats } from './app/views/MatchStats';
+import { FinishedMatches } from './app/views/FinishedMatches';
+import { MatchRoom } from './app/views/MatchRoom';
+import { MatchRoomList } from './app/views/MatchRoomList';
+import { MatchMenu } from './app/views/MatchMenu';
 import { ThemeProvider } from 'react-native-elements';
 
 const AppStack = createStackNavigator({ 
@@ -31,6 +35,10 @@ const AppStack = createStackNavigator({
   MatchStats: MatchStats,
   Profile: Profile,
   MatchHistory: MatchHistory,
+  MatchRoom: MatchRoom,
+  MatchRoomList: MatchRoomList,
+  FinishedMatches: FinishedMatches,
+  MatchMenu: MatchMenu,
 
   Countries: Countries,
   Leagues: Leagues,

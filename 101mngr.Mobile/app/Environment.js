@@ -1,4 +1,4 @@
 export const Environment = { 
         
-    API_URI: "http://192.168.0.103"
+    API_URI: "http://192.168.0.102"
 } 

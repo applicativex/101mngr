@@ -8,12 +8,10 @@ namespace _101mngr.Contracts
     {
         Task<MatchInfoDto> GetMatchInfo();
 
-        Task NewMatch(long playerId, string playerName, string matchName);
+        Task<MatchStateDto> GetMatchState();
 
-        Task JoinMatch(long playerId, string playerName, bool isVirtualPlayer);
+        Task Start(TeamDto homeTeam, TeamDto awayTeam);
 
-        Task LeaveMatch(long playerId);
-
-        Task PlayMatch();  
+        Task FinishMatch();
     }
 }

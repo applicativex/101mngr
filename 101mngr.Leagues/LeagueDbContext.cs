@@ -26,22 +26,22 @@ namespace _101mngr.Leagues
         private const string LukeBoltonId = "7000";
         private const string FernandinhoId = "8000";
         private const string DavidSilvaId = "9000";
-        private const string SergioAgueroId = "1000";
-        private const string OlexandrZinchenkoId = "1100";
-        private const string AymericLaporteId = "1200";
-        private const string SterlingRaheemId = "1300";
+        private const string SergioAgueroId = "10000";
+        private const string OlexandrZinchenkoId = "11000";
+        private const string AymericLaporteId = "12000";
+        private const string SterlingRaheemId = "13000";
 
-        private const string MarouaneFellainiId = "3000";
-        private const string RomeluLukakuId = "4000";
+        private const string MarouaneFellainiId = "1100";
+        private const string RomeluLukakuId = "1200";
         private const string SergioRomeroId = "1400";
         private const string AntonioValenciaId = "1500";
         private const string MarcusRashfordId = "1600";
         private const string AlexisSanchezId = "1700";
         private const string JesseLingardId = "1800";
         private const string AnderHerreraId = "1900";
-        private const string FredId = "2000";
-        private const string PaulPogbaId = "2100";
-        private const string AshleyYoungId = "2200";
+        private const string FredId = "2100";
+        private const string PaulPogbaId = "2200";
+        private const string AshleyYoungId = "2300";
 
         public LeagueDbContext()
         {

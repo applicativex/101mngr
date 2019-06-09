@@ -15,7 +15,7 @@ export class Home extends React.Component {
     render() {
       return (
         <View style={styles.container}>
-          <Button title="Current matches" onPress={this._showCurrentMatches} containerStyle={{margin:10, marginTop: 20, width:'75%'}} />
+          <Button title="Matches" onPress={this._showMatchMenu} containerStyle={{margin:10, marginTop: 20, width:'75%'}} />
           <Button title="Profile" onPress={this._showProfile} containerStyle={{margin:10, width:'75%'}} />
           <Button title="Leaderboard" onPress={this._showLeaderboard} containerStyle={{margin:10, width:'75%'}} />
           <Button title="Leagues" onPress={this._showLeagues} containerStyle={{margin:10, width:'75%'}} />
@@ -25,8 +25,8 @@ export class Home extends React.Component {
       );
     }
    
-    _showCurrentMatches = () => {
-      this.props.navigation.navigate('MatchList');
+    _showMatchMenu = () => {
+      this.props.navigation.navigate('MatchMenu');
     };
   
     _showLeaderboard = () => {

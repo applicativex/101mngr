@@ -46,7 +46,7 @@ export class NewMatch extends React.Component {
             });
             let responseJson = await response.json();
             console.log(responseJson.id);
-            this.props.navigation.navigate('MatchList');
+            this.props.navigation.navigate('MatchRoom', {matchId:responseJson.id});
         } catch (error) {
             console.error(error);
         }

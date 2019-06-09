@@ -1,13 +1,12 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, RefreshControl, TouchableHighlight, FlatList } from 'react-native';
-import {PlayersData} from '../data/Players.js';
 import { ListItem, Button } from 'react-native-elements'
 import { Environment } from '../Environment'
 import { HubConnectionBuilder } from '@aspnet/signalr'
 
-export class MatchList extends React.Component {
+export class MatchRoomList extends React.Component {
     static navigationOptions = {
-      title: 'Current Matches',
+      title: 'Match Rooms',
     };
 
     constructor(props) {
@@ -19,56 +18,47 @@ export class MatchList extends React.Component {
             refreshing: false,
         };
 
-        this.connection = new HubConnectionBuilder().withUrl(`${Environment.API_URI}/matches`).build();
+        this.connection = new HubConnectionBuilder().withUrl(`${Environment.API_URI}/rooms`).build();
     }
     
     _onRefresh = async () => {
         this.setState({refreshing: true});
-        //await this._refreshMatchList();
         this.setState({refreshing: false});
-      }
+    }
     
-
     componentDidMount = async () => {
-        // await this._refreshMatchList();
                 
         this.connection.start().then(() => {            
 
-            this.connection.invoke("GetCurrentMatches").then((data) => {
+            this.connection.invoke("GetMatchRooms").then((data) => {
+                var rooms = data.map(x => x.matchId);
                 this.setState({
-                    matchList:data
+                    matchList:rooms
                 });
             }).catch(function (err) {
                 return console.error(err.toString());
             });
-
-            this.subscription = this.connection.stream("GetCurrentMatchesStream").subscribe({
-              close: false,
-              next: this.onMatchUpdate,
-              error: function (err) {
-                  console.log(err);
-              }
-            });  
         });
+
+        this.connection.on("MatchRoomAdded", this.onMatchRoomAdded);
+            
+        this.connection.on("MatchRoomRemoved", this.onMatchRoomRemoved);
     }
 
     componentWillUnmount = async () => {
-        this.subscription.dispose();
         await this.connection.stop();
     }
-    
-    onMatchUpdate = (match) => {
-        var added = 1;
-        var removed = 4;
-        var list = [];
-        if (match.matchListEventType == added) {
-            list = this.state.matchList.concat(match);    
-        } else if (match.matchListEventType == removed) {
-            list = this.state.matchList.filter(item => item.id !== match.id);
-        } else {
-            list = this.state.matchList.map(item => item.id !== match.id ? item : match);
-        }
-        this.setState({matchList:list});
+
+    onMatchRoomAdded = (matchRoomId, playerId) => {
+        var rooms = this.state.matchList.concat(matchRoomId);
+        this.setState({matchList:rooms});
+        console.log(`added room ${matchRoomId}`);
+    }
+
+    onMatchRoomRemoved = (matchRoomId) => {
+        var rooms = this.state.matchList.filter(item => item.id !== matchRoomId);
+        this.setState({matchList:rooms});
+        console.log(`removed room ${matchRoomId}`);
     }
 
     _refreshMatchList = async () => {
@@ -87,19 +77,6 @@ export class MatchList extends React.Component {
         }
     }
 
-    complexName (item) {
-        var suffix = item.matchPeriod == 2 ?
-                        'HT' : item.matchPeriod == 4 ?
-                                'FT' : '';
-        return `${item.name} ${item.minute} ${suffix}'`.trim();
-    }
-
-    invitePlayers = () =>{
-        this.setState({
-            isInvited: true,
-            playersList: Array.from(PlayersData.players)
-        });
-    }
     render () {
         const { navigate } = this.props.navigation;
 
@@ -113,15 +90,14 @@ export class MatchList extends React.Component {
               }>
                 
                 <FlatList   data={this.state.matchList}
-                            keyExtractor={(item, index) => item.id}
+                            keyExtractor={(item, index) => item}
                             renderItem={({item}) =>
                             <MatchItem
                                 navigate={navigate}
-                                id={item.id}
-                                name={this.complexName(item)} />
+                                id={item}
+                                name={item} />
                             }    
                         />
-
             </ScrollView>
         );
     }
@@ -130,7 +106,7 @@ export class MatchList extends React.Component {
 export class MatchItem extends React.Component {
     onPress = () => {
         //Alert.alert(this.props.name);
-        this.props.navigate('MatchInfo', {matchId: this.props.id} );
+        this.props.navigate('MatchRoom', {matchId: this.props.id} );
     }
 
     render(){

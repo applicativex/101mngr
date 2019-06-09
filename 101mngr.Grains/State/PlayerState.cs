@@ -64,7 +64,9 @@ namespace _101mngr.Grains
         public void Apply(MatchPlayed @event)
         {
             MatchHistory.Add(new MatchDto
-                {Id = @event.Id, Name = @event.Name, Players = @event.Players, CreatedAt = @event.CreatedAt});
+            {
+                Id = @event.Id, Name = @event.Name, CreatedAt = @event.CreatedAt
+            });
             Version++;
         }
 

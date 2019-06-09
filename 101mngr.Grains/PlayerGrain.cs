@@ -74,28 +74,16 @@ namespace _101mngr.Grains
         public async Task<string> NewMatch(string matchName)
         {
             var matchId = Guid.NewGuid().ToString();
-            var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
-            await matchGrain.NewMatch(PlayerId, GetFullName(State.FirstName, State.LastName), matchName);
+            var matchRoomGrain = GrainFactory.GetGrain<IMatchRoomGrain>(matchId);
+            await matchRoomGrain.NewRoom(PlayerId, GetFullName(State.FirstName, State.LastName));
             return matchId;
-        }
-
-        public async Task JoinMatch(string matchId)
-        {
-            var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
-            await matchGrain.JoinMatch(PlayerId, GetFullName(State.FirstName, State.LastName), false);
-        }
-
-        public async Task LeaveMatch(string matchId)
-        {
-            var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
-            await matchGrain.LeaveMatch(PlayerId);
         }
 
         public async Task AddMatchHistory(MatchDto match)
         {
             var matchPlayed = new MatchPlayed
             {
-                Id = match.Id, Name = match.Name, Players = match.Players, CreatedAt = DateTime.UtcNow
+                Id = match.Id, Name = match.Name, CreatedAt = DateTime.UtcNow
             };
             await RaiseEvent(matchPlayed);
         }
@@ -103,16 +91,16 @@ namespace _101mngr.Grains
         public async Task<string> RandomMatch()
         {
             var matchId = $"{PlayerId}:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-            var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
-            await matchGrain.NewMatch(PlayerId, GetFullName(State.FirstName, State.LastName),
-                $"Random Match {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
-            var virtualPlayers = _leagueService.GetPlayers().Take(21).ToArray();
-            foreach (var virtualPlayer in virtualPlayers)
-            {
-                // todo: handle id long vs string
-                await matchGrain.JoinMatch(
-                    long.Parse(virtualPlayer.Id), GetFullName(virtualPlayer.FirstName, virtualPlayer.LastName), true);
-            }
+            //var matchGrain = GrainFactory.GetGrain<IMatchGrain>(matchId);
+            //await matchGrain.NewMatch(PlayerId, GetFullName(State.FirstName, State.LastName),
+            //    $"Random Match {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
+            //var virtualPlayers = _leagueService.GetPlayers().Take(21).ToArray();
+            //foreach (var virtualPlayer in virtualPlayers)
+            //{
+            //    // todo: handle id long vs string
+            //    await matchGrain.JoinMatch(
+            //        long.Parse(virtualPlayer.Id), GetFullName(virtualPlayer.FirstName, virtualPlayer.LastName), true);
+            //}
             return matchId;
         }
 

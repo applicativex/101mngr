@@ -5,73 +5,33 @@ using Microsoft.AspNetCore.Mvc;
 using Orleans;
 using _101mngr.Contracts;
 using Microsoft.AspNetCore.Authorization;
-using Orleans.Streams;
 using _101mngr.Contracts.Enums;
-using _101mngr.Contracts.Models;
+using _101mngr.WebApp.Hubs;
 
 namespace _101mngr.WebApp.Controllers
 {
-    public class Obs : IAsyncObserver<MatchListItemDto>
-    {
-        public Task OnNextAsync(MatchListItemDto item, StreamSequenceToken token = null)
-        {
-            Console.WriteLine($"Stream update {item.Id} {item.Name} {item.PlayersCount}");
-            return Task.CompletedTask;
-        }
-
-        public Task OnCompletedAsync()
-        {
-            Console.WriteLine("Completed");
-            return Task.CompletedTask;
-        }
-
-        public Task OnErrorAsync(Exception ex)
-        {
-            Console.WriteLine(ex);
-            return Task.CompletedTask;
-        }
-    }
     [Authorize]
     [Route("api/[controller]")]
     public class MatchController : Controller    
     {
         private readonly IClusterClient _clusterClient;
+        private readonly MatchRoomService _matchRoomService;
 
-        public MatchController(IClusterClient clusterClient)
+        public MatchController(IClusterClient clusterClient, MatchRoomService matchRoomService)
         {
             _clusterClient = clusterClient;
-        }
-
-        [AllowAnonymous]
-        [HttpGet("test")]
-        public async Task<IActionResult> Test()
-        {
-            var streamProvider = _clusterClient.GetStreamProvider("SMSProvider");
-            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(1);
-            var matchId = await playerGrain.NewMatch("sdfsf");
-            var stream = streamProvider.GetStream<MatchListItemDto>(Guid.Parse(matchId), "Matches");
-            await stream.SubscribeAsync(new Obs());
-            for (int i = 0; i < 1000; i++)
-            {
-                await _clusterClient.GetGrain<IMatchGrain>(matchId).JoinMatch(i + 1, $"lol {i + 1}", false);
-                await Task.Delay(100);
-            }
-            await Task.Delay(10000);
-            return Ok();
+            _matchRoomService = matchRoomService;
         }
 
         [AllowAnonymous]
         [HttpGet("")]
-        public async Task<IActionResult> GetMatches()
+        public async Task<IActionResult> GetCurrentMatches(bool finished)
         {
             var matchListGrain = _clusterClient.GetGrain<IMatchListGrain>(0);
-            var matches = await matchListGrain.GetMatches();
-            return Ok(matches.Concat(Enumerable.Range(1, 5).Select((x, i) => new Contracts.Models.MatchDto
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = $"Match {i + 1}",
-                CreatedAt = DateTime.UtcNow,
-            })));
+            var matches = !finished
+                ? await matchListGrain.GetCurrentMatches()
+                : await matchListGrain.GetFinishedMatches();
+            return Ok(matches);
         }
 
         [AllowAnonymous]
@@ -87,8 +47,11 @@ namespace _101mngr.WebApp.Controllers
         public async Task<IActionResult> NewMatch([FromBody] NewMatchRequest request)
         {
             var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
+            var matchId = Guid.NewGuid().ToString();
             var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
-            var matchId = await playerGrain.NewMatch(request.MatchName);
+            var playerInfo = await playerGrain.GetPlayerInfo();
+            await _matchRoomService.NewMatchRoom(
+                matchId, accountId, GetFullName(playerInfo.FirstName, playerInfo.LastName));
             return Ok(new { Id = matchId });
         }
 
@@ -106,7 +69,8 @@ namespace _101mngr.WebApp.Controllers
         {
             long playerId = this.GetSubjectId();
             var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(playerId);
-            await playerGrain.JoinMatch(matchId);
+            var playerInfo = await playerGrain.GetPlayerInfo();
+            await _matchRoomService.JoinRoom(matchId, playerId, GetFullName(playerInfo.FirstName, playerInfo.LastName));
             return Ok();
         }
 
@@ -114,26 +78,22 @@ namespace _101mngr.WebApp.Controllers
         public async Task<IActionResult> LeaveMatch(string matchId)
         {
             long playerId = this.GetSubjectId();
-            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(playerId);
-            await playerGrain.LeaveMatch(matchId);
+            await _matchRoomService.LeaveRoom(matchId, playerId);
             return Ok();
         }
 
         [HttpPut("{matchId}/start")]
         public async Task<IActionResult> StartMatch(string matchId)
         {
-            var matchGrain = _clusterClient.GetGrain<IMatchGrain>(matchId);
-            await matchGrain.PlayMatch();
+            await _matchRoomService.StartMatch(matchId);
             return Ok();
         }
 
-        //[AllowAnonymous]
-        //[HttpGet("test")]
-        //public async Task<IActionResult> Get()
-        //{
-        //    return Ok(new { Value = "abc" });
-        //}
-        
+        private static string GetFullName(string firstName, string lastName)
+        {
+            return $"{firstName} {lastName}";
+        }
+
         public class NewMatchRequest
         {
             public long PlayerId { get; set; }

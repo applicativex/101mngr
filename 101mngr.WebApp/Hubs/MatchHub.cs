@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
@@ -18,8 +17,22 @@ namespace _101mngr.WebApp.Hubs
             _matchStream = matchStream;
         }
 
-        public ChannelReader<MatchListItemDto> GetMatchStream(Guid matchStreamId) =>
-            _matchStream.GetMatchStream(matchStreamId).GetAwaiter().GetResult();
+        public Task<MatchStateDto> GetMatch(Guid matchStreamId) => _matchStream.GetMatch(matchStreamId);
+
+        public Task<ChannelReader<MatchEventDto>> GetMatchStream(Guid matchStreamId)
+        {
+            return _matchStream.GetMatchStream(matchStreamId);
+        }
+
+        public Task<MatchDto[]> GetCurrentMatches()
+        {
+            return _matchStream.GetCurrentMatches();
+        }
+
+        public Task<ChannelReader<MatchDto>> GetCurrentMatchesStream()
+        {
+            return _matchStream.GetCurrentMatchesStream();
+        }
     }
 
     public class MatchStream
@@ -30,12 +43,33 @@ namespace _101mngr.WebApp.Hubs
         {
             _clusterClient = clusterClient;
         }
+            
+        public async Task<MatchDto[]> GetCurrentMatches()
+        {
+            var matchListGrain = _clusterClient.GetGrain<IMatchListGrain>(0);
+            var matches = await matchListGrain.GetCurrentMatches();
+            return matches;
+        }   
 
-        public Task<ChannelReader<MatchListItemDto>> GetMatchStream(Guid matchStreamId)
+        public Task<ChannelReader<MatchDto>> GetCurrentMatchesStream()
         {
             var streamProvider = _clusterClient.GetStreamProvider("SMSProvider");
-            var matchStream = streamProvider.GetStream<MatchListItemDto>(matchStreamId, "Matches");
+            var matchStream = streamProvider.GetStream<MatchDto>(Guid.Empty, "MatchList");
             return matchStream.AsChannelReader();
+        }
+
+        public Task<ChannelReader<MatchEventDto>> GetMatchStream(Guid matchStreamId)
+        {
+            var streamProvider = _clusterClient.GetStreamProvider("SMSProvider");
+            var matchStream = streamProvider.GetStream<MatchEventDto>(matchStreamId, "Matches");
+            return matchStream.AsChannelReader();
+        }
+
+        public async Task<MatchStateDto> GetMatch(Guid matchStreamId)
+        {
+            var matchGrain = _clusterClient.GetGrain<IMatchGrain>(matchStreamId.ToString());
+            var matchStateDto = await matchGrain.GetMatchState();
+            return matchStateDto;
         }
     }
 }

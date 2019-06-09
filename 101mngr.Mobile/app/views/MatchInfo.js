@@ -11,41 +11,55 @@ export class MatchInfo extends React.Component {
 
     constructor(props) {
         super(props);
+        let matchId = this.props.navigation.getParam('matchId');
         this.state = {
-            id: 0,
-            name: "fgfgh",
+            id: matchId,
+            name: "some match",
+            minute: 0,
+            matchPeriod: 0,
             createdAt: null,
             playerList: [],
             accountId: '',
             refreshing: false
         };
+        console.log(matchId);
+        this.connection = new HubConnectionBuilder().withUrl(`${Environment.API_URI}/matches`).build();
     }
 
     componentDidMount = async () => {
-        await this._refreshMatchInfo();
+        // await this._refreshMatchInfo();
 
-        const connection = new HubConnectionBuilder().withUrl("http://192.168.0.103/matches").build();
-        
-        connection.start().then(() => {    
-          connection.stream("GetMatchStream",this.state.id).subscribe({
-            close: false,
-            next: (match) => {
-                console.log(match.id);
-                console.log(match.name);
-            },
-            error: function (err) {
-                console.log(err);
-            }
-          });
+        this.connection.start().then(() => {           
+
+            this.connection.invoke("GetMatch",this.state.id).then((data) => {
+                this.setState({
+                    name:data.name,
+                    minute:data.minute,
+                    matchPeriod:data.matchPeriod});
+            });  
+            
+            this.subscription = this.connection.stream("GetMatchStream",this.state.id).subscribe({
+                close: false,
+                next: (match) => {
+                    this.setState({minute:match.minute,matchPeriod:match.matchPeriod});
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
         });
+    }
+
+    componentWillUnmount = async () => {
+        this.subscription.dispose();
+        await this.connection.stop();
     }
     
     _onRefresh = async () => {
         this.setState({refreshing: true});
-        await this._refreshMatchInfo();
+        // await this._refreshMatchInfo();
         this.setState({refreshing: false});
     }
-
 
     _refreshMatchInfo = async () => {
         try {
@@ -77,57 +91,8 @@ export class MatchInfo extends React.Component {
         return this.state.playerList.some(x=>x.id === this.state.accountId);
     }
  
-    playMatch = async () => {
-        try {
-            let token = await AsyncStorage.getItem('token');
-            let response = await fetch(`${Environment.API_URI}/api/match/${this.state.id}/start`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: token
-                }});
-            this.props.navigation.navigate('MatchStats', {matchId: this.state.id});
-
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    joinMatch = async () => {
-        try {
-            let token = await AsyncStorage.getItem('token');
-            let response = await fetch(`${Environment.API_URI}/api/match/${this.state.id}/join`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: token
-                }});
-            let profileResponse = await fetch(`${Environment.API_URI}/api/account/profile`, {
-                method: 'GET',
-                headers: {
-                    Authorization: token
-                }});
-            let profileJson = await profileResponse.json();
-            this.setState(state => ({
-                playerList: [...state.playerList, { id: profileJson.id, userName: `${profileJson.firstName} ${profileJson.lastName}`}]
-              }));
-            console.log('Success join');
-            
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    leaveMatch = async () => {
-        try {
-            let token = await AsyncStorage.getItem('token');
-            let response = await fetch(`${Environment.API_URI}/api/match/${this.state.id}/leave`, {
-                method: 'PUT',
-                headers: {
-                    Authorization: token
-                }});
-            this.props.navigation.navigate('MatchList');
-        } catch (error) {
-            console.error(error);
-        }
+    showMatchList = async () => {
+        this.props.navigation.navigate('MatchList');
     }
 
     render () {
@@ -143,7 +108,8 @@ export class MatchInfo extends React.Component {
               }>
                 <Card title='Match details' containerStyle={{paddingHorizontal: 0}} >
                     <ListItem title={this.state.name} subtitle='Name' containerStyle={{paddingTop: 0}} />
-                    <ListItem title={this.state.createdAt} subtitle='Created at' containerStyle={{paddingTop: 0}} />
+                    <ListItem title={this.state.matchPeriod.toString()} subtitle='Period' containerStyle={{paddingTop: 0}} />
+                    <ListItem title={this.state.minute.toString()} subtitle='Minute' containerStyle={{paddingTop: 0}} />
                 </Card>
                 {/* <ListItem key={this.state.name} title={this.state.name} subtitle='Name' containerStyle={{margin:0}} bottomDivider />
                 <ListItem key={this.state.createdAt} title={this.state.createdAt} subtitle='Created at' containerStyle={{margin:0}} bottomDivider /> */}
@@ -161,8 +127,7 @@ export class MatchInfo extends React.Component {
                 }
                 </Card>
 
-                <Button title={!this.inPlayerList() ? "Join" : "Leave"} onPress={ !this.inPlayerList() ? this.joinMatch : this.leaveMatch} underlayColor='#31e981' containerStyle={{margin:10}}  />
-                <Button title="Start" onPress={this.playMatch} underlayColor='#31e981' containerStyle={{margin:10}}  />
+                <Button title="Match list" onPress={this.showMatchList} underlayColor='#31e981' containerStyle={{margin:10}}  />
             </ScrollView>
         );
     }
