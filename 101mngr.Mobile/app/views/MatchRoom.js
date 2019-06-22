@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, AsyncStorage, ScrollView, RefreshControl, FlatList } from 'react-native';
+import { StyleSheet, View, AsyncStorage, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import { Text, Card, ListItem, Button } from 'react-native-elements'
 import { Environment } from '../Environment';
 import { HubConnectionBuilder } from '@aspnet/signalr';
@@ -16,15 +16,18 @@ export class MatchRoom extends React.Component {
             name: "Match Room",
             createdAt: null,
             playerList: [],
-            accountId: '',
+            playerId: null,
             refreshing: false,
             players: [],
             virtualPlayers: [],
             ownerId: "",
-            ownerName: ""
+            ownerName: "",
+            isOwner: false,
+            matchStarted: false,
+            loading: true
         };
 
-        this.connection = new HubConnectionBuilder().withUrl(`${Environment.API_URI}/rooms`).build();     
+        this.connection = new HubConnectionBuilder().withUrl(`${Environment.API_URI}/rooms`).build();
     }
 
     componentDidMount = async () => {
@@ -32,27 +35,35 @@ export class MatchRoom extends React.Component {
         
         this.setState({id:matchId});
                 
-        this.connection.start().then(() => {            
-
-            this.connection.invoke("GetMatchRoom",matchId).then((data) => {
-                var owner = data.players.find(item => item.id == data.ownerPlayerId);
-                console.log(owner);
-                this.setState({
-                    virtualPlayers:data.virtualPlayers,
-                    players:data.players,
-                    ownerId:owner.id,
-                    ownerName: owner.name
-                });
-            }).catch(function (err) {
-                return console.error(err.toString());
-            });  
+        await this.connection.start();
+        var data = await this.connection.invoke("GetMatchRoom",matchId);
+        var owner = data.players.find(item => item.id == data.ownerPlayerId);        
+        this.setState({
+            virtualPlayers:data.virtualPlayers,
+            players:data.players,
+            ownerId:owner.id,
+            ownerName: owner.name,
+            matchStarted: data.matchStarted
         });
 
         this.connection.on("PlayerJoinedRoom", this.onPlayerJoinedRoom);
             
         this.connection.on("PlayerLeftRoom", this.onPlayerLeftRoom);
-            
-        console.log(this.state);
+
+        this.connection.on("MatchStarted", this.onMatchStarted);
+
+        let token = await AsyncStorage.getItem('token');
+        if (token != null) {
+            let profileResponse = await fetch(`${Environment.API_URI}/api/account/profile`, {
+                method: 'GET',
+                headers: {
+                    Authorization: token
+                }});
+            let profileJson = await profileResponse.json();
+            this.setState({isOwner: profileJson.id == this.state.ownerId,playerId:profileJson.id});
+        }
+
+        this.setState({loading: false});
     }
 
     componentWillUnmount = async () => {
@@ -106,6 +117,12 @@ export class MatchRoom extends React.Component {
         this.setState({players:players});
         console.log(`player ${playerId} left room ${matchRoomId}`);
     }
+
+    onMatchStarted = (matchRoomId) => {
+        if (this.state.id == matchRoomId) {            
+            this.setState({matchStarted: true});
+        }
+    }
  
     playMatch = async () => {
         try {
@@ -115,6 +132,15 @@ export class MatchRoom extends React.Component {
                 headers: {
                     Authorization: token
                 }});
+            this.props.navigation.navigate('MatchInfo', {matchId: this.state.id});
+
+        } catch (error) { 
+            console.error(error);
+        }
+    }
+
+    showMatch = async () => {
+        try {
             this.props.navigation.navigate('MatchInfo', {matchId: this.state.id});
 
         } catch (error) { 
@@ -162,46 +188,59 @@ export class MatchRoom extends React.Component {
         }
     }
 
+    canJoin = () => {
+        if (this.state.playerId == null) {
+            return false;
+        }
+        var player = this.state.players.find(x => x.id == this.state.playerId);
+        return player == null;
+    }
+
+    canLeave = () => {
+        if (this.state.playerId == null) {
+            return false;
+        }
+        var player = this.state.players.find(x => x.id == this.state.playerId);
+        return player != null;
+    }
+
     render () {
         const { navigate } = this.props.navigation;
 
         return (
             
-            <ScrollView refreshControl={
-                <RefreshControl
-                  refreshing={this.state.refreshing}
-                  onRefresh={this._onRefresh}
-                />
-              }>
-                <Card title='Match details' containerStyle={{paddingHorizontal: 0}} >
-                    <ListItem title={this.state.name} subtitle='Name' containerStyle={{paddingTop: 0}} />
-                    <ListItem title={this.state.ownerName} subtitle='Owner' containerStyle={{paddingTop: 0}} />
-                </Card>
-                {/* <ListItem key={this.state.name} title={this.state.name} subtitle='Name' containerStyle={{margin:0}} bottomDivider />
-                <ListItem key={this.state.createdAt} title={this.state.createdAt} subtitle='Created at' containerStyle={{margin:0}} bottomDivider /> */}
-                <Card title='Players' containerStyle={{paddingHorizontal: 0}} >
-                {
-                    this.state.virtualPlayers.map((u, i) => {
-                        return (
-                            <ListItem
-                                key={this.state.players[i] != null ? this.state.players[i].id : u.id}
-                                title={this.state.players[i] != null ? this.state.players[i].name : u.name}
-                                containerStyle={{paddingVertical:0}} />);
-                        })
-                    // this.state.playerList.map((u, i) => {
-                    // return (
-                    //     <ListItem
-                    //         key={u.player != null ? u.player.id : u.virtualPlayer.id}
-                    //         title={u.player != null ? u.player.name : u.virtualPlayer.name}
-                    //         containerStyle={{paddingVertical:0}} />);
-                    // })
+            <View style={{flex:1}}>
+                {this.state.loading && 
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#0000ff" />
+                    </View>
                 }
-                </Card>
+                {!this.state.loading && 
+            
+                    <ScrollView>
+                        <Card title='Match details' containerStyle={{paddingHorizontal: 0}} >
+                            <ListItem title={this.state.name} subtitle='Name' containerStyle={{paddingTop: 0}} />
+                            <ListItem title={this.state.ownerName} subtitle='Owner' containerStyle={{paddingTop: 0}} />
+                        </Card>
+                        <Card title='Players' containerStyle={{paddingHorizontal: 0}} >
+                        {
+                            this.state.virtualPlayers.map((u, i) => {
+                                return (
+                                    <ListItem
+                                        key={this.state.players[i] != null ? this.state.players[i].id : u.id}
+                                        title={this.state.players[i] != null ? this.state.players[i].name : u.name}
+                                        containerStyle={{paddingVertical:0}} />);
+                                })
+                        }
+                        </Card>
 
-                <Button title="Join"  onPress={this.joinMatch} underlayColor='#31e981' containerStyle={{margin:10}}  />
-                <Button title="Leave"  onPress={this.leaveMatch} underlayColor='#31e981' containerStyle={{margin:10}}  />
-                <Button title="Start" onPress={this.playMatch} underlayColor='#31e981' containerStyle={{margin:10}}  />
-            </ScrollView>
+                        <Button title="Join"  onPress={this.joinMatch} underlayColor='#31e981' containerStyle={{margin:10}} disabled={!this.canJoin() || this.state.matchStarted} />
+                        <Button title="Leave"  onPress={this.leaveMatch} underlayColor='#31e981' containerStyle={{margin:10}} disabled={!this.canLeave() || this.state.matchStarted} />                
+                        <Button title="Match" onPress={this.showMatch} underlayColor='#31e981' containerStyle={{margin:10}} disabled={!this.state.matchStarted}  />                
+                        <Button title="Start" onPress={this.playMatch} underlayColor='#31e981' containerStyle={{margin:10}} disabled={!this.state.isOwner || this.state.matchStarted}  />
+                    </ScrollView>
+                }
+                </View>
         );
     }
 }
@@ -238,5 +277,10 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
       alignItems:'center',
       width: '75%'
-    }
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+      }
 });

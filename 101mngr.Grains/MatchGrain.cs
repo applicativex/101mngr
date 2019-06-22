@@ -19,6 +19,7 @@ namespace _101mngr.Grains
         private IAsyncStream<MatchEventDto> _stream;
         private Guid _streamId;
         private IDisposable _matchTimer;
+        private bool _halfTime;
 
         private readonly MatchClock _matchClock = new MatchClock();
 
@@ -54,7 +55,11 @@ namespace _101mngr.Grains
                 RedCards = State.RedCards.ToDto(),
                 HomeTeam = State.HomeTeam.ToDto(),
                 AwayTeam = State.AwayTeam.ToDto(),
-                MatchEvents = State.MatchEvents.Select(x => x.ToDto()).ToList()
+                MatchEvents = State.MatchEvents
+                    .Select(x => x.ToDto())
+                    .OrderByDescending(x => x.MatchPeriod)
+                    .ThenByDescending(x => x.Minute)
+                    .ToList()
             });
         }
 
@@ -86,7 +91,7 @@ namespace _101mngr.Grains
                 }).ToList()
             };
             await matchRegistryGrain.AddMatch(MatchId, homeTeam, awayTeam);
-            _matchTimer = RegisterTimer(MatchTimerImpl, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+             _matchTimer = RegisterTimer(MatchTimerImpl, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
         }
 
         public async Task FinishMatch()
@@ -151,21 +156,127 @@ namespace _101mngr.Grains
         {
             _matchClock.Tick();
 
-            var matchEventDto = new MatchEventDto
+            if (await HalfTime())
             {
+                return;
+            }
+
+            _halfTime = _matchClock.MatchPeriod == MatchPeriod.HalfTime;
+
+            if (!_halfTime)
+            {
+                var matchEventDto = GoalEvent(_matchClock.MatchPeriod, _matchClock.Minute)
+                                    ?? YellowCard(_matchClock.MatchPeriod, _matchClock.Minute)
+                                    ?? RedCard(_matchClock.MatchPeriod, _matchClock.Minute)
+                                    ?? TimeEvent();
+                await HandleMatchEvent(matchEventDto);
+
+                if (_matchClock.MatchPeriod == MatchPeriod.FullTime)
+                {
+                    _matchTimer?.Dispose();
+                    await FinishMatch();
+                }
+            }
+
+            async Task<bool> HalfTime()
+            {
+                if (!_halfTime && _matchClock.MatchPeriod == MatchPeriod.HalfTime)
+                {
+                    _halfTime = true;
+                    await HandleMatchEvent(new MatchEventDto
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        MatchPeriod = _matchClock.MatchPeriod,
+                        Minute = _matchClock.Minute,
+                        MatchEventType = MatchEventType.Time,
+                        MatchId = this.GetPrimaryKeyString(),
+                        Home = null,
+                    });
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+
+        private MatchEventDto TimeEvent()
+        {
+            return new MatchEventDto
+            {
+                Id = Guid.NewGuid().ToString(),
                 MatchPeriod = _matchClock.MatchPeriod,
                 Minute = _matchClock.Minute,
                 MatchEventType = MatchEventType.Time,
                 MatchId = this.GetPrimaryKeyString(),
                 Home = null,
             };
-            await HandleMatchEvent(matchEventDto);
+        }
 
-            if (_matchClock.MatchPeriod == MatchPeriod.FullTime)
+        private MatchEventDto GoalEvent(MatchPeriod matchPeriod, int minute)
+        {
+            var rnd = new Random();
+            if (rnd.Next(1, 100) % 13 == 0)
             {
-                _matchTimer?.Dispose();
-                await FinishMatch();
+                var home = rnd.Next(100) % 2 == 0;
+                var playerIndex = rnd.Next(0, State.HomeTeam.Players.Count - 1);
+                var player = (home ? State.HomeTeam : State.AwayTeam).Players[playerIndex];
+                return new MatchEventDto
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Home = home,
+                    MatchPeriod = matchPeriod,
+                    MatchId = State.Id,
+                    Minute = minute,
+                    MatchEventType = MatchEventType.Goal,
+                    PlayerId = player.Id
+                };
             }
+            return null;    
+        }
+
+        private MatchEventDto YellowCard(MatchPeriod matchPeriod, int minute)
+        {
+            var rnd = new Random();
+            if (rnd.Next(1, 100) % 19 == 0)
+            {
+                var home = rnd.Next(100) % 2 == 0;
+                var playerIndex = rnd.Next(0, State.HomeTeam.Players.Count - 1);
+                var player = (home ? State.HomeTeam : State.AwayTeam).Players[playerIndex];
+                return new MatchEventDto
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Home = home,
+                    MatchPeriod = matchPeriod,
+                    MatchId = State.Id,
+                    Minute = minute,
+                    MatchEventType = MatchEventType.YellowCard,
+                    PlayerId = player.Id
+                };
+            }
+            return null;
+        }
+
+        private MatchEventDto RedCard(MatchPeriod matchPeriod, int minute)
+        {
+            var rnd = new Random();
+            if (rnd.Next(1, 100) % 37 == 0)
+            {
+                var home = rnd.Next(100) % 2 == 0;
+                var playerIndex = rnd.Next(0, State.HomeTeam.Players.Count - 1);
+                var player = (home ? State.HomeTeam : State.AwayTeam).Players[playerIndex];
+                return new MatchEventDto
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Home = home,
+                    MatchPeriod = matchPeriod,
+                    MatchId = State.Id,
+                    Minute = minute,
+                    MatchEventType = MatchEventType.RedCard,
+                    PlayerId = player.Id
+                };
+            }
+            return null;
         }
     }
 

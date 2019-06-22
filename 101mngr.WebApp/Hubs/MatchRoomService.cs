@@ -40,6 +40,7 @@ namespace _101mngr.WebApp.Hubs
         {
             var matchRoomGrain = _clusterClient.GetGrain<IMatchRoomGrain>(matchRoomId);
             await matchRoomGrain.StartMatch();
+            await Hub.Clients.All.SendAsync("MatchStarted", matchRoomId);
             await Hub.Clients.All.SendAsync("MatchRoomRemoved", matchRoomId);
         }   
 

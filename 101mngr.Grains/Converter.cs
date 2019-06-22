@@ -41,6 +41,7 @@ namespace _101mngr.Grains
         {
             return new GoalEvent
             {
+                Id = value.Id,
                 MatchPeriod = value.MatchPeriod,
                 Minute = value.Minute,
                 Home = value.Home.Value,
@@ -52,6 +53,7 @@ namespace _101mngr.Grains
         {
             return new YellowCardEvent
             {
+                Id = value.Id,
                 MatchPeriod = value.MatchPeriod,
                 Minute = value.Minute,
                 Home = value.Home.Value,
@@ -63,6 +65,7 @@ namespace _101mngr.Grains
         {
             return new RedCardEvent
             {
+                Id = value.Id,
                 MatchPeriod = value.MatchPeriod,
                 Minute = value.Minute,
                 Home = value.Home.Value,
@@ -74,6 +77,7 @@ namespace _101mngr.Grains
         {
             return new SubstitutionEvent
             {
+                Id = value.Id,
                 MatchPeriod = value.MatchPeriod,
                 Minute = value.Minute,
                 Home = value.Home.Value,
@@ -86,6 +90,7 @@ namespace _101mngr.Grains
         {
             return new TimeEvent
             {
+                Id = value.Id,
                 MatchPeriod = value.MatchPeriod,
                 Minute = value.Minute
             };
@@ -98,6 +103,7 @@ namespace _101mngr.Grains
                 case GoalEvent goalEvent:
                     return new MatchEventDto
                     {
+                        Id = goalEvent.Id,
                         MatchEventType = MatchEventType.Goal,
                         MatchPeriod = goalEvent.MatchPeriod,
                         Minute = goalEvent.Minute,
@@ -107,6 +113,7 @@ namespace _101mngr.Grains
                 case RedCardEvent redCardEvent:
                     return new MatchEventDto
                     {
+                        Id = @event.Id,
                         MatchEventType = MatchEventType.RedCard,
                         MatchPeriod = redCardEvent.MatchPeriod,
                         Minute = redCardEvent.Minute,
@@ -116,6 +123,7 @@ namespace _101mngr.Grains
                 case SubstitutionEvent substitutionEvent:
                     return new MatchEventDto()
                     {
+                        Id = @event.Id,
                         MatchEventType = MatchEventType.Substitution,
                         MatchPeriod = substitutionEvent.MatchPeriod,
                         Minute = substitutionEvent.Minute,
@@ -126,6 +134,7 @@ namespace _101mngr.Grains
                 case TimeEvent timeEvent:
                     return new MatchEventDto
                     {
+                        Id = @event.Id,
                         MatchEventType = MatchEventType.Time,
                         Minute = timeEvent.Minute,
                         MatchPeriod = timeEvent.MatchPeriod
@@ -133,6 +142,7 @@ namespace _101mngr.Grains
                 case YellowCardEvent yellowCardEvent:
                     return new MatchEventDto
                     {
+                        Id = @event.Id,
                         MatchEventType = MatchEventType.YellowCard,
                         MatchPeriod = yellowCardEvent.MatchPeriod,
                         Minute = yellowCardEvent.Minute,

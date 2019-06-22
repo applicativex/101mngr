@@ -87,11 +87,16 @@ namespace _101mngr.Grains
         {
             Minute = @event.Minute;
             MatchPeriod = @event.MatchPeriod;
+            if (MatchPeriod == MatchPeriod.HalfTime || MatchPeriod == MatchPeriod.FullTime)
+            {
+                MatchEvents.Add(@event);
+            }
         }
     }
 
     public class GoalEvent : IMatchEvent
     {
+        public string Id { get; set; }
         public MatchPeriod MatchPeriod { get; set; }
         public int Minute { get; set; }
         public bool Home { get; set; }
@@ -100,6 +105,7 @@ namespace _101mngr.Grains
 
     public class YellowCardEvent : IMatchEvent
     {
+        public string Id { get; set; }
         public MatchPeriod MatchPeriod { get; set; }
         public int Minute { get; set; }
         public bool Home { get; set; }
@@ -108,6 +114,7 @@ namespace _101mngr.Grains
 
     public class RedCardEvent : IMatchEvent
     {
+        public string Id { get; set; }
         public MatchPeriod MatchPeriod { get; set; }
         public int Minute { get; set; }
         public bool Home { get; set; }
@@ -116,6 +123,7 @@ namespace _101mngr.Grains
 
     public class SubstitutionEvent : IMatchEvent
     {
+        public string Id { get; set; }
         public MatchPeriod MatchPeriod { get; set; }
         public int Minute { get; set; }
         public bool Home { get; set; }
@@ -125,12 +133,15 @@ namespace _101mngr.Grains
 
     public class TimeEvent : IMatchEvent
     {
+        public string Id { get; set; }
         public MatchPeriod MatchPeriod { get; set; }
         public int Minute { get; set; }
     }
 
     public interface IMatchEvent
     {
+        string Id { get; set; }  
+
         MatchPeriod MatchPeriod { get; set; }
 
         int Minute { get; set; }

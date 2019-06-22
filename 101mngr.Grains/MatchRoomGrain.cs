@@ -17,6 +17,7 @@ namespace _101mngr.Grains
         private MatchPlayer[] _virtualPlayers = new MatchPlayer[22];
         private readonly List<MatchPlayer> _players = new List<MatchPlayer>();
         private string _ownerId;
+        private bool _matchStarted;
 
         private Func<int, bool> _randomizer = x => x % 2 == 0;
             
@@ -39,6 +40,7 @@ namespace _101mngr.Grains
         {
             var result = new MatchRoomDto
             {
+                MatchStarted = _matchStarted,
                 MatchId = this.GetPrimaryKeyString(),
                 OwnerPlayerId =  _ownerId,
                 Players = _players.Select(Convert).ToArray(),
@@ -94,7 +96,11 @@ namespace _101mngr.Grains
             var awayTeamName = _randomTeamNames[random.Next(0, _randomTeamNames.Length - 1)];
             await RandomTeams();
             var matchGrain = GrainFactory.GetGrain<IMatchGrain>(this.GetPrimaryKeyString());
-            var zipPlayers = _virtualPlayers.Zip(_players, (x, y) => y ?? x).ToArray();
+            MatchPlayer[] zipPlayers = _virtualPlayers.ToArray();
+            for (int i = 0; i < _players.Count; i++)
+            {
+                zipPlayers[i] = _players[i];
+            }
             var homeTeam = new TeamDto
             {
                 Id = Guid.NewGuid().ToString(), 
@@ -116,6 +122,7 @@ namespace _101mngr.Grains
                 }).ToArray()
             };
             await matchGrain.Start(homeTeam, awayTeam);
+            _matchStarted = true;
             var matchRoomRegistryGrain = GrainFactory.GetGrain<IMatchRoomRegistryGrain>(0);
             await matchRoomRegistryGrain.RemoveMatchRoom(this.GetPrimaryKeyString());
         }

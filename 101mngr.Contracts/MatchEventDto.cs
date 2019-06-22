@@ -2,6 +2,8 @@
 {
     public class MatchEventDto
     {
+        public string Id { get; set; }  
+
         public string MatchId { get; set; } 
 
         public bool? Home { get; set; }

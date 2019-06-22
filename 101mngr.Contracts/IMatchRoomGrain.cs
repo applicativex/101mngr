@@ -25,6 +25,8 @@ namespace _101mngr.Contracts
 
         public MatchPlayerDto[] Players { get; set; }   
 
-        public MatchPlayerDto[] VirtualPlayers { get; set; }  
+        public MatchPlayerDto[] VirtualPlayers { get; set; }
+
+        public bool MatchStarted { get; set; }  
     }
 }
