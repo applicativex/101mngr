@@ -1,0 +1,50 @@
+version: '3.7'
+
+services:
+  mobile:
+    build:
+      context: .
+      dockerfile: 101mngr.Mobile/Dockerfile
+    ports:
+      - "19000:19000"
+      - "19001:19001"
+    depends_on:
+     - web-app
+    environment:
+      - REACT_NATIVE_PACKAGER_HOSTNAME=192.168.0.101
+
+  web-app:
+    build:
+      context: .
+      dockerfile: 101mngr.WebApp/Dockerfile
+    ports:
+      - "80:80"
+    depends_on: 
+        - host
+        - authorization-server
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Compose
+      - ASPNETCORE_URLS=http://*:80
+
+  authorization-server:
+    build:
+      context: .
+      dockerfile: 101mngr.AuthorizationServer/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Compose
+      - ASPNETCORE_URLS=http://*:80
+    depends_on: 
+      - db
+      
+  host:
+    build:
+      context: .
+      dockerfile: 101mngr.Host/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Compose
+      - ASPNETCORE_URLS=http://*:80
+    depends_on: 
+      - db
+
+  db:
+    image: postgres:9.6.9-alpine

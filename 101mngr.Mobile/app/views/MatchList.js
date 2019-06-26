@@ -91,7 +91,7 @@ export class MatchList extends React.Component {
         var suffix = item.matchPeriod == 2 ?
                         'HT' : item.matchPeriod == 4 ?
                                 'FT' : '';
-        return `${item.name} ${item.minute} ${suffix}'`.trim();
+        return `${item.name} ${item.minute}' ${suffix}`.trim();
     }
 
     invitePlayers = () =>{

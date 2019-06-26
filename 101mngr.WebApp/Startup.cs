@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Clustering.Kubernetes;
 using Orleans.Configuration;
+using Orleans.Hosting;
 using Orleans.Runtime;
 using Swashbuckle.AspNetCore.Swagger;
 using _101mngr.Contracts;
@@ -124,14 +126,12 @@ namespace _101mngr.WebApp
             {
                 app.UseDeveloperExceptionPage();
             }
+
             app.UseSwagger();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
             // specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "101mngr API V1");
-            });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "101mngr API V1"); });
 
             app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseAuthentication();
@@ -163,17 +163,19 @@ namespace _101mngr.WebApp
             {
                 return builder.UseLocalhostClustering();
             }
+            else if (hostingEnvironment.IsEnvironment("Compose"))
+            {
+                return builder.UseComposeClustering("host");
+            }
             else
             {
                 return builder.UseKubeGatewayListProvider(opt => { opt.Group = "orleans.dot.net"; });
             }
         }
 
-        public static IClientBuilder AddSimpleMessageStreamProvider(this IClientBuilder builder,
-            string name,
-            Action<OptionsBuilder<SimpleMessageStreamProviderOptions>> configureOptions = null)
+        public static IClientBuilder UseComposeClustering(this IClientBuilder builder, string siloServiceName)
         {
-            return  Orleans.Hosting.ClientStreamExtensions.AddSimpleMessageStreamProvider(builder, name, configureOptions);
+            return builder.UseStaticClustering(new IPEndPoint(Dns.GetHostEntry(siloServiceName).AddressList[0], 30000));
         }
     }
 }

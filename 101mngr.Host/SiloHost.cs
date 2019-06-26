@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Marten;
 using Marten.Events;
@@ -82,6 +83,10 @@ namespace _101mngr.Host
             {
                 return builder.UseLocalhostClustering();
             }
+            else if (hostingEnvironment.IsEnvironment("Compose"))
+            {
+                return builder.UseComposeClustering("host");
+            }
             else
             {
                 return builder.UseKubeMembership(opt =>
@@ -89,6 +94,20 @@ namespace _101mngr.Host
                     opt.Group = "orleans.dot.net";
                     opt.CanCreateResources = true;
                 });
+            }
+        }
+
+        public static ISiloHostBuilder UseComposeClustering(this ISiloHostBuilder builder, string siloServiceName)
+        {
+            return UseIntegrationClusteringImpl(
+                address: Dns.GetHostEntry(siloServiceName).AddressList[0],
+                siloPort: EndpointOptions.DEFAULT_SILO_PORT,
+                gatewayPort: EndpointOptions.DEFAULT_GATEWAY_PORT);
+
+            ISiloHostBuilder UseIntegrationClusteringImpl(IPAddress address, int siloPort, int gatewayPort)
+            {
+                return builder.UseLocalhostClustering(primarySiloEndpoint: new IPEndPoint(address, siloPort))
+                    .ConfigureEndpoints(siloPort: siloPort, gatewayPort: gatewayPort, advertisedIP: address);
             }
         }
     }
