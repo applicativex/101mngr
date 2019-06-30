@@ -2,74 +2,56 @@
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using Orleans;
 using _101mngr.Contracts;
 using _101mngr.Contracts.Models;
 
 namespace _101mngr.WebApp.Hubs
 {
+    /// <summary>
+    /// Match Hub
+    /// </summary>
     public class MatchHub : Hub
     {
-        private readonly MatchStream _matchStream;
+        private readonly MatchService _matchService;
 
-        public MatchHub(MatchStream matchStream)
+        public MatchHub(MatchService matchService)
         {
-            _matchStream = matchStream;
+            _matchService = matchService;
         }
 
-        public Task<MatchStateDto> GetMatch(Guid matchStreamId) => _matchStream.GetMatch(matchStreamId);
+        /// <summary>
+        /// Get match
+        /// </summary>
+        /// <param name="matchStreamId"></param>
+        /// <returns></returns>
+        public Task<MatchDto> GetMatch(Guid matchStreamId) => _matchService.GetMatch(matchStreamId);
 
+        /// <summary>
+        /// Get match events stream
+        /// </summary>
+        /// <param name="matchStreamId"></param>
+        /// <returns></returns>
         public Task<ChannelReader<MatchEventDto>> GetMatchStream(Guid matchStreamId)
         {
-            return _matchStream.GetMatchStream(matchStreamId);
+            return _matchService.GetMatchStream(matchStreamId);
         }
 
-        public Task<MatchDto[]> GetCurrentMatches()
+        /// <summary>
+        /// Get current matches
+        /// </summary>
+        /// <returns></returns>
+        public Task<MatchListItemDto[]> GetCurrentMatches()
         {
-            return _matchStream.GetCurrentMatches();
+            return _matchService.GetCurrentMatches();
         }
 
-        public Task<ChannelReader<MatchDto>> GetCurrentMatchesStream()
+        /// <summary>
+        /// Get current matches events stream
+        /// </summary>
+        /// <returns></returns>
+        public Task<ChannelReader<MatchListItemDto>> GetCurrentMatchesStream()
         {
-            return _matchStream.GetCurrentMatchesStream();
-        }
-    }
-
-    public class MatchStream
-    {
-        private readonly IClusterClient _clusterClient;
-
-        public MatchStream(IClusterClient clusterClient)
-        {
-            _clusterClient = clusterClient;
-        }
-            
-        public async Task<MatchDto[]> GetCurrentMatches()
-        {
-            var matchListGrain = _clusterClient.GetGrain<IMatchListGrain>(0);
-            var matches = await matchListGrain.GetCurrentMatches();
-            return matches;
-        }   
-
-        public Task<ChannelReader<MatchDto>> GetCurrentMatchesStream()
-        {
-            var streamProvider = _clusterClient.GetStreamProvider("SMSProvider");
-            var matchStream = streamProvider.GetStream<MatchDto>(Guid.Empty, "MatchList");
-            return matchStream.AsChannelReader();
-        }
-
-        public Task<ChannelReader<MatchEventDto>> GetMatchStream(Guid matchStreamId)
-        {
-            var streamProvider = _clusterClient.GetStreamProvider("SMSProvider");
-            var matchStream = streamProvider.GetStream<MatchEventDto>(matchStreamId, "Matches");
-            return matchStream.AsChannelReader();
-        }
-
-        public async Task<MatchStateDto> GetMatch(Guid matchStreamId)
-        {
-            var matchGrain = _clusterClient.GetGrain<IMatchGrain>(matchStreamId.ToString());
-            var matchStateDto = await matchGrain.GetMatchState();
-            return matchStateDto;
+            return _matchService.GetCurrentMatchesStream();
         }
     }
 }

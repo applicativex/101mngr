@@ -70,7 +70,7 @@ namespace _101mngr.WebApp
             services.AddSingleton<LeagueService>();
             services.AddSingleton<LeagueDbContext>();
 
-            services.AddSingleton<MatchStream>();
+            services.AddSingleton<MatchService>();
             services.AddSingleton<MatchRoomService>();
             services.AddSignalR();
         }

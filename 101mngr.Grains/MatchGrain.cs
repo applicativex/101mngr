@@ -29,43 +29,18 @@ namespace _101mngr.Grains
             var streamProvider = GetStreamProvider("SMSProvider");
 
             _stream = streamProvider.GetStream<MatchEventDto>(_streamId, "Matches");
-            State = new MatchState {Id = MatchId, Players = new List<PlayerDataDto>()};
+            State = new MatchState {Id = MatchId};
             return base.OnActivateAsync();
         }
 
-        public Task<MatchInfoDto> GetMatchInfo()
+        public Task<MatchDto> GetMatchState()
         {
-            return Task.FromResult(new MatchInfoDto
-            {
-                Id = MatchId, Name = State.Name, CreatedAt = DateTime.UtcNow, Players = State.Players.ToArray()
-            });
-        }
-
-        public Task<MatchStateDto> GetMatchState()
-        {
-            return Task.FromResult(new MatchStateDto
-            {
-                Id = State.Id,
-                Name = State.Name,
-                StartTime = State.StartTime,
-                Minute = State.Minute,
-                MatchPeriod = State.MatchPeriod,
-                Goals = State.Goals.ToDto(),
-                YellowCards = State.YellowCards.ToDto(),
-                RedCards = State.RedCards.ToDto(),
-                HomeTeam = State.HomeTeam.ToDto(),
-                AwayTeam = State.AwayTeam.ToDto(),
-                MatchEvents = State.MatchEvents
-                    .Select(x => x.ToDto())
-                    .OrderByDescending(x => x.MatchPeriod)
-                    .ThenByDescending(x => x.Minute)
-                    .ToList()
-            });
+            return Task.FromResult(State.ToDto());
         }
 
         public async Task Start(TeamDto homeTeam, TeamDto awayTeam)
         {
-            var matchRegistryGrain = GrainFactory.GetGrain<IMatchListGrain>(0);
+            var matchRegistryGrain = GrainFactory.GetGrain<IMatchRegistryGrain>(0);
             State.HomeTeam = new Team
             {
                 Id = homeTeam.Id,
@@ -96,16 +71,11 @@ namespace _101mngr.Grains
 
         public async Task FinishMatch()
         {
-            foreach (var player in State.Players)
-            {
-                if (!player.IsVirtual)
-                {
-                    await PlayerHistory(player);
-                }
-            }
+            var matchHistoryGrain = GrainFactory.GetGrain<IMatchHistoryGrain>(0);
+            await matchHistoryGrain.AddMatchHistory(State.ToDto());
 
-            var matchRegistryGrain = GrainFactory.GetGrain<IMatchListGrain>(0);
-            await matchRegistryGrain.Remove(MatchId);
+            var matchRegistryGrain = GrainFactory.GetGrain<IMatchRegistryGrain>(0);
+            await matchRegistryGrain.RemoveMatch(MatchId);
         }
 
         private Task HandleMatchEvent(MatchEventDto matchEventDto)
@@ -134,22 +104,6 @@ namespace _101mngr.Grains
             }
 
             return _stream.OnNextAsync(matchEventDto);
-        }
-
-        private async Task PlayerHistory(PlayerDataDto dto)
-        {
-            if (dto.IsVirtual)
-            {
-                return;
-            }
-
-            var playerGrain = GrainFactory.GetGrain<IPlayerGrain>(dto.Id.Value);
-            await playerGrain.AddMatchHistory(new MatchDto()
-            {
-                Id = MatchId,
-                Name = State.Name,
-                CreatedAt = State.CreatedAt
-            });
         }
 
         private async Task MatchTimerImpl(object state)

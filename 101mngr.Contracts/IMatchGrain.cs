@@ -6,9 +6,7 @@ namespace _101mngr.Contracts
 {
     public interface IMatchGrain : IGrainWithStringKey
     {
-        Task<MatchInfoDto> GetMatchInfo();
-
-        Task<MatchStateDto> GetMatchState();
+        Task<MatchDto> GetMatchState();
 
         Task Start(TeamDto homeTeam, TeamDto awayTeam);
 

@@ -1,24 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using _101mngr.Contracts.Enums;
-using _101mngr.Contracts.Models;
 
 namespace _101mngr.Grains
 {
     public class PlayerState
     {
-        public PlayerState()
-        {
-            MatchHistory = new List<MatchDto>();
-        }
-
         public string Id { get; set; }
 
         public string UserName { get; set; }
 
         public string Email { get; set; }
-
-        public List<MatchDto> MatchHistory { get; set; }
 
         public string FirstName { get; set; }
 
@@ -61,22 +52,10 @@ namespace _101mngr.Grains
             Version++;
         }
 
-        public void Apply(MatchPlayed @event)
-        {
-            MatchHistory.Add(new MatchDto
-            {
-                Id = @event.Id, Name = @event.Name, CreatedAt = @event.CreatedAt
-            });
-            Version++;
-        }
-
         public void Apply(IPlayerEvent @event)
         {
             switch (@event)
             {
-                case MatchPlayed matchPlayed:
-                    Apply(matchPlayed);
-                    break;
                 case PlayerCreated playerCreated:
                     Apply(playerCreated);
                     break;
@@ -133,11 +112,6 @@ namespace _101mngr.Grains
         public string CountryCode { get; set; }
     }
 
-    public class PlayerLevelRaised : IPlayerEvent
-    {
-        public int LevelRaise { get; set; }
-    }
-
     public class ProfileInfoChanged : IPlayerEvent
     {
         public string FirstName { get; set; }
@@ -153,16 +127,5 @@ namespace _101mngr.Grains
         public double Weight { get; set; }
 
         public PlayerType PlayerType { get; set; }
-    }
-
-    public class MatchPlayed : IPlayerEvent
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public string[] Players { get; set; }
     }
 }

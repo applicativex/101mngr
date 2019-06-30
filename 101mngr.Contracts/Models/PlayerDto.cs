@@ -5,10 +5,8 @@ namespace _101mngr.Contracts.Models
 {
     public class PlayerDto
     {   
-        public string Id { get; set; }
-
-        public long AccountId { get; set; }
-
+        public long Id { get; set; }
+       
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
@@ -21,14 +19,10 @@ namespace _101mngr.Contracts.Models
 
         public double Weight { get; set; }
 
-        public int Aggression { get; set; } 
-
-        public int Experience { get; set; }
-
-        public decimal WalletBalance { get; set; }
-
         public PlayerType PlayerType { get; set; }
 
         public int Level { get; set; }
+
+        public AcquiredSkillsDto AcquiredSkills { get; set; }   
     }
 }

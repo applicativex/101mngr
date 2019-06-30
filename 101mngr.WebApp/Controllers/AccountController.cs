@@ -36,16 +36,16 @@ namespace _101mngr.WebApp.Controllers
         public async Task<IActionResult> GetId(long accountId)
         {
             var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
-            var result = await playerGrain.GetPlayer();
-            return Ok(result);
+            var result = await playerGrain.GetPlayerInfo();
+            return Ok(result.Id);
         }
 
         [HttpGet("match-history")]
         public async Task<IActionResult> GetMatchHistory()
         {
             var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
-            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
-            var matchHistory = await playerGrain.GetMatchHistory();
+            var matchHistoryGrain = _clusterClient.GetGrain<IMatchHistoryGrain>(0);
+            var matchHistory = await matchHistoryGrain.GetPlayerMatches(accountId);
             return Ok(matchHistory);
         }
 
@@ -62,11 +62,7 @@ namespace _101mngr.WebApp.Controllers
                 var accountId =
                     await _authorizationService.Register(inputModel.UserName, inputModel.Email, inputModel.Password);
                 var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
-                await playerGrain.Create(new CreatePlayerDto
-                {
-                    UserName = inputModel.UserName,
-                    Email = inputModel.Email
-                });
+                await playerGrain.Create(inputModel.UserName, inputModel.Email);
                 return Ok(new { Id = accountId });
             }
             catch (Exception e)
@@ -77,22 +73,21 @@ namespace _101mngr.WebApp.Controllers
         }
 
         [HttpPut("profile")]
-        public async Task<IActionResult> ProfileInfo([FromBody]ProfileInfoInputModel inputModel)
+        public async Task<IActionResult> UpdateProfileInfo([FromBody]ProfileInfoInputModel inputModel)
         {
             try
             {
                 var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
                 var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
-                await playerGrain.ProfileInfo(new ProfileInfoDto
-                {
-                    FirstName = inputModel.FirstName,
-                    LastName = inputModel.LastName,
-                    DateOfBirth = inputModel.DateOfBirth,
-                    CountryCode = inputModel.CountryCode,
-                    Weight = inputModel.Weight,
-                    Height = inputModel.Height,
-                    PlayerType = inputModel.PlayerType
-                });
+                await playerGrain.UpdateProfileInfo(
+                    inputModel.FirstName,
+                    inputModel.LastName,
+                    inputModel.DateOfBirth,
+                    inputModel.CountryCode,
+                    inputModel.PlayerType,
+                    inputModel.Weight,
+                    inputModel.Height
+                );
                 return Ok();
             }
             catch (Exception e)

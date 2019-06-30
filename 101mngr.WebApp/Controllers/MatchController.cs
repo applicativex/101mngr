@@ -27,20 +27,11 @@ namespace _101mngr.WebApp.Controllers
         [HttpGet("")]
         public async Task<IActionResult> GetCurrentMatches(bool finished)
         {
-            var matchListGrain = _clusterClient.GetGrain<IMatchListGrain>(0);
+            var matchListGrain = _clusterClient.GetGrain<IMatchRegistryGrain>(0);
             var matches = !finished
                 ? await matchListGrain.GetCurrentMatches()
                 : await matchListGrain.GetFinishedMatches();
             return Ok(matches);
-        }
-
-        [AllowAnonymous]
-        [HttpGet("{matchId}")]
-        public async Task<IActionResult> GetMatches(string matchId)
-        {
-            var matchGrain = _clusterClient.GetGrain<IMatchGrain>(matchId);
-            var matchInfo = await matchGrain.GetMatchInfo();
-            return Ok(matchInfo);
         }
 
         [HttpPost("new")]
@@ -52,15 +43,6 @@ namespace _101mngr.WebApp.Controllers
             var playerInfo = await playerGrain.GetPlayerInfo();
             await _matchRoomService.NewMatchRoom(
                 matchId, accountId, GetFullName(playerInfo.FirstName, playerInfo.LastName));
-            return Ok(new { Id = matchId });
-        }
-
-        [HttpPost("random")]
-        public async Task<IActionResult> RandomMatch()
-        {
-            var accountId = long.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value);
-            var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
-            var matchId = await playerGrain.RandomMatch();
             return Ok(new { Id = matchId });
         }
 

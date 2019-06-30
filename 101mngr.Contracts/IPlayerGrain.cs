@@ -1,32 +1,22 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Orleans;
+using _101mngr.Contracts.Enums;
 using _101mngr.Contracts.Models;
 
 namespace _101mngr.Contracts
 {
     public interface IPlayerGrain : IGrainWithIntegerKey
     {
-        Task<long> GetPlayer();
+        Task Create(string userName, string email);
 
-        Task Create(CreatePlayerDto request);
-
-        Task ProfileInfo(ProfileInfoDto dto);
+        Task UpdateProfileInfo(string firstName, string lastName, DateTime dateOfBirth, string countryCode, PlayerType playerType, double height, double weight);
 
         Task<PlayerDto> GetPlayerInfo();
-
-        Task<string> NewMatch(string matchName);
-
-        Task<MatchDto[]> GetMatchHistory();
-
-        Task AddMatchHistory(MatchDto match);
-
-        Task<string> RandomMatch();
 
         Task StartTraining();
 
         Task<TrainingResultDto> GetCurrentTraining();
-
-        Task FinishTraining();
 
         Task<TrainingResultDto> TrainPassing();
 
@@ -35,5 +25,8 @@ namespace _101mngr.Contracts
         Task<TrainingResultDto> TrainDribbling();
 
         Task<TrainingResultDto> TrainCoverage();
+
+        Task FinishTraining();
     }
 }
+    

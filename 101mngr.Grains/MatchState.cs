@@ -38,9 +38,29 @@ namespace _101mngr.Grains
 
         public Team AwayTeam { get; set; }
 
-        public List<PlayerDataDto> Players { get; set; }
-
         public List<IMatchEvent> MatchEvents { get; set; }
+
+        public MatchDto ToDto()
+        {
+            return new MatchDto
+            {
+                Id = Id,
+                Name = Name,
+                StartTime = StartTime,
+                Minute = Minute,
+                MatchPeriod = MatchPeriod,
+                Goals = Goals.ToDto(),
+                YellowCards = YellowCards.ToDto(),
+                RedCards = RedCards.ToDto(),
+                HomeTeam = HomeTeam.ToDto(),
+                AwayTeam = AwayTeam.ToDto(),
+                MatchEvents = MatchEvents
+                    .Select(x => x.ToDto())
+                    .OrderByDescending(x => x.MatchPeriod)
+                    .ThenByDescending(x => x.Minute)
+                    .ToList()
+            };
+        }
 
         public void Apply(GoalEvent @event)
         {

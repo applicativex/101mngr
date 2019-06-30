@@ -9,9 +9,9 @@ using _101mngr.Contracts.Models;
 
 namespace _101mngr.Grains
 {
-    public class MatchListGrain : Grain, IMatchListGrain
+    public class MatchRegistryGrain : Grain, IMatchRegistryGrain
     {
-        private IAsyncStream<MatchDto> _matchListStream;
+        private IAsyncStream<MatchListItemDto> _matchListStream;
         private readonly Dictionary<Guid, StreamSubscriptionHandle<MatchEventDto>> _matchStreams = new Dictionary<Guid, StreamSubscriptionHandle<MatchEventDto>>();
 
         private readonly Dictionary<string, MatchListItem> _matches = new Dictionary<string, MatchListItem>();
@@ -20,11 +20,11 @@ namespace _101mngr.Grains
         public override Task OnActivateAsync()
         {
             var streamProvider = GetStreamProvider("SMSProvider");
-            _matchListStream = streamProvider.GetStream<MatchDto>(Guid.Empty, "MatchList");
+            _matchListStream = streamProvider.GetStream<MatchListItemDto>(Guid.Empty, "MatchList");
             return base.OnActivateAsync();
         }
 
-        public Task<MatchDto[]> GetCurrentMatches()
+        public Task<MatchListItemDto[]> GetCurrentMatches()
         {
             var result = _matches.Values
                 .Select(x => ToMatchDto(x, MatchListEventType.None))
@@ -33,7 +33,7 @@ namespace _101mngr.Grains
             return Task.FromResult(result);
         }
 
-        public Task<MatchDto[]> GetFinishedMatches()
+        public Task<MatchListItemDto[]> GetFinishedMatches()
         {
             var result = _finishedMatches
                 .Select(x => ToMatchDto(x, MatchListEventType.None))
@@ -61,7 +61,7 @@ namespace _101mngr.Grains
             _matchStreams[matchStreamId] = subscriptionHandle;
         }
 
-        public async Task Remove(string matchId)
+        public async Task RemoveMatch(string matchId)
         {
             if (_matches.TryGetValue(matchId, out var matchItem))
             {
@@ -104,9 +104,9 @@ namespace _101mngr.Grains
             }
         }
 
-        private static MatchDto ToMatchDto(MatchListItem matchItem, MatchListEventType eventType)
+        private static MatchListItemDto ToMatchDto(MatchListItem matchItem, MatchListEventType eventType)
         {
-            return new MatchDto
+            return new MatchListItemDto
             {
                 Id = matchItem.MatchId,
                 Name = $"{matchItem.HomeTeam.Name} - {matchItem.AwayTeam.Name}",

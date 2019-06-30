@@ -43,8 +43,7 @@ namespace _101mngr.Host
                         _.Events.AddEventTypes(new[]
                         {
                             typeof(PlayerCreated),
-                            typeof(ProfileInfoChanged),
-                            typeof(MatchPlayed),
+                            typeof(ProfileInfoChanged)
                         });
                         // _.Events.InlineProjections.AggregateStreamsWith<PlayerState>();
                     });
@@ -52,6 +51,7 @@ namespace _101mngr.Host
                     services.AddSingleton<IEventStorage, MartenEventStorage>();
                     services.AddSingleton<LeagueDbContext>();
                     services.AddSingleton<LeagueService>();
+                    services.AddSingleton<IMatchHistoryRepository, MatchHistoryRepository>();
                 })
                 .ConfigureClustering(hostingEnvironment)
                 .ConfigureApplicationParts(parts =>
