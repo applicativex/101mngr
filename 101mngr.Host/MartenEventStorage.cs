@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Marten;
 using Microsoft.Extensions.Logging;
 using _101mngr.Contracts;
+using _101mngr.Domain;
+using _101mngr.Domain.Abstractions;
 
 namespace _101mngr.Host
 {

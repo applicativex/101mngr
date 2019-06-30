@@ -6,7 +6,7 @@ namespace _101mngr.Contracts
 {
     public interface IMatchHistoryGrain : IGrainWithIntegerKey
     {
-        Task AddMatchHistory(MatchDto match);
+        Task AddMatchHistory(MatchDto dto);
 
         Task<MatchDto[]> GetPlayerMatches(long playerId);
     }

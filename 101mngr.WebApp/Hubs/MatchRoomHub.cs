@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using _101mngr.Contracts;
+using _101mngr.Contracts.Models;
 
 namespace _101mngr.WebApp.Hubs
 {

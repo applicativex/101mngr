@@ -40,7 +40,7 @@ namespace _101mngr.WebApp.Hubs
         public async Task<MatchDto> GetMatch(Guid matchStreamId)
         {
             var matchGrain = _clusterClient.GetGrain<IMatchGrain>(matchStreamId.ToString());
-            var matchStateDto = await matchGrain.GetMatchState();
+            var matchStateDto = await matchGrain.GetMatchInfo();
             return matchStateDto;
         }
     }

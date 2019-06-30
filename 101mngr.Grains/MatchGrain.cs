@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Orleans;
 using _101mngr.Contracts;
-using _101mngr.Contracts.Enums;
 using _101mngr.Contracts.Models;
 using System.Linq;
 using Orleans.Concurrency;
 using Orleans.Streams;
+using _101mngr.Domain;
+using _101mngr.Domain.Enums;
+using Team = _101mngr.Domain.Team;
 
 namespace _101mngr.Grains
 {
@@ -15,7 +16,7 @@ namespace _101mngr.Grains
     public class MatchGrain : Grain, IMatchGrain
     {
         private string MatchId => this.GetPrimaryKeyString();
-        private MatchState State;
+        private Match State;
         private IAsyncStream<MatchEventDto> _stream;
         private Guid _streamId;
         private IDisposable _matchTimer;
@@ -29,11 +30,11 @@ namespace _101mngr.Grains
             var streamProvider = GetStreamProvider("SMSProvider");
 
             _stream = streamProvider.GetStream<MatchEventDto>(_streamId, "Matches");
-            State = new MatchState {Id = MatchId};
+            State = new Match {Id = MatchId};
             return base.OnActivateAsync();
         }
 
-        public Task<MatchDto> GetMatchState()
+        public Task<MatchDto> GetMatchInfo()
         {
             return Task.FromResult(State.ToDto());
         }
@@ -50,7 +51,7 @@ namespace _101mngr.Grains
                     Id = x.Id,
                     Name = x.Name,
                     Bench = x.Bench,
-                    PlayerType = x.PlayerType
+                    PlayerType = (PlayerType) x.PlayerType
                 }).ToList()
             };
             State.AwayTeam = new Team
@@ -62,11 +63,11 @@ namespace _101mngr.Grains
                     Id = x.Id,
                     Name = x.Name,
                     Bench = x.Bench,
-                    PlayerType = x.PlayerType
+                    PlayerType = (PlayerType) x.PlayerType
                 }).ToList()
             };
             await matchRegistryGrain.AddMatch(MatchId, homeTeam, awayTeam);
-             _matchTimer = RegisterTimer(MatchTimerImpl, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+            _matchTimer = RegisterTimer(MatchTimerImpl, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
         }
 
         public async Task FinishMatch()
@@ -80,7 +81,7 @@ namespace _101mngr.Grains
 
         private Task HandleMatchEvent(MatchEventDto matchEventDto)
         {
-            switch (matchEventDto.MatchEventType)
+            switch ((MatchEventType) matchEventDto.MatchEventType)
             {
                 case MatchEventType.None:
                     break;
@@ -119,9 +120,9 @@ namespace _101mngr.Grains
 
             if (!_halfTime)
             {
-                var matchEventDto = GoalEvent(_matchClock.MatchPeriod, _matchClock.Minute)
-                                    ?? YellowCard(_matchClock.MatchPeriod, _matchClock.Minute)
-                                    ?? RedCard(_matchClock.MatchPeriod, _matchClock.Minute)
+                var matchEventDto = RandomGoalEvent(_matchClock.MatchPeriod, _matchClock.Minute)
+                                    ?? RandomYellowCard(_matchClock.MatchPeriod, _matchClock.Minute)
+                                    ?? RandomRedCard(_matchClock.MatchPeriod, _matchClock.Minute)
                                     ?? TimeEvent();
                 await HandleMatchEvent(matchEventDto);
 
@@ -140,9 +141,9 @@ namespace _101mngr.Grains
                     await HandleMatchEvent(new MatchEventDto
                     {
                         Id = Guid.NewGuid().ToString(),
-                        MatchPeriod = _matchClock.MatchPeriod,
+                        MatchPeriod = (int) _matchClock.MatchPeriod,
                         Minute = _matchClock.Minute,
-                        MatchEventType = MatchEventType.Time,
+                        MatchEventType = (int) MatchEventType.Time,
                         MatchId = this.GetPrimaryKeyString(),
                         Home = null,
                     });
@@ -153,21 +154,20 @@ namespace _101mngr.Grains
             }
         }
 
-
         private MatchEventDto TimeEvent()
         {
             return new MatchEventDto
             {
                 Id = Guid.NewGuid().ToString(),
-                MatchPeriod = _matchClock.MatchPeriod,
+                MatchPeriod = (int) _matchClock.MatchPeriod,
                 Minute = _matchClock.Minute,
-                MatchEventType = MatchEventType.Time,
+                MatchEventType = (int) MatchEventType.Time,
                 MatchId = this.GetPrimaryKeyString(),
                 Home = null,
             };
         }
 
-        private MatchEventDto GoalEvent(MatchPeriod matchPeriod, int minute)
+        private MatchEventDto RandomGoalEvent(MatchPeriod matchPeriod, int minute)
         {
             var rnd = new Random();
             if (rnd.Next(1, 100) % 13 == 0)
@@ -179,17 +179,18 @@ namespace _101mngr.Grains
                 {
                     Id = Guid.NewGuid().ToString(),
                     Home = home,
-                    MatchPeriod = matchPeriod,
+                    MatchPeriod = (int) matchPeriod,
                     MatchId = State.Id,
                     Minute = minute,
-                    MatchEventType = MatchEventType.Goal,
+                    MatchEventType = (int) MatchEventType.Goal,
                     PlayerId = player.Id
                 };
             }
-            return null;    
+
+            return null;
         }
 
-        private MatchEventDto YellowCard(MatchPeriod matchPeriod, int minute)
+        private MatchEventDto RandomYellowCard(MatchPeriod matchPeriod, int minute)
         {
             var rnd = new Random();
             if (rnd.Next(1, 100) % 19 == 0)
@@ -201,17 +202,18 @@ namespace _101mngr.Grains
                 {
                     Id = Guid.NewGuid().ToString(),
                     Home = home,
-                    MatchPeriod = matchPeriod,
+                    MatchPeriod = (int) matchPeriod,
                     MatchId = State.Id,
                     Minute = minute,
-                    MatchEventType = MatchEventType.YellowCard,
+                    MatchEventType = (int) MatchEventType.YellowCard,
                     PlayerId = player.Id
                 };
             }
+
             return null;
         }
 
-        private MatchEventDto RedCard(MatchPeriod matchPeriod, int minute)
+        private MatchEventDto RandomRedCard(MatchPeriod matchPeriod, int minute)
         {
             var rnd = new Random();
             if (rnd.Next(1, 100) % 37 == 0)
@@ -223,58 +225,15 @@ namespace _101mngr.Grains
                 {
                     Id = Guid.NewGuid().ToString(),
                     Home = home,
-                    MatchPeriod = matchPeriod,
+                    MatchPeriod = (int) matchPeriod,
                     MatchId = State.Id,
                     Minute = minute,
-                    MatchEventType = MatchEventType.RedCard,
+                    MatchEventType = (int) MatchEventType.RedCard,
                     PlayerId = player.Id
                 };
             }
+
             return null;
         }
-    }
-
-    // player joined
-    // player leaved
-    // players shuffled
-
-    public struct Score
-    {
-        public Score(int home, int away)
-        {
-            Home = home;
-            Away = away;
-        }
-
-        public int Home { get; }
-
-        public int Away { get; }
-
-        public Score HomeIncrement() => new Score(Home + 1, Away);
-        public Score AwayIncrement() => new Score(Home, Away + 1);
-    }
-
-    public class Team
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public IReadOnlyList<MatchPlayer> Players { get; set; }
-    }
-
-    public class MatchPlayer
-    {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public bool? Home { get; set; }
-
-        public bool Bench { get; set; }
-
-        public PlayerType PlayerType { get; set; }
-
-        public bool IsVirtual { get; set; } 
     }
 }

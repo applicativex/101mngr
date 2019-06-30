@@ -3,7 +3,10 @@ using System.Threading.Tasks;
 using Orleans;
 using _101mngr.Contracts;
 using _101mngr.Contracts.Models;
-using _101mngr.Contracts.Enums;
+using _101mngr.Domain;
+using _101mngr.Domain.Abstractions;
+using _101mngr.Domain.Enums;
+using _101mngr.Domain.Events;
 
 namespace _101mngr.Grains
 {
@@ -11,9 +14,7 @@ namespace _101mngr.Grains
     {
         private readonly IEventStorage _eventStorage;
 
-        private TrainingResultDto CurrentTraining { get; set; }
-
-        private PlayerState State { get; set; }
+        private Player State { get; set; }  
 
         public PlayerGrain(IEventStorage eventStorage)
         {
@@ -22,7 +23,7 @@ namespace _101mngr.Grains
 
         public override async Task OnActivateAsync()
         {
-            State = (await _eventStorage.GetStreamState<PlayerState>(this.GetPrimaryKeyLong().ToString())).Value;
+            State = (await _eventStorage.GetStreamState<Player>(this.GetPrimaryKeyLong().ToString())).Value;
             await base.OnActivateAsync();
         }
 
@@ -34,11 +35,11 @@ namespace _101mngr.Grains
             });
         }
 
-        public async Task UpdateProfileInfo(string firstName, string lastName, DateTime dateOfBirth, string countryCode, PlayerType playerType, double height, double weight)
+        public async Task UpdateProfileInfo(string firstName, string lastName, DateTime dateOfBirth, string countryCode, int playerType, double height, double weight)
         {
             var profileInfoChanged = new ProfileInfoChanged
             {
-                CountryCode = countryCode, PlayerType = playerType, FirstName = firstName,
+                CountryCode = countryCode, PlayerType = (PlayerType)playerType, FirstName = firstName,
                 LastName = lastName, DateOfBirth = dateOfBirth, Weight = weight, Height = height
             };
             await RaiseEvent(profileInfoChanged);
@@ -46,144 +47,48 @@ namespace _101mngr.Grains
 
         public Task<PlayerDto> GetPlayerInfo()
         {
-            var result = new PlayerDto
-            {
-                Id = long.Parse(State.Id),
-                FirstName = State.FirstName,
-                LastName = State.LastName,
-                BirthDate = State.DateOfBirth,
-                Height = State.Height,
-                Weight = State.Weight,
-                CountryCode = State.CountryCode,
-                Level = State.Level,
-                PlayerType = State.PlayerType
-            };
-            return Task.FromResult(result);
+            return Task.FromResult(State.ToDto());
         }
 
         public Task StartTraining()
         {
-            CurrentTraining = new TrainingResultDto();
+            State.ResetTraining();
             return Task.CompletedTask;
-        }
-
-        public Task<TrainingResultDto> GetCurrentTraining()
-        {
-            var result = CurrentTraining != null
-                ? new TrainingResultDto()
-                {
-                    CoverageDelta = CurrentTraining.CoverageDelta,
-                    DribblingDelta = CurrentTraining.DribblingDelta,
-                    EnduranceDelta = CurrentTraining.EnduranceDelta,
-                    HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
-                    HittingPowerDelta = CurrentTraining.HittingPowerDelta,
-                    PassingDelta = CurrentTraining.PassingDelta,
-                    ReceivingDelta = CurrentTraining.ReceivingDelta,
-                    TackleDelta = CurrentTraining.TackleDelta
-                }
-                : new TrainingResultDto();
-            return Task.FromResult(result);
-        }
-
-        public Task<TrainingResultDto> TrainPassing()
-        {
-            if (CurrentTraining == null)
-            {
-                CurrentTraining = new TrainingResultDto();
-            }
-            CurrentTraining.PassingDelta++;
-            return Task.FromResult(new TrainingResultDto
-            {
-                CoverageDelta = CurrentTraining.CoverageDelta,
-                DribblingDelta = CurrentTraining.DribblingDelta,
-                EnduranceDelta = CurrentTraining.EnduranceDelta,
-                HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
-                HittingPowerDelta = CurrentTraining.HittingPowerDelta,
-                PassingDelta = CurrentTraining.PassingDelta,
-                ReceivingDelta = CurrentTraining.ReceivingDelta,
-                TackleDelta = CurrentTraining.TackleDelta
-            });
-        }
-
-        public Task<TrainingResultDto> TrainEndurance()
-        {
-            if (CurrentTraining == null)
-            {
-                CurrentTraining = new TrainingResultDto();
-            }
-            CurrentTraining.EnduranceDelta++;
-            return Task.FromResult(new TrainingResultDto()
-            {
-                CoverageDelta = CurrentTraining.CoverageDelta,
-                DribblingDelta = CurrentTraining.DribblingDelta,
-                EnduranceDelta = CurrentTraining.EnduranceDelta,
-                HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
-                HittingPowerDelta = CurrentTraining.HittingPowerDelta,
-                PassingDelta = CurrentTraining.PassingDelta,
-                ReceivingDelta = CurrentTraining.ReceivingDelta,
-                TackleDelta = CurrentTraining.TackleDelta
-            });
-        }
-
-        public Task<TrainingResultDto> TrainDribbling()
-        {
-            if (CurrentTraining == null)
-            {
-                CurrentTraining = new TrainingResultDto();
-            }
-            CurrentTraining.DribblingDelta++;
-            return Task.FromResult(new TrainingResultDto()
-            {
-                CoverageDelta = CurrentTraining.CoverageDelta,
-                DribblingDelta = CurrentTraining.DribblingDelta,
-                EnduranceDelta = CurrentTraining.EnduranceDelta,
-                HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
-                HittingPowerDelta = CurrentTraining.HittingPowerDelta,
-                PassingDelta = CurrentTraining.PassingDelta,
-                ReceivingDelta = CurrentTraining.ReceivingDelta,
-                TackleDelta = CurrentTraining.TackleDelta
-            });
-        }
-
-        public Task<TrainingResultDto> TrainCoverage()
-        {
-            if (CurrentTraining == null)
-            {
-                CurrentTraining = new TrainingResultDto();
-            }
-            CurrentTraining.CoverageDelta++;
-            return Task.FromResult(new TrainingResultDto()
-            {
-                CoverageDelta = CurrentTraining.CoverageDelta,
-                DribblingDelta = CurrentTraining.DribblingDelta,
-                EnduranceDelta = CurrentTraining.EnduranceDelta,
-                HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
-                HittingPowerDelta = CurrentTraining.HittingPowerDelta,
-                PassingDelta = CurrentTraining.PassingDelta,
-                ReceivingDelta = CurrentTraining.ReceivingDelta,
-                TackleDelta = CurrentTraining.TackleDelta
-            });
         }
 
         public async Task FinishTraining()
         {
-            if (CurrentTraining == null)
-            {
-                CurrentTraining = new TrainingResultDto();
-            }
-            var playerAcquiredSkillsChanged = new PlayerAcquiredSkillsChanged
-            {
-                CoverageDelta = CurrentTraining.CoverageDelta,
-                DribblingDelta = CurrentTraining.DribblingDelta,
-                EnduranceDelta = CurrentTraining.EnduranceDelta,
-                HittingAccuracyDelta = CurrentTraining.HittingAccuracyDelta,
-                HittingPowerDelta = CurrentTraining.HittingPowerDelta,
-                PassingDelta = CurrentTraining.PassingDelta,
-                ReceivingDelta = CurrentTraining.ReceivingDelta,
-                TackleDelta = CurrentTraining.TackleDelta
-            };
-            await RaiseEvent(playerAcquiredSkillsChanged);
-            CurrentTraining = null;
+            await RaiseEvent(PlayerAcquiredSkillsChanged.From(State.CurrentTraining));
+            State.ResetTraining();
+        }
+
+        public Task<TrainingDto> GetCurrentTraining()
+        {
+            return Task.FromResult(State.CurrentTraining.ToDto());
+        }
+
+        public Task<TrainingDto> TrainPassing()
+        {
+            State.TrainPassing();
+            return Task.FromResult(State.CurrentTraining.ToDto());
+        }
+
+        public Task<TrainingDto> TrainEndurance()
+        {
+            State.TrainEndurance();
+            return Task.FromResult(State.CurrentTraining.ToDto());
+        }
+
+        public Task<TrainingDto> TrainDribbling()
+        {
+            State.TrainDribbling();
+            return Task.FromResult(State.CurrentTraining.ToDto());
+        }
+
+        public Task<TrainingDto> TrainCoverage()
+        {
+            State.TrainCoverage();
+            return Task.FromResult(State.CurrentTraining.ToDto());
         }
 
         private async Task RaiseEvent(IPlayerEvent @event)

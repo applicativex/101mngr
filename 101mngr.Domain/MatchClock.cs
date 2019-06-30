@@ -1,7 +1,7 @@
 ﻿using System;
-using _101mngr.Contracts;
+using _101mngr.Domain.Enums;
 
-namespace _101mngr.Grains
+namespace _101mngr.Domain
 {
     public class MatchClock
     {

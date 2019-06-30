@@ -1,4 +1,4 @@
-﻿namespace _101mngr.Contracts
+﻿namespace _101mngr.Contracts.Models
 {
     public class MatchEventDto
     {
@@ -10,12 +10,12 @@
 
         public string PlayerId { get; set; }
 
-        public MatchEventType MatchEventType { get; set; }
+        public int MatchEventType { get; set; }
 
         public string SubstitutionPlayerId { get; set; }
 
         public int Minute { get; set; }
 
-        public MatchPeriod MatchPeriod { get; set; }    
+        public int MatchPeriod { get; set; }    
     }
 }

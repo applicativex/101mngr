@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Orleans;
-using _101mngr.Contracts.Enums;
 using _101mngr.Contracts.Models;
 
 namespace _101mngr.Contracts
@@ -10,21 +9,21 @@ namespace _101mngr.Contracts
     {
         Task Create(string userName, string email);
 
-        Task UpdateProfileInfo(string firstName, string lastName, DateTime dateOfBirth, string countryCode, PlayerType playerType, double height, double weight);
+        Task UpdateProfileInfo(string firstName, string lastName, DateTime dateOfBirth, string countryCode, int playerType, double height, double weight);
 
         Task<PlayerDto> GetPlayerInfo();
 
         Task StartTraining();
 
-        Task<TrainingResultDto> GetCurrentTraining();
+        Task<TrainingDto> GetCurrentTraining();
 
-        Task<TrainingResultDto> TrainPassing();
+        Task<TrainingDto> TrainPassing();
 
-        Task<TrainingResultDto> TrainEndurance();
+        Task<TrainingDto> TrainEndurance();
 
-        Task<TrainingResultDto> TrainDribbling();
+        Task<TrainingDto> TrainDribbling();
 
-        Task<TrainingResultDto> TrainCoverage();
+        Task<TrainingDto> TrainCoverage();
 
         Task FinishTraining();
     }

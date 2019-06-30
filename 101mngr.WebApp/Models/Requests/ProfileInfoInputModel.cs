@@ -1,5 +1,5 @@
 ﻿using System;
-using _101mngr.Contracts.Enums;
+using _101mngr.Domain.Enums;
 
 namespace _101mngr.WebApp.Models.Requests
 {

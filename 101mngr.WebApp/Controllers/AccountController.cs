@@ -84,7 +84,7 @@ namespace _101mngr.WebApp.Controllers
                     inputModel.LastName,
                     inputModel.DateOfBirth,
                     inputModel.CountryCode,
-                    inputModel.PlayerType,
+                    (int)inputModel.PlayerType,
                     inputModel.Weight,
                     inputModel.Height
                 );
@@ -119,8 +119,6 @@ namespace _101mngr.WebApp.Controllers
             var playerGrain = _clusterClient.GetGrain<IPlayerGrain>(accountId);
             var playerData = await playerGrain.GetPlayerInfo();
             return Ok(playerData);
-            //var userInfo = await _authorizationService.GetUserInfo(accountId);
-            //return Content(userInfo, "application/json");
         }
 
         [AllowAnonymous]

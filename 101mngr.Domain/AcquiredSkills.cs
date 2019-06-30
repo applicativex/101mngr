@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using _101mngr.Domain.Events;
 
-namespace _101mngr.Grains
+namespace _101mngr.Domain
 {
     public class AcquiredSkills
     {
@@ -31,23 +30,6 @@ namespace _101mngr.Grains
             Endurance += acquiredSkillsChanged.EnduranceDelta;
             HittingPower += acquiredSkillsChanged.HittingPowerDelta;
             HittingAccuracy += acquiredSkillsChanged.HittingAccuracyDelta;
-        }
-    }
-
-    public class PlayerTest
-    {
-        public static void Test()
-        {
-            //tackle
-            //    coverage
-            //dribbling
-            //    receiving
-            //endurance
-            //    passing
-            //hitting power
-            //hitting accuracy
-
-
         }
     }
 }

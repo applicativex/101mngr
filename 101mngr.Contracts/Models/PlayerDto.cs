@@ -1,5 +1,4 @@
 ﻿using System;
-using _101mngr.Contracts.Enums;
 
 namespace _101mngr.Contracts.Models
 {
@@ -19,9 +18,7 @@ namespace _101mngr.Contracts.Models
 
         public double Weight { get; set; }
 
-        public PlayerType PlayerType { get; set; }
-
-        public int Level { get; set; }
+        public int PlayerType { get; set; }
 
         public AcquiredSkillsDto AcquiredSkills { get; set; }   
     }

@@ -1,11 +1,11 @@
 ﻿namespace _101mngr.Contracts.Models
 {
-    public class TrainingResultDto
+    public class TrainingDto
     {
         public int TackleDelta { get; set; }
 
         public int CoverageDelta { get; set; }
-            
+                
         public int DribblingDelta { get; set; }
 
         public int ReceivingDelta { get; set; }

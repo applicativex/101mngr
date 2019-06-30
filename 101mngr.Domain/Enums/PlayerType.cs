@@ -1,4 +1,4 @@
-﻿namespace _101mngr.Contracts.Enums
+﻿namespace _101mngr.Domain.Enums
 {
     public enum PlayerType
     {

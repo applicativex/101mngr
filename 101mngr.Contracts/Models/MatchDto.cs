@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using _101mngr.Contracts.Enums;
 
 namespace _101mngr.Contracts.Models
 {
@@ -14,7 +13,7 @@ namespace _101mngr.Contracts.Models
 
         public int Minute { get; set; }
 
-        public MatchPeriod MatchPeriod { get; set; }
+        public int MatchPeriod { get; set; }
 
         public ScoreDto Goals { get; set; }
 
@@ -53,6 +52,6 @@ namespace _101mngr.Contracts.Models
 
         public bool Bench { get; set; }
 
-        public PlayerType PlayerType { get; set; }
+        public int PlayerType { get; set; }
     }
 }

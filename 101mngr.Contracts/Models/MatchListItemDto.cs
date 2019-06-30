@@ -14,7 +14,7 @@ namespace _101mngr.Contracts.Models
 
         public int Minute { get; set; }
 
-        public MatchPeriod MatchPeriod { get; set; }
+        public int MatchPeriod { get; set; }
 
         public TeamDto HomeTeam { get; set; }
 

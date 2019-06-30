@@ -6,6 +6,8 @@ using Orleans;
 using Orleans.Streams;
 using _101mngr.Contracts;
 using _101mngr.Contracts.Models;
+using _101mngr.Domain;
+using _101mngr.Domain.Enums;
 
 namespace _101mngr.Grains
 {
@@ -81,15 +83,15 @@ namespace _101mngr.Grains
             {
                 var matchListEventType = MatchListEventType.None;
 
-                if (matchEventDto.MatchEventType == MatchEventType.Goal)
+                if ((MatchEventType)matchEventDto.MatchEventType == MatchEventType.Goal)
                 {
                     matchItem.Goal(matchEventDto.Home.GetValueOrDefault());
                     matchListEventType = MatchListEventType.MatchGoal;
                 }
 
-                if (matchEventDto.MatchEventType == MatchEventType.Time)
+                if ((MatchEventType)matchEventDto.MatchEventType == MatchEventType.Time)
                 {
-                    matchItem.Time(matchEventDto.MatchPeriod, matchEventDto.Minute);
+                    matchItem.Time((MatchPeriod)matchEventDto.MatchPeriod, matchEventDto.Minute);
                     matchListEventType = MatchListEventType.MatchTime;
                 }
 
@@ -111,7 +113,7 @@ namespace _101mngr.Grains
                 Id = matchItem.MatchId,
                 Name = $"{matchItem.HomeTeam.Name} - {matchItem.AwayTeam.Name}",
                 Minute = matchItem.Minute,
-                MatchPeriod = matchItem.MatchPeriod,
+                MatchPeriod = (int)matchItem.MatchPeriod,
                 MatchListEventType = eventType,
                 HomeTeam = new TeamDto
                 {

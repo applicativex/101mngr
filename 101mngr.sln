@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "101mngr.Grains", "101mngr.G
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "101mngr.Contracts", "101mngr.Contracts\101mngr.Contracts.csproj", "{AE4A7881-1CE2-4852-8A39-4FCAA58E729C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "101mngr.Leagues", "101mngr.Leagues\101mngr.Leagues.csproj", "{2398E48C-C513-451E-BE9A-0036E11F3853}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "101mngr.Leagues", "101mngr.Leagues\101mngr.Leagues.csproj", "{2398E48C-C513-451E-BE9A-0036E11F3853}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "101mngr.Domain", "101mngr.Domain\101mngr.Domain.csproj", "{302E145F-AED9-42B7-94B0-D2E439D43DC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{2398E48C-C513-451E-BE9A-0036E11F3853}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2398E48C-C513-451E-BE9A-0036E11F3853}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2398E48C-C513-451E-BE9A-0036E11F3853}.Release|Any CPU.Build.0 = Release|Any CPU
+		{302E145F-AED9-42B7-94B0-D2E439D43DC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{302E145F-AED9-42B7-94B0-D2E439D43DC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{302E145F-AED9-42B7-94B0-D2E439D43DC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{302E145F-AED9-42B7-94B0-D2E439D43DC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-﻿namespace _101mngr.Contracts
+﻿namespace _101mngr.Domain.Enums
 {
     public enum MatchEventType
     {

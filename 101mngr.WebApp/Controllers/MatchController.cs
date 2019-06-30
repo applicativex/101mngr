@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Orleans;
 using _101mngr.Contracts;
 using Microsoft.AspNetCore.Authorization;
-using _101mngr.Contracts.Enums;
+using _101mngr.Domain.Enums;
 using _101mngr.WebApp.Hubs;
 
 namespace _101mngr.WebApp.Controllers

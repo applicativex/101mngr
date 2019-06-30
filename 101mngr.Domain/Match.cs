@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using _101mngr.Contracts;
-using _101mngr.Contracts.Models;
+using _101mngr.Domain.Enums;
+using _101mngr.Domain.Events;
 
-namespace _101mngr.Grains
+namespace _101mngr.Domain
 {
-    public class MatchState
+    public class Match
     {
-        public MatchState()
+        public Match()
         {
             Goals = new Score();
             YellowCards = new Score();
@@ -40,28 +40,6 @@ namespace _101mngr.Grains
 
         public List<IMatchEvent> MatchEvents { get; set; }
 
-        public MatchDto ToDto()
-        {
-            return new MatchDto
-            {
-                Id = Id,
-                Name = Name,
-                StartTime = StartTime,
-                Minute = Minute,
-                MatchPeriod = MatchPeriod,
-                Goals = Goals.ToDto(),
-                YellowCards = YellowCards.ToDto(),
-                RedCards = RedCards.ToDto(),
-                HomeTeam = HomeTeam.ToDto(),
-                AwayTeam = AwayTeam.ToDto(),
-                MatchEvents = MatchEvents
-                    .Select(x => x.ToDto())
-                    .OrderByDescending(x => x.MatchPeriod)
-                    .ThenByDescending(x => x.Minute)
-                    .ToList()
-            };
-        }
-
         public void Apply(GoalEvent @event)
         {
             Goals = @event.Home ? Goals.HomeIncrement() : Goals.AwayIncrement();
@@ -89,8 +67,11 @@ namespace _101mngr.Grains
             {
                 var player = HomeTeam.Players.SingleOrDefault(x => x.Id == playerId);
                 var substitutionPlayer = HomeTeam.Players.SingleOrDefault(x => x.Id == substitutionPlayerId);
-                player.Bench = true;
-                substitutionPlayer.Bench = false;
+                if (substitutionPlayer != null)
+                {
+                    player.Bench = true;
+                    substitutionPlayer.Bench = false;
+                }
             }
             else
             {
@@ -112,58 +93,5 @@ namespace _101mngr.Grains
                 MatchEvents.Add(@event);
             }
         }
-    }
-
-    public class GoalEvent : IMatchEvent
-    {
-        public string Id { get; set; }
-        public MatchPeriod MatchPeriod { get; set; }
-        public int Minute { get; set; }
-        public bool Home { get; set; }
-        public string PlayerId { get; set; }
-    }
-
-    public class YellowCardEvent : IMatchEvent
-    {
-        public string Id { get; set; }
-        public MatchPeriod MatchPeriod { get; set; }
-        public int Minute { get; set; }
-        public bool Home { get; set; }
-        public string PlayerId { get; set; }
-    }
-
-    public class RedCardEvent : IMatchEvent
-    {
-        public string Id { get; set; }
-        public MatchPeriod MatchPeriod { get; set; }
-        public int Minute { get; set; }
-        public bool Home { get; set; }
-        public string PlayerId { get; set; }
-    }
-
-    public class SubstitutionEvent : IMatchEvent
-    {
-        public string Id { get; set; }
-        public MatchPeriod MatchPeriod { get; set; }
-        public int Minute { get; set; }
-        public bool Home { get; set; }
-        public string PlayerId { get; set; }
-        public string SubstitutionPlayerId { get; set; }
-    }
-
-    public class TimeEvent : IMatchEvent
-    {
-        public string Id { get; set; }
-        public MatchPeriod MatchPeriod { get; set; }
-        public int Minute { get; set; }
-    }
-
-    public interface IMatchEvent
-    {
-        string Id { get; set; }  
-
-        MatchPeriod MatchPeriod { get; set; }
-
-        int Minute { get; set; }
     }
 }
